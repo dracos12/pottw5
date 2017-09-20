@@ -12,6 +12,41 @@ export default class theSea
 
     private loadCallback:Function;
 
+    // pixi style event handler, not the same arguments as javascript mouse event
+    mouseMoveHandler = (e:any) => {
+        //document.getElementById("log").innerText = e.type;
+        //console.log(e);
+
+        // console.log(this);
+
+        if (e.data.buttons == 1) // left button is down 
+        {
+            //console.log("LeftDown");
+            var doDelta = true;
+            if (this.lastX == -1)
+                doDelta = false;
+
+            if (doDelta)
+            {
+                this.deltaX = e.data.global.x - this.lastX;
+                this.deltaY = e.data.global.y - this.lastY;
+                //console.log(this.deltaX + "," + this.deltaY);
+            }
+
+            //console.log(e);
+            //console.log(e.data.global.x + "," + e.data.global.y);
+            this.lastX = e.data.global.x;
+            this.lastY = e.data.global.y;
+        }
+        else // button is up
+        {
+            this.deltaX = 0;
+            this.deltaY = 0;
+            this.lastX = -1;
+            this.lastY = -1;
+        }
+    }
+    
     // when done loading, arrange the sea tiles on theSea container
     setup = () => {
         let map1 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_002.png"].texture);
@@ -61,7 +96,7 @@ export default class theSea
         this.container.addChild(map13);
         this.container.addChild(map14);
 
-        this.container.scale.x = this.container.scale.y = 0.10;
+        this.container.scale.x = this.container.scale.y = 0.25;
 
         this.loadCallback();
 
@@ -96,6 +131,17 @@ export default class theSea
     public getContainer()
     {
         return this.container;
+    }
+
+    public update()
+    {
+        this.container.x += this.deltaX;
+        this.container.y += this.deltaY;
+
+        this.deltaX = 0;
+        this.deltaY = 0; // clear the data, await next mousemove
+
+        // console.log(this.deltaX + "," + this.deltaY);
     }
 
 }

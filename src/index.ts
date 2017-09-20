@@ -18,13 +18,20 @@ export default class Core {
 
     private seaLoadedCallback = () =>
     {
+        // add listener to the stage - stage declared in main, top level js file
+        console.log("PotTW: build 0.0.10");
+        this._world.interactive = true;
+        this._world.on("mousemove", this._sea.mouseMoveHandler);
+
         this._world.addChild(this._sea.getContainer());
         this.update();
     }
 
     public update = () => 
     {
-        
+
+        this._sea.update();
+
         this._renderer.render(this._world);
 
         requestAnimationFrame(this.update);

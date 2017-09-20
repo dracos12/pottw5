@@ -83,10 +83,15 @@ var Core = /** @class */function () {
     function Core() {
         var _this = this;
         this.seaLoadedCallback = function () {
+            // add listener to the stage - stage declared in main, top level js file
+            console.log("PotTW: build 0.0.10");
+            _this._world.interactive = true;
+            _this._world.on("mousemove", _this._sea.mouseMoveHandler);
             _this._world.addChild(_this._sea.getContainer());
             _this.update();
         };
         this.update = function () {
+            _this._sea.update();
             _this._renderer.render(_this._world);
             requestAnimationFrame(_this.update);
         };
@@ -119,6 +124,31 @@ var theSea = /** @class */function () {
         this.deltaY = 0;
         this.lastX = -1;
         this.lastY = -1;
+        // pixi style event handler, not the same arguments as javascript mouse event
+        this.mouseMoveHandler = function (e) {
+            //document.getElementById("log").innerText = e.type;
+            //console.log(e);
+            // console.log(this);
+            if (e.data.buttons == 1) {
+                //console.log("LeftDown");
+                var doDelta = true;
+                if (_this.lastX == -1) doDelta = false;
+                if (doDelta) {
+                    _this.deltaX = e.data.global.x - _this.lastX;
+                    _this.deltaY = e.data.global.y - _this.lastY;
+                    //console.log(this.deltaX + "," + this.deltaY);
+                }
+                //console.log(e);
+                //console.log(e.data.global.x + "," + e.data.global.y);
+                _this.lastX = e.data.global.x;
+                _this.lastY = e.data.global.y;
+            } else {
+                _this.deltaX = 0;
+                _this.deltaY = 0;
+                _this.lastX = -1;
+                _this.lastY = -1;
+            }
+        };
         // when done loading, arrange the sea tiles on theSea container
         this.setup = function () {
             var map1 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_002.png"].texture);
@@ -179,7 +209,7 @@ var theSea = /** @class */function () {
             _this.container.addChild(map12);
             _this.container.addChild(map13);
             _this.container.addChild(map14);
-            _this.container.scale.x = _this.container.scale.y = 0.10;
+            _this.container.scale.x = _this.container.scale.y = 0.25;
             _this.loadCallback();
         };
     }
@@ -192,6 +222,13 @@ var theSea = /** @class */function () {
     };
     theSea.prototype.getContainer = function () {
         return this.container;
+    };
+    theSea.prototype.update = function () {
+        this.container.x += this.deltaX;
+        this.container.y += this.deltaY;
+        this.deltaX = 0;
+        this.deltaY = 0; // clear the data, await next mousemove
+        // console.log(this.deltaX + "," + this.deltaY);
     };
     return theSea;
 }();
