@@ -72,25 +72,24 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(1);
-var renderer = PIXI.autoDetectRenderer(800, 600, { backgroundColor: 0x1099bb });
-document.body.appendChild(renderer.view);
-var stage = new PIXI.Container();
-// var texture = PIXI.Texture.fromImage('bunny.png');
-// var bunny = new PIXI.Sprite(texture);
-// bunny.anchor.x = 0.5;
-// bunny.anchor.y = 0.5;
-// bunny.position.x = 400;
-// bunny.position.y = 300;
-// bunny.scale.x = 2;
-// bunny.scale.y = 2;
-// stage.addChild(bunny);
-animate();
-function animate() {
-    requestAnimationFrame(animate);
-    var bunny = stage.getChildAt(0);
-    bunny.rotation += 0.01;
-    renderer.render(stage);
-}
+var Core = /** @class */function () {
+    function Core() {
+        var _this = this;
+        this.update = function () {
+            _this._renderer.render(_this._world);
+            requestAnimationFrame(_this.update);
+        };
+        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
+        this._world = new PIXI.Container();
+        document.body.appendChild(this._renderer.view);
+        var map1 = new PIXI.Sprite(PIXI.Texture.fromImage('images/4x4Region1/image_part_007.png'));
+        this._world.addChild(map1);
+        this.update();
+    }
+    return Core;
+}();
+exports.default = Core;
+var game = new Core();
 
 /***/ }),
 /* 1 */

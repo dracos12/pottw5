@@ -1,23 +1,24 @@
 import * as PIXI from 'pixi.js';
 
-var renderer = PIXI.autoDetectRenderer(800, 600, {backgroundColor: 0x1099bb});
-document.body.appendChild(renderer.view);
+export default class Core {
+    private _renderer:PIXI.CanvasRenderer|PIXI.WebGLRenderer;
+    private _world:PIXI.Container;
 
-var stage = new PIXI.Container();
-// var texture = PIXI.Texture.fromImage('bunny.png');
-// var bunny = new PIXI.Sprite(texture);
-// bunny.anchor.x = 0.5;
-// bunny.anchor.y = 0.5;
-// bunny.position.x = 400;
-// bunny.position.y = 300;
-// bunny.scale.x = 2;
-// bunny.scale.y = 2;
-// stage.addChild(bunny);
-animate();
+    constructor() {
+        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
+        this._world = new PIXI.Container();
+        document.body.appendChild(this._renderer.view);
+        let map1:PIXI.Sprite = new PIXI.Sprite(PIXI.Texture.fromImage('images/4x4Region1/image_part_007.png'));
+        this._world.addChild(map1);
+        this.update();
+    }
 
-function animate() {
-    requestAnimationFrame(animate);
-    var bunny = stage.getChildAt(0);
-    bunny.rotation += 0.01;
-    renderer.render(stage);
+    public update = () => {
+        
+        this._renderer.render(this._world);
+
+        requestAnimationFrame(this.update);
+    }
 }
+
+let game = new Core();
