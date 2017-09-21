@@ -1,0 +1,140 @@
+{"frames": {
+
+"barbuda.png":
+{
+	"frame": {"x":1,"y":826,"w":312,"h":270},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":312,"h":270},
+	"sourceSize": {"w":312,"h":270}
+},
+"desirade.png":
+{
+	"frame": {"x":547,"y":963,"w":217,"h":101},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":217,"h":101},
+	"sourceSize": {"w":217,"h":101}
+},
+"eustatius.png":
+{
+	"frame": {"x":804,"y":830,"w":119,"h":75},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":119,"h":75},
+	"sourceSize": {"w":119,"h":75}
+},
+"galante.png":
+{
+	"frame": {"x":547,"y":787,"w":255,"h":174},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":255,"h":174},
+	"sourceSize": {"w":255,"h":174}
+},
+"guadelupe.png":
+{
+	"frame": {"x":1,"y":1,"w":945,"h":403},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":945,"h":403},
+	"sourceSize": {"w":945,"h":403}
+},
+"haut.png":
+{
+	"frame": {"x":796,"y":611,"w":115,"h":119},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":115,"h":119},
+	"sourceSize": {"w":115,"h":119}
+},
+"montserrat.png":
+{
+	"frame": {"x":741,"y":1066,"w":199,"h":169},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":199,"h":169},
+	"sourceSize": {"w":199,"h":169}
+},
+"nevis.png":
+{
+	"frame": {"x":531,"y":1066,"w":208,"h":123},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":208,"h":123},
+	"sourceSize": {"w":208,"h":123}
+},
+"redonda.png":
+{
+	"frame": {"x":804,"y":907,"w":110,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":110,"h":72},
+	"sourceSize": {"w":110,"h":72}
+},
+"roseau.png":
+{
+	"frame": {"x":1,"y":406,"w":535,"h":418},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":535,"h":418},
+	"sourceSize": {"w":535,"h":418}
+},
+"sabaisland.png":
+{
+	"frame": {"x":804,"y":732,"w":117,"h":96},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":117,"h":96},
+	"sourceSize": {"w":117,"h":96}
+},
+"saintes.png":
+{
+	"frame": {"x":315,"y":1063,"w":214,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":214,"h":115},
+	"sourceSize": {"w":214,"h":115}
+},
+"stbarth.png":
+{
+	"frame": {"x":538,"y":611,"w":256,"h":174},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":174},
+	"sourceSize": {"w":256,"h":174}
+},
+"stchristopher.png":
+{
+	"frame": {"x":315,"y":826,"w":230,"h":235},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":230,"h":235},
+	"sourceSize": {"w":230,"h":235}
+},
+"stjohns.png":
+{
+	"frame": {"x":538,"y":406,"w":360,"h":203},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":203},
+	"sourceSize": {"w":360,"h":203}
+},
+"stmartin.png":
+{
+	"frame": {"x":1,"y":1098,"w":227,"h":153},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":227,"h":153},
+	"sourceSize": {"w":227,"h":153}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "region1atlas.png",
+	"format": "RGBA8888",
+	"size": {"w":947,"h":1252},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:355689bccf249e7f9ccec4b8a88539b1:406d2c68224717cdc05c637e93e05c83:ce287cef4fd63d5d416db087525758ad$"
+}
+}
