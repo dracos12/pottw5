@@ -1,5 +1,7 @@
 
 import * as PIXI from 'pixi.js';
+import GameObject from './gameobject';
+import Island from './island';
 
 export default class theSea 
 {
@@ -11,6 +13,8 @@ export default class theSea
     private lastY:number = -1;
 
     private loadCallback:Function;
+
+    private objectArray: Array<GameObject> = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
 
     // pixi style event handler, not the same arguments as javascript mouse event
     mouseMoveHandler = (e:any) => {
@@ -98,8 +102,8 @@ export default class theSea
 
         this.container.scale.x = this.container.scale.y = 0.25;
 
-        this.loadCallback();
-
+        this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
+    
     }
 
     init(callback: Function)
@@ -120,12 +124,67 @@ export default class theSea
             .add("images/4x4Region1/image_part_013.png")
             .add("images/4x4Region1/image_part_014.png")
             .add("images/4x4Region1/image_part_015.png")
+            .add("images/islands/region1atlas.json")        // loader automagically loads all the textures in this atlas
             .load(this.setup);
 
         this.loadCallback = callback;
-    
-        // add listener to the stage - stage declared in main, top level js file
-        //PIXI.stage.on("mousemove", this.mouseMoveHandler);
+    }
+
+    private loadRegion(regionName: string = "region1") 
+    {
+        // load the region1 background sea tiles
+
+        // load the region1 islands
+
+        // load the island game data 
+        this.loadJSON("./data/region1isles.json", this.onIslesLoaded)
+
+        // islands are stored in a pool of sprites
+    }
+
+    private onIslesLoaded = (responseText:string) => 
+    {
+        var json_data = JSON.parse(responseText);
+        console.log(json_data);
+        console.log(PIXI.loader.resources);
+
+        // run through all entries in the json
+        for (var key in json_data) {
+            if (json_data.hasOwnProperty(key)) {
+                // create a sprite for each
+                let isle = new Island();
+                let sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
+                
+                // position the sprite according to the data
+                sprite.x = json_data[key].x;
+                sprite.y = json_data[key].y;
+
+                // add sprite tgo the isle, this container, and the tracked object array
+                isle.setSprite(sprite);
+                this.container.addChild(sprite);
+                this.objectArray.push(isle);
+
+                console.log("Adding " + key + " to theSea");
+            }
+        }
+
+
+        // final step in loading process.. can now call loadcallback
+        this.loadCallback();
+    }
+
+    private loadJSON(jsonFile:string, callback:Function) 
+    {
+        var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+        xobj.open('GET', './data/region1isles.json', true); // Replace 'my_data' with the path to your file
+        xobj.onreadystatechange = function () {
+            if (xobj.readyState == 4 && xobj.status == 200) {
+                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                callback(xobj.responseText);
+            }
+        };
+        xobj.send(null);  
     }
 
     public getContainer()

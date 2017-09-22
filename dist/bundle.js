@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -77,8 +77,40 @@ module.exports = PIXI;
 
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var ObjectType;
+(function (ObjectType) {
+    ObjectType[ObjectType["NONE"] = 0] = "NONE";
+    ObjectType[ObjectType["ISLAND"] = 1] = "ISLAND";
+    ObjectType[ObjectType["SHIP"] = 2] = "SHIP";
+})(ObjectType = exports.ObjectType || (exports.ObjectType = {}));
+var GameObject = /** @class */function () {
+    function GameObject() {
+        // the game object's sprite keeps positional information  x,y
+        this.vx = 0; // velocity information
+        this.vy = 0;
+        this.z = 0; // z-sorting if necessary... z sort normally done by y position
+        this.objType = ObjectType.NONE;
+    }
+    GameObject.prototype.setSprite = function (newSprite) {
+        this.sprite = newSprite;
+    };
+    GameObject.prototype.getSprite = function () {
+        return this.sprite;
+    };
+    return GameObject;
+}();
+exports.default = GameObject;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var theSea_1 = __webpack_require__(2);
+var theSea_1 = __webpack_require__(3);
 var Core = /** @class */function () {
     function Core() {
         var _this = this;
@@ -108,7 +140,7 @@ exports.default = Core;
 var game = new Core();
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -116,6 +148,7 @@ var game = new Core();
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
+var island_1 = __webpack_require__(4);
 var theSea = /** @class */function () {
     function theSea() {
         var _this = this;
@@ -124,6 +157,7 @@ var theSea = /** @class */function () {
         this.deltaY = 0;
         this.lastX = -1;
         this.lastY = -1;
+        this.objectArray = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
         // pixi style event handler, not the same arguments as javascript mouse event
         this.mouseMoveHandler = function (e) {
             //document.getElementById("log").innerText = e.type;
@@ -210,15 +244,59 @@ var theSea = /** @class */function () {
             _this.container.addChild(map13);
             _this.container.addChild(map14);
             _this.container.scale.x = _this.container.scale.y = 0.25;
+            _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
+        };
+        this.onIslesLoaded = function (responseText) {
+            var json_data = JSON.parse(responseText);
+            console.log(json_data);
+            console.log(PIXI.loader.resources);
+            // run through all entries in the json
+            for (var key in json_data) {
+                if (json_data.hasOwnProperty(key)) {
+                    // create a sprite for each
+                    var isle = new island_1.default();
+                    var sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
+                    // position the sprite according to the data
+                    sprite.x = json_data[key].x;
+                    sprite.y = json_data[key].y;
+                    // add sprite tgo the isle, this container, and the tracked object array
+                    isle.setSprite(sprite);
+                    _this.container.addChild(sprite);
+                    _this.objectArray.push(isle);
+                    console.log("Adding " + key + " to theSea");
+                }
+            }
+            // final step in loading process.. can now call loadcallback
             _this.loadCallback();
         };
     }
     theSea.prototype.init = function (callback) {
         // load our background sea tiles
-        PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").load(this.setup);
+        PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
+        .load(this.setup);
         this.loadCallback = callback;
-        // add listener to the stage - stage declared in main, top level js file
-        //PIXI.stage.on("mousemove", this.mouseMoveHandler);
+    };
+    theSea.prototype.loadRegion = function (regionName) {
+        // load the region1 background sea tiles
+        if (regionName === void 0) {
+            regionName = "region1";
+        }
+        // load the region1 islands
+        // load the island game data 
+        this.loadJSON("./data/region1isles.json", this.onIslesLoaded);
+        // islands are stored in a pool of sprites
+    };
+    theSea.prototype.loadJSON = function (jsonFile, callback) {
+        var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+        xobj.open('GET', './data/region1isles.json', true); // Replace 'my_data' with the path to your file
+        xobj.onreadystatechange = function () {
+            if (xobj.readyState == 4 && xobj.status == 200) {
+                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                callback(xobj.responseText);
+            }
+        };
+        xobj.send(null);
     };
     theSea.prototype.getContainer = function () {
         return this.container;
@@ -233,6 +311,41 @@ var theSea = /** @class */function () {
     return theSea;
 }();
 exports.default = theSea;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var gameobject_1 = __webpack_require__(1);
+var gameobject_2 = __webpack_require__(1);
+var Island = /** @class */function (_super) {
+    __extends(Island, _super);
+    function Island() {
+        var _this = _super.call(this) || this;
+        _this.objType = gameobject_2.ObjectType.ISLAND;
+        return _this;
+    }
+    return Island;
+}(gameobject_1.default);
+exports.default = Island;
 
 /***/ })
 /******/ ]);

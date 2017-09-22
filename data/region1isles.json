@@ -1,102 +1,96 @@
 {
     "roseau": {
-        "fileName": "images/islands/roseau.png",
+        "fileName": "roseau.png",
         "x": 5307,
         "y": 3386,
         "polygonPts": [ 10, 15, 20, 30]
     },
     "saintes": {
-        "fileName": "images/islands/saintes.png",
+        "fileName": "saintes.png",
         "x": 5576,
         "y": 3237,
         "polygonPts": [ 10, 15, 20, 30]
     },
     "galante": {
-        "fileName": "images/islands/galante.png",
+        "fileName": "galante.png",
         "x": 5966,
         "y": 3305,
         "polygonPts": [ 10, 15, 20, 30]
     },
     "haut": {
-        "fileName": "images/islands/haut.png",
+        "fileName": "haut.png",
         "x": 6473,
         "y": 3299,
         "polygonPts": [ 10, 15, 20, 30]
     },
     "guadelupe": {
-        "fileName": "images/islands/guadelupe.png",
+        "fileName": "guadelupe.png",
         "x": 5609,
         "y": 2875,
         "polygonPts": [ 10, 15, 20, 30]
     },
     "desirade": {
-        "filename": "images/islands/desirade.png",
+        "fileName": "desirade.png",
         "x": 6647,
         "y": 3234,
         "polygonPts": [10, 15, 20, 30]
     },
     "montserrat": {
-        "filename": "images/islands/montserrat.png",
+        "fileName": "montserrat.png",
         "x": 5887,
         "y": 2484,
         "polygonPts": [10, 15, 20, 30]
     },
     "redonda": {
-        "filename": "images/islands/redonda.png",
+        "fileName": "redonda.png",
         "x": 5807,
         "y": 2371,
         "polygonPts": [10, 15, 20, 30]
     },
     "stjohns": {
-        "filename": "images/islands/stjohns.png",
-        "x": 6487,
-        "y": 2457,
-        "polygonPts": [10, 15, 20, 30]
-    },
-    "stjohns": {
-        "filename": "images/islands/stjohns.png",
+        "fileName": "stjohns.png",
         "x": 6487,
         "y": 2457,
         "polygonPts": [10, 15, 20, 30]
     },
     "barbuda": {
-        "filename": "images/islands/barbuda.png",
+        "fileName": "barbuda.png",
         "x": 7061,
         "y": 2111,
         "polygonPts": [10, 15, 20, 30]
     },
     "nevis": {
-        "filename": "images/islands/nevis.png",
+        "fileName": "nevis.png",
         "x": 5809,
         "y": 2081,
         "polygonPts": [10, 15, 20, 30]
     },
     "stchristopher": {
-        "filename": "images/islands/stchristopher.png",
+        "fileName": "stchristopher.png",
         "x": 5790,
         "y": 1862,
         "polygonPts": [10, 15, 20, 30]
     },
     "eustatius": {
-        "filename": "images/islands/eustatius.png",
+        "fileName": "eustatius.png",
         "x": 5807,
         "y": 1754,
         "polygonPts": [10, 15, 20, 30]
     },
     "sabaisland": {
-        "filename": "images/islands/sabaisland.png",
+        "fileName": "sabaisland.png",
         "x": 5688,
         "y": 1541,
         "polygonPts": [10, 15, 20, 30]
     }, 
     "stbarth": {
-        "filename": "images/islands/stbarth.png",
+        "fileName": "stbarth.png",
         "x": 6270,
         "y": 1529,
         "polygonPts": [10, 15, 20, 30]
     },
     "stmartin": {
-        "filename": "images/islands/stmartin.png",
+        "fileName": "stmartin.png",
         "x": 6179,
         "y": 1325,
         "polygonPts": [10, 15, 20, 30]
