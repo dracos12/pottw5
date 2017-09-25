@@ -119,6 +119,8 @@ var Core = /** @class */function () {
             console.log("PotTW: build 0.0.10");
             _this._world.interactive = true;
             _this._world.on("mousemove", _this._sea.mouseMoveHandler);
+            //mousewheel not part of Pixi so add the event to the DOM
+            document.body.addEventListener("wheel", _this._sea.mouseWheelHandler, false);
             _this._world.addChild(_this._sea.getContainer());
             _this.update();
         };
@@ -127,7 +129,7 @@ var Core = /** @class */function () {
             _this._renderer.render(_this._world);
             requestAnimationFrame(_this.update);
         };
-        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
+        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { backgroundColor: 0x7BA4DF });
         this._world = new PIXI.Container();
         document.body.appendChild(this._renderer.view);
         // create a new sea object
@@ -158,11 +160,47 @@ var theSea = /** @class */function () {
         this.lastX = -1;
         this.lastY = -1;
         this.objectArray = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
+        this.wheelScale = 0.25;
+        // javascript style mouse wheel handler, pixi does not support mouse wheel
+        this.mouseWheelHandler = function (e) {
+            //console.log(e);
+            if (e.wheelDelta > 0) {
+                _this.wheelScale += 0.05;
+                if (_this.wheelScale > 2.0) _this.wheelScale = 2.0;
+                //console.log("wheel in");
+            } else {
+                _this.wheelScale -= 0.05;
+                if (_this.wheelScale < 0.10) _this.wheelScale = 0.10;
+                //console.log("wheel out");
+            }
+            var pos = new PIXI.Point(e.clientX, e.clientY);
+            var preZoomWorld = _this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);  
+            //
+            // perform the scale to the container
+            //
+            _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
+            // console.log("scale: " + this.wheelScale.toFixed(2) + 
+            //             " pos: " + this.container.x.toFixed(2) + "," + this.container.y.toFixed(2) + " " + 
+            //             "w: " + this.container.width.toFixed(2) + 
+            //             " h: " + this.container.height.toFixed(2) +
+            //             " mouse: " + e.clientX + "," + e.clientY
+            //             );
+            //where is the zoom location now, after we changed the scale?
+            var postZoomWorld = _this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);
+            //console.log("pre: " + preZoomWorld.x + "," + preZoomWorld.y + " post: " + postZoomWorld.x + "," + postZoomWorld.y);
+            var preZoomGlobal = _this.container.toGlobal(preZoomWorld);
+            var postZoomGlobal = _this.container.toGlobal(postZoomWorld);
+            //move the world so that the zoomed-location goes back to where it was on the screen before scaling        
+            _this.container.x += postZoomGlobal.x - preZoomGlobal.x;
+            _this.container.y += postZoomGlobal.y - preZoomGlobal.y;
+        };
         // pixi style event handler, not the same arguments as javascript mouse event
         this.mouseMoveHandler = function (e) {
             //document.getElementById("log").innerText = e.type;
-            //console.log(e);
+            //console.log("G: " +e.data.global.x + "," + e.data.global.y);
+            //console.log("mouseMoved");
             // console.log(this);
+            // console.log("L: " + this.container.toLocal(e.data.global).x + ", " + this.container.toLocal(e.data.global).y);
             if (e.data.buttons == 1) {
                 //console.log("LeftDown");
                 var doDelta = true;
@@ -243,7 +281,7 @@ var theSea = /** @class */function () {
             _this.container.addChild(map12);
             _this.container.addChild(map13);
             _this.container.addChild(map14);
-            _this.container.scale.x = _this.container.scale.y = 0.25;
+            _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
             _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
         };
         this.onIslesLoaded = function (responseText) {
@@ -259,17 +297,31 @@ var theSea = /** @class */function () {
                     // position the sprite according to the data
                     sprite.x = json_data[key].x;
                     sprite.y = json_data[key].y;
+                    // tag each sprite with its name (the key)
+                    sprite.name = key;
                     // add sprite tgo the isle, this container, and the tracked object array
                     isle.setSprite(sprite);
                     _this.container.addChild(sprite);
                     _this.objectArray.push(isle);
-                    console.log("Adding " + key + " to theSea");
+                    console.log("Adding " + sprite.name + " to theSea");
                 }
             }
             // final step in loading process.. can now call loadcallback
             _this.loadCallback();
         };
     }
+    theSea.prototype.screenToWorld = function (screenX, screenY) {
+        var retPt = new PIXI.Point();
+        retPt.x = this.container.x + screenX / this.wheelScale;
+        retPt.y = this.container.y + screenY / this.wheelScale;
+        return retPt;
+    };
+    theSea.prototype.worldToScreen = function (worldX, worldY) {
+        var retPt = new PIXI.Point();
+        retPt.x = (worldX - this.container.x) * this.wheelScale;
+        retPt.y = (worldY - this.container.y) * this.wheelScale;
+        return retPt;
+    };
     theSea.prototype.init = function (callback) {
         // load our background sea tiles
         PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
@@ -304,6 +356,10 @@ var theSea = /** @class */function () {
     theSea.prototype.update = function () {
         this.container.x += this.deltaX;
         this.container.y += this.deltaY;
+        if (this.container.x > 0) this.container.x = 0;
+        if (this.container.y > 0) this.container.y = 0;
+        if (this.container.x < -(this.container.width - window.innerWidth)) this.container.x = -(this.container.width - window.innerWidth);
+        if (this.container.y < -(this.container.height - window.innerHeight)) this.container.y = -(this.container.height - window.innerHeight);
         this.deltaX = 0;
         this.deltaY = 0; // clear the data, await next mousemove
         // console.log(this.deltaX + "," + this.deltaY);

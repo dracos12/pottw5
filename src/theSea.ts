@@ -16,12 +16,75 @@ export default class theSea
 
     private objectArray: Array<GameObject> = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
 
+    private wheelScale = 0.25;
+
+    // javascript style mouse wheel handler, pixi does not support mouse wheel
+    mouseWheelHandler = (e:any) => {
+        //console.log(e);
+
+        if (e.wheelDelta > 0) { // scroll in
+            this.wheelScale += 0.05;
+            if (this.wheelScale > 2.0)
+                this.wheelScale = 2.0;
+            //console.log("wheel in");
+        } else { // scroll out
+            this.wheelScale -= 0.05;
+            if (this.wheelScale < 0.10)
+                this.wheelScale = 0.10;
+            //console.log("wheel out");
+        }
+
+        let pos = new PIXI.Point(e.clientX, e.clientY);
+        let preZoomWorld:PIXI.Point = this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);  
+        
+        //
+        // perform the scale to the container
+        //
+        this.container.scale.x = this.container.scale.y = this.wheelScale;
+        
+        // console.log("scale: " + this.wheelScale.toFixed(2) + 
+        //             " pos: " + this.container.x.toFixed(2) + "," + this.container.y.toFixed(2) + " " + 
+        //             "w: " + this.container.width.toFixed(2) + 
+        //             " h: " + this.container.height.toFixed(2) +
+        //             " mouse: " + e.clientX + "," + e.clientY
+        //             );
+
+        //where is the zoom location now, after we changed the scale?
+        let postZoomWorld = this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);
+        
+        //console.log("pre: " + preZoomWorld.x + "," + preZoomWorld.y + " post: " + postZoomWorld.x + "," + postZoomWorld.y);
+
+        let preZoomGlobal = this.container.toGlobal(preZoomWorld);
+        let postZoomGlobal = this.container.toGlobal(postZoomWorld);
+        
+        //move the world so that the zoomed-location goes back to where it was on the screen before scaling        
+        this.container.x += postZoomGlobal.x - preZoomGlobal.x ;   
+        this.container.y += postZoomGlobal.y - preZoomGlobal.y; 
+    }
+
+    private screenToWorld (screenX: number, screenY:number) 
+    {   
+        let retPt = new PIXI.Point();     
+        retPt.x = this.container.x + screenX / this.wheelScale;
+        retPt.y = this.container.y + screenY / this.wheelScale;
+        return retPt;   
+    }   
+    private worldToScreen (worldX: number, worldY:number) 
+    {   
+        let retPt = new PIXI.Point();                 
+        retPt.x = (worldX - this.container.x) * this.wheelScale;
+        retPt.y = (worldY - this.container.y) * this.wheelScale;
+        return retPt;
+    }             
+
     // pixi style event handler, not the same arguments as javascript mouse event
     mouseMoveHandler = (e:any) => {
         //document.getElementById("log").innerText = e.type;
-        //console.log(e);
-
+        //console.log("G: " +e.data.global.x + "," + e.data.global.y);
+        //console.log("mouseMoved");
         // console.log(this);
+
+       // console.log("L: " + this.container.toLocal(e.data.global).x + ", " + this.container.toLocal(e.data.global).y);
 
         if (e.data.buttons == 1) // left button is down 
         {
@@ -100,7 +163,7 @@ export default class theSea
         this.container.addChild(map13);
         this.container.addChild(map14);
 
-        this.container.scale.x = this.container.scale.y = 0.25;
+        this.container.scale.x = this.container.scale.y = this.wheelScale; 
 
         this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
     
@@ -153,18 +216,22 @@ export default class theSea
             if (json_data.hasOwnProperty(key)) {
                 // create a sprite for each
                 let isle = new Island();
+
                 let sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
                 
                 // position the sprite according to the data
                 sprite.x = json_data[key].x;
                 sprite.y = json_data[key].y;
 
+                // tag each sprite with its name (the key)
+                sprite.name = key;
+
                 // add sprite tgo the isle, this container, and the tracked object array
                 isle.setSprite(sprite);
                 this.container.addChild(sprite);
                 this.objectArray.push(isle);
 
-                console.log("Adding " + key + " to theSea");
+                console.log("Adding " + sprite.name + " to theSea");
             }
         }
 
@@ -196,6 +263,18 @@ export default class theSea
     {
         this.container.x += this.deltaX;
         this.container.y += this.deltaY;
+
+        if (this.container.x > 0)
+            this.container.x = 0;
+        
+        if (this.container.y > 0)
+            this.container.y = 0;
+
+        if (this.container.x < -(this.container.width - window.innerWidth))
+            this.container.x = -(this.container.width - window.innerWidth);
+
+        if (this.container.y < -(this.container.height - window.innerHeight))
+            this.container.y = -(this.container.height - window.innerHeight);
 
         this.deltaX = 0;
         this.deltaY = 0; // clear the data, await next mousemove
