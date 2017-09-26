@@ -91,6 +91,9 @@ var GameObject = /** @class */function () {
     GameObject.prototype.getSprite = function () {
         return this.sprite;
     };
+    GameObject.prototype.update = function () {
+        // NOP for base class functionality
+    };
     return GameObject;
 }();
 exports.default = GameObject;
@@ -285,6 +288,15 @@ var theSea = /** @class */function () {
             _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
             _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
         };
+        this.keyDownHandler = function (event) {
+            console.log("Pressed key: " + event.keyCode);
+            if (event.keyCode === 38) {
+                _this.selectedBoat.increaseSail();
+            } else if (event.keyCode === 40) {
+                _this.selectedBoat.decreaseSail();
+            }
+        };
+        this.keyUpHandler = function () {};
         this.onIslesLoaded = function (responseText) {
             var json_data = JSON.parse(responseText);
             console.log(json_data);
@@ -313,6 +325,7 @@ var theSea = /** @class */function () {
             boat.setPosition(6200, 2600);
             _this.container.addChild(boat.getSprite());
             _this.objectArray.push(boat);
+            _this.selectedBoat = boat;
             // final step in loading process.. can now call loadcallback
             _this.loadCallback();
         };
@@ -334,6 +347,9 @@ var theSea = /** @class */function () {
         PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
         .add("images/ships/corvette.json").load(this.setup);
         this.loadCallback = callback;
+        //Attach event listeners
+        window.addEventListener("keydown", this.keyDownHandler, false);
+        window.addEventListener("keyup", this.keyUpHandler, false);
     };
     theSea.prototype.loadRegion = function (regionName) {
         // load the region1 background sea tiles
@@ -370,6 +386,14 @@ var theSea = /** @class */function () {
         this.deltaX = 0;
         this.deltaY = 0; // clear the data, await next mousemove
         // console.log(this.deltaX + "," + this.deltaY);
+        this.updateObjectArray();
+    };
+    theSea.prototype.updateObjectArray = function () {
+        // loop through our object array and call each element's update function
+        for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
+            var gameObj = _a[_i];
+            gameObj.update();
+        }
     };
     return theSea;
 }();
@@ -450,10 +474,21 @@ var Ship = /** @class */function (_super) {
     __extends(Ship, _super);
     function Ship() {
         var _this = _super.call(this) || this;
+        _this.increaseSail = function () {
+            _this.sailState = 2; // no support for half sail as yet
+            _this.targetSpeed = 1; // ramp up to 60 pixels/sec speed is in pixels per frame
+            console.log("increasing sail Captain!");
+        };
+        _this.decreaseSail = function () {
+            _this.sailState = 0; // straight to no sails
+            _this.targetSpeed = 0; // ramp down to no velocity
+            console.log("Aye! Decreasing sail!");
+        };
         _this.objType = gameobject_2.ObjectType.SHIP;
         _this.shipType = ShipType.CORVETTE;
         _this.sailState = 0; // down
         _this.speed = 0;
+        _this.targetSpeed = 0;
         _this.heading = new Victor(1, 0); // east
         return _this;
     }
@@ -480,6 +515,7 @@ var Ship = /** @class */function (_super) {
             // replace our texture with the appropriate facing
             s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
             console.log("replacing texture with frame: " + frameNum);
+            this.usingFrame = frameNum + modFrame;
         }
     };
     Ship.prototype.getFrameString = function (frameNum, mod) {
@@ -496,8 +532,24 @@ var Ship = /** @class */function (_super) {
         var zeroString = Math.pow(10, numZeros - digitCount).toString().substr(1);
         return num < 0 ? '-' + zeroString + an : zeroString + an;
     };
+    Ship.prototype.updatePosition = function () {
+        // modify x and y based off heading and speed
+        var s = this.getSprite();
+        s.x += this.speed * this.heading.x;
+        s.y += this.speed * this.heading.y;
+    };
     Ship.prototype.update = function () {
         // update the sprite position by the speed + heading
+        if (this.targetSpeed != this.speed) {
+            if (this.targetSpeed > this.speed) {
+                this.speed += 0.01;
+                if (this.speed > this.targetSpeed) this.speed = this.targetSpeed;
+            } else {
+                this.speed -= 0.01;
+                if (this.speed < this.targetSpeed) this.speed = this.targetSpeed;
+            }
+        }
+        this.updatePosition();
         // update its sprite if necessary
         this.matchHeadingToSprite();
     };

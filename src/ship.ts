@@ -18,6 +18,7 @@ export default class Ship extends GameObject
 {
     private heading:Victor; // normalized ship direction
     private speed:number;   // scalar for speed (why not use a velocity vector to combine heading and speed?)
+    private targetSpeed:number;
     private name:string;    // all boats must have a name! ;)
     private sailState:number; // 0 = down, 1 = full sail, 2 = half sail
 
@@ -32,6 +33,7 @@ export default class Ship extends GameObject
         this.shipType = ShipType.CORVETTE; 
         this.sailState = 0; // down
         this.speed = 0;
+        this.targetSpeed = 0;
         this.heading = new Victor(1,0); // east
     }
 
@@ -88,6 +90,7 @@ export default class Ship extends GameObject
             // replace our texture with the appropriate facing
             s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
             console.log("replacing texture with frame: " + frameNum);
+            this.usingFrame = frameNum + modFrame;
         }
     }
 
@@ -111,9 +114,43 @@ export default class Ship extends GameObject
         return num < 0 ? '-' + zeroString + an : zeroString + an;
     }
 
-    public update() {
+    public increaseSail = () =>  {
+        this.sailState = 2; // no support for half sail as yet
+        this.targetSpeed = 1; // ramp up to 60 pixels/sec speed is in pixels per frame
+        console.log("increasing sail Captain!");
+    }
+
+    public decreaseSail = () => {
+        this.sailState = 0; // straight to no sails
+        this.targetSpeed = 0; // ramp down to no velocity
+        console.log("Aye! Decreasing sail!");
+    }
+
+    private updatePosition() {
+        // modify x and y based off heading and speed
+        let s = this.getSprite();
+        s.x += this.speed * this.heading.x;
+        s.y += this.speed * this.heading.y;
+    }
+
+    update() {
         // update the sprite position by the speed + heading
-        
+        if (this.targetSpeed != this.speed)
+        {
+            if (this.targetSpeed > this.speed) {
+                this.speed += 0.01;
+                if (this.speed > this.targetSpeed)
+                    this.speed = this.targetSpeed
+            }
+            else {
+                this.speed -= 0.01;
+                if (this.speed < this.targetSpeed)
+                    this.speed = this.targetSpeed;
+            }
+        }
+
+        this.updatePosition();
+
         // update its sprite if necessary
         this.matchHeadingToSprite();
 

@@ -19,6 +19,8 @@ export default class theSea
 
     private wheelScale = 0.25;
 
+    private selectedBoat:Ship; // what boat does the user have selected
+
     // javascript style mouse wheel handler, pixi does not support mouse wheel
     mouseWheelHandler = (e:any) => {
         //console.log(e);
@@ -193,6 +195,27 @@ export default class theSea
             .load(this.setup);
 
         this.loadCallback = callback;
+
+        //Attach event listeners
+        window.addEventListener(
+        "keydown", this.keyDownHandler, false
+        );
+        window.addEventListener(
+        "keyup", this.keyUpHandler, false
+        );
+    }
+
+    keyDownHandler = (event:any) => {
+        console.log("Pressed key: " + event.keyCode);
+        if (event.keyCode === 38) { // up
+            this.selectedBoat.increaseSail();
+        }
+        else if (event.keyCode === 40) { // down
+            this.selectedBoat.decreaseSail();
+        }
+    }
+
+    keyUpHandler = () => {
     }
 
     private loadRegion(regionName: string = "region1") 
@@ -245,6 +268,8 @@ export default class theSea
         this.container.addChild(boat.getSprite());
         this.objectArray.push(boat);
 
+        this.selectedBoat = boat;
+
         // final step in loading process.. can now call loadcallback
         this.loadCallback();
     }
@@ -289,6 +314,17 @@ export default class theSea
         this.deltaY = 0; // clear the data, await next mousemove
 
         // console.log(this.deltaX + "," + this.deltaY);
+
+        this.updateObjectArray();
+    }
+
+    private updateObjectArray()
+    {
+        // loop through our object array and call each element's update function
+        for (let gameObj of this.objectArray)
+        {
+            gameObj.update();
+        }
     }
 
 }

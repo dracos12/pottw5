@@ -36,4 +36,9 @@ export default class GameObject
     {
         return this.sprite;
     }
+
+    update()
+    {
+        // NOP for base class functionality
+    }
 }
