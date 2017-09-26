@@ -1,0 +1,140 @@
+{"frames": {
+
+"Corvette0001.png":
+{
+	"frame": {"x":108,"y":558,"w":61,"h":129},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":60,"y":0,"w":61,"h":129},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0002.png":
+{
+	"frame": {"x":1,"y":627,"w":104,"h":119},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":53,"y":2,"w":104,"h":119},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0003.png":
+{
+	"frame": {"x":1,"y":1,"w":135,"h":94},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":45,"y":12,"w":135,"h":94},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0004.png":
+{
+	"frame": {"x":138,"y":1,"w":103,"h":107},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":51,"y":14,"w":103,"h":107},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0005.png":
+{
+	"frame": {"x":107,"y":689,"w":60,"h":112},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":60,"y":20,"w":60,"h":112},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0006.png":
+{
+	"frame": {"x":138,"y":110,"w":103,"h":107},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":26,"y":17,"w":103,"h":107},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0007.png":
+{
+	"frame": {"x":1,"y":97,"w":135,"h":94},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":15,"w":135,"h":94},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0008.png":
+{
+	"frame": {"x":1,"y":385,"w":105,"h":119},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":23,"y":7,"w":105,"h":119},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0009.png":
+{
+	"frame": {"x":171,"y":558,"w":61,"h":129},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":60,"y":0,"w":61,"h":129},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0010.png":
+{
+	"frame": {"x":108,"y":437,"w":104,"h":119},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":53,"y":2,"w":104,"h":119},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0011.png":
+{
+	"frame": {"x":1,"y":193,"w":135,"h":94},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":45,"y":12,"w":135,"h":94},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0012.png":
+{
+	"frame": {"x":138,"y":219,"w":103,"h":107},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":51,"y":14,"w":103,"h":107},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0013.png":
+{
+	"frame": {"x":169,"y":689,"w":60,"h":112},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":60,"y":20,"w":60,"h":112},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0014.png":
+{
+	"frame": {"x":138,"y":328,"w":103,"h":107},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":26,"y":17,"w":103,"h":107},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0015.png":
+{
+	"frame": {"x":1,"y":289,"w":135,"h":94},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":15,"w":135,"h":94},
+	"sourceSize": {"w":180,"h":132}
+},
+"Corvette0016.png":
+{
+	"frame": {"x":1,"y":506,"w":105,"h":119},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":23,"y":7,"w":105,"h":119},
+	"sourceSize": {"w":180,"h":132}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "corvette.png",
+	"format": "RGBA8888",
+	"size": {"w":242,"h":802},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:789e6eada502e6d4cd795ffb252637bb:f5a66512c55e546b8967277b6c97e351:5077a28e10531a808a98529dc75fc775$"
+}
+}

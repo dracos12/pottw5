@@ -23,7 +23,8 @@
   "homepage": "https://github.com/dracos12/pottw5#readme",
   "dependencies": {
     "@types/pixi.js": "^4.5.4",
-    "pixi.js": "^4.5.5"
+    "pixi.js": "^4.5.5",
+    "victor": "^1.1.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.2.3",

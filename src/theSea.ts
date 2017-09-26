@@ -2,6 +2,7 @@
 import * as PIXI from 'pixi.js';
 import GameObject from './gameobject';
 import Island from './island';
+import Ship from './ship';
 
 export default class theSea 
 {
@@ -188,6 +189,7 @@ export default class theSea
             .add("images/4x4Region1/image_part_014.png")
             .add("images/4x4Region1/image_part_015.png")
             .add("images/islands/region1atlas.json")        // loader automagically loads all the textures in this atlas
+            .add("images/ships/corvette.json")
             .load(this.setup);
 
         this.loadCallback = callback;
@@ -226,7 +228,7 @@ export default class theSea
                 // tag each sprite with its name (the key)
                 sprite.name = key;
 
-                // add sprite tgo the isle, this container, and the tracked object array
+                // add sprite to the isle, this container, and the tracked object array
                 isle.setSprite(sprite);
                 this.container.addChild(sprite);
                 this.objectArray.push(isle);
@@ -235,6 +237,13 @@ export default class theSea
             }
         }
 
+
+        // add a boat near guadelupe
+        let boat = new Ship();
+        boat.init();
+        boat.setPosition(6200,2600);
+        this.container.addChild(boat.getSprite());
+        this.objectArray.push(boat);
 
         // final step in loading process.. can now call loadcallback
         this.loadCallback();
