@@ -294,6 +294,10 @@ var theSea = /** @class */function () {
                 _this.selectedBoat.increaseSail();
             } else if (event.keyCode === 40) {
                 _this.selectedBoat.decreaseSail();
+            } else if (event.keyCode === 37) {
+                _this.selectedBoat.wheelLarboard();
+            } else if (event.keyCode === 39) {
+                _this.selectedBoat.wheelStarboard();
             }
         };
         this.keyUpHandler = function () {};
@@ -490,6 +494,7 @@ var Ship = /** @class */function (_super) {
         _this.speed = 0;
         _this.targetSpeed = 0;
         _this.heading = new Victor(1, 0); // east
+        _this.degreeHeading = _this.heading.angleDeg();
         return _this;
     }
     Ship.prototype.init = function () {
@@ -514,7 +519,8 @@ var Ship = /** @class */function (_super) {
         if (this.usingFrame != frameNum + modFrame) {
             // replace our texture with the appropriate facing
             s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
-            console.log("replacing texture with frame: " + frameNum);
+            //console.log("replacing texture with frame: " + (frameNum + modFrame));
+            console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum);
             this.usingFrame = frameNum + modFrame;
         }
     };
@@ -532,11 +538,24 @@ var Ship = /** @class */function (_super) {
         var zeroString = Math.pow(10, numZeros - digitCount).toString().substr(1);
         return num < 0 ? '-' + zeroString + an : zeroString + an;
     };
+    Ship.prototype.wheelStarboard = function () {
+        this.heading.rotateDeg(-15);
+        this.heading.normalize();
+        this.degreeHeading = this.heading.angleDeg();
+        console.log("Aye Starboard wheel! Heading to: " + this.degreeHeading.toFixed(0));
+    };
+    // Victor lib is broken... rotate does what rotateby docs say, rotateby is broken
+    Ship.prototype.wheelLarboard = function () {
+        this.heading.rotateDeg(15);
+        this.heading.normalize();
+        this.degreeHeading = this.heading.angleDeg();
+        console.log("Wheel a'Larboard Captain! Heading to: " + this.degreeHeading.toFixed(0) + " angDeg: " + this.heading.angleDeg().toFixed(0));
+    };
     Ship.prototype.updatePosition = function () {
         // modify x and y based off heading and speed
         var s = this.getSprite();
         s.x += this.speed * this.heading.x;
-        s.y += this.speed * this.heading.y;
+        s.y += this.speed * -this.heading.y; // y is inverted... heading in cartesean, but our position coords origin is top,left
     };
     Ship.prototype.update = function () {
         // update the sprite position by the speed + heading

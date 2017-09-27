@@ -213,6 +213,12 @@ export default class theSea
         else if (event.keyCode === 40) { // down
             this.selectedBoat.decreaseSail();
         }
+        else if (event.keyCode === 37) { // left
+            this.selectedBoat.wheelLarboard();
+        }
+        else if (event.keyCode === 39) { // right
+            this.selectedBoat.wheelStarboard();
+        }
     }
 
     keyUpHandler = () => {

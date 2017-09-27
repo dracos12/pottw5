@@ -17,6 +17,7 @@ export const enum ShipType {
 export default class Ship extends GameObject
 {
     private heading:Victor; // normalized ship direction
+    private degreeHeading:number; // heading expressed as degrees
     private speed:number;   // scalar for speed (why not use a velocity vector to combine heading and speed?)
     private targetSpeed:number;
     private name:string;    // all boats must have a name! ;)
@@ -35,6 +36,7 @@ export default class Ship extends GameObject
         this.speed = 0;
         this.targetSpeed = 0;
         this.heading = new Victor(1,0); // east
+        this.degreeHeading = this.heading.angleDeg(); 
     }
 
     public init()
@@ -89,7 +91,8 @@ export default class Ship extends GameObject
         if (this.usingFrame != frameNum + modFrame) {
             // replace our texture with the appropriate facing
             s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
-            console.log("replacing texture with frame: " + frameNum);
+            //console.log("replacing texture with frame: " + (frameNum + modFrame));
+            console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum)
             this.usingFrame = frameNum + modFrame;
         }
     }
@@ -126,11 +129,27 @@ export default class Ship extends GameObject
         console.log("Aye! Decreasing sail!");
     }
 
+    public wheelStarboard() {
+        this.heading.rotateDeg(-15);
+        this.heading.normalize();
+        this.degreeHeading = this.heading.angleDeg();
+        console.log("Aye Starboard wheel! Heading to: " + this.degreeHeading.toFixed(0));
+    }
+
+    // Victor lib is broken... rotate does what rotateby docs say, rotateby is broken
+    public wheelLarboard() {
+        this.heading.rotateDeg(15);
+        this.heading.normalize();
+        this.degreeHeading = this.heading.angleDeg();
+
+        console.log("Wheel a'Larboard Captain! Heading to: " + this.degreeHeading.toFixed(0) + " angDeg: " + this.heading.angleDeg().toFixed(0));
+    }
+
     private updatePosition() {
         // modify x and y based off heading and speed
         let s = this.getSprite();
         s.x += this.speed * this.heading.x;
-        s.y += this.speed * this.heading.y;
+        s.y += this.speed * -this.heading.y; // y is inverted... heading in cartesean, but our position coords origin is top,left
     }
 
     update() {
