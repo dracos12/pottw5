@@ -4,6 +4,8 @@ import GameObject from './gameobject';
 import Island from './island';
 import Ship from './ship';
 
+declare var PolyK: any;
+
 export default class theSea 
 {
     private container:PIXI.Container = new PIXI.Container();
@@ -65,20 +67,12 @@ export default class theSea
         this.container.y += postZoomGlobal.y - preZoomGlobal.y; 
     }
 
-    private screenToWorld (screenX: number, screenY:number) 
-    {   
-        let retPt = new PIXI.Point();     
-        retPt.x = this.container.x + screenX / this.wheelScale;
-        retPt.y = this.container.y + screenY / this.wheelScale;
-        return retPt;   
-    }   
-    private worldToScreen (worldX: number, worldY:number) 
-    {   
-        let retPt = new PIXI.Point();                 
-        retPt.x = (worldX - this.container.x) * this.wheelScale;
-        retPt.y = (worldY - this.container.y) * this.wheelScale;
-        return retPt;
-    }             
+    private polyKTest()
+    {
+        var p =  [0,0, 1,0, 1,1, 0,1];
+        var myBool = PolyK.IsSimple(p);
+        console.log("IsSimple retrurns: " + myBool);
+    }
 
     // pixi style event handler, not the same arguments as javascript mouse event
     mouseMoveHandler = (e:any) => {
@@ -275,6 +269,9 @@ export default class theSea
         this.objectArray.push(boat);
 
         this.selectedBoat = boat;
+
+        // test polyK integration
+        this.polyKTest();
 
         // final step in loading process.. can now call loadcallback
         this.loadCallback();

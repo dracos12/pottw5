@@ -19,7 +19,7 @@ export default class Core {
     private seaLoadedCallback = () =>
     {
         // add listener to the stage - stage declared in main, top level js file
-        console.log("PotTW: build 0.0.11");
+        console.log("PotTW: build 0.0.12");
         this._world.interactive = true;
         this._world.on("mousemove", this._sea.mouseMoveHandler);
         //mousewheel not part of Pixi so add the event to the DOM

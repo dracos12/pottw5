@@ -119,7 +119,7 @@ var Core = /** @class */function () {
         var _this = this;
         this.seaLoadedCallback = function () {
             // add listener to the stage - stage declared in main, top level js file
-            console.log("PotTW: build 0.0.11");
+            console.log("PotTW: build 0.0.12");
             _this._world.interactive = true;
             _this._world.on("mousemove", _this._sea.mouseMoveHandler);
             //mousewheel not part of Pixi so add the event to the DOM
@@ -330,21 +330,16 @@ var theSea = /** @class */function () {
             _this.container.addChild(boat.getSprite());
             _this.objectArray.push(boat);
             _this.selectedBoat = boat;
+            // test polyK integration
+            _this.polyKTest();
             // final step in loading process.. can now call loadcallback
             _this.loadCallback();
         };
     }
-    theSea.prototype.screenToWorld = function (screenX, screenY) {
-        var retPt = new PIXI.Point();
-        retPt.x = this.container.x + screenX / this.wheelScale;
-        retPt.y = this.container.y + screenY / this.wheelScale;
-        return retPt;
-    };
-    theSea.prototype.worldToScreen = function (worldX, worldY) {
-        var retPt = new PIXI.Point();
-        retPt.x = (worldX - this.container.x) * this.wheelScale;
-        retPt.y = (worldY - this.container.y) * this.wheelScale;
-        return retPt;
+    theSea.prototype.polyKTest = function () {
+        var p = [0, 0, 1, 0, 1, 1, 0, 1];
+        var myBool = PolyK.IsSimple(p);
+        console.log("IsSimple retrurns: " + myBool);
     };
     theSea.prototype.init = function (callback) {
         // load our background sea tiles
