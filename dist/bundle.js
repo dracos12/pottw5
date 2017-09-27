@@ -349,7 +349,7 @@ var theSea = /** @class */function () {
     theSea.prototype.init = function (callback) {
         // load our background sea tiles
         PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
-        .add("images/ships/corvette.json").load(this.setup);
+        .add("images/ships/corvette2.json").load(this.setup);
         this.loadCallback = callback;
         //Attach event listeners
         window.addEventListener("keydown", this.keyDownHandler, false);
@@ -513,7 +513,7 @@ var Ship = /** @class */function (_super) {
         var modFrame = 0;
         var frameName = "";
         if (this.sailState == 0) modFrame = 8;
-        if (this.shipType == ShipType.CORVETTE) frameName = "Corvette";else frameName = "Corvette"; // add other ship sprites here as they are added
+        if (this.shipType == ShipType.CORVETTE) frameName = "Corvette2";else frameName = "Corvette2"; // add other ship sprites here as they are added
         var frameNum = 0;
         if (a <= 22.5 && a > -22.5) frameNum = 3;else if (a <= 67.5 && a > 22.5) frameNum = 2;else if (a <= 112.5 && a > 67.5) frameNum = 1;else if (a <= 157.5 && a > 112.5) frameNum = 8;else if (a <= -157.5 || a > 157.5) frameNum = 7;else if (a <= -112.5 && a > -157.5) frameNum = 6;else if (a <= -67.5 && a > -112.5) frameNum = 5;else if (a <= -22.5 && a > -67.5) frameNum = 4;else console.log("Ship class has invalid angle, texture could not be set");
         if (this.usingFrame != frameNum + modFrame) {

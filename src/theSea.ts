@@ -191,7 +191,7 @@ export default class theSea
             .add("images/4x4Region1/image_part_014.png")
             .add("images/4x4Region1/image_part_015.png")
             .add("images/islands/region1atlas.json")        // loader automagically loads all the textures in this atlas
-            .add("images/ships/corvette.json")
+            .add("images/ships/corvette2.json")
             .load(this.setup);
 
         this.loadCallback = callback;

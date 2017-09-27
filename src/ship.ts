@@ -63,9 +63,9 @@ export default class Ship extends GameObject
             modFrame = 8;
         
         if (this.shipType == ShipType.CORVETTE)
-            frameName = "Corvette";
+            frameName = "Corvette2";
         else    
-            frameName = "Corvette"; // add other ship sprites here as they are added
+            frameName = "Corvette2"; // add other ship sprites here as they are added
 
         let frameNum = 0;
 
