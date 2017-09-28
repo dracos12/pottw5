@@ -79,17 +79,52 @@ var ObjectType;
 })(ObjectType = exports.ObjectType || (exports.ObjectType = {}));
 var GameObject = /** @class */function () {
     function GameObject() {
+        var _this = this;
         // the game object's sprite keeps positional information  x,y
         this.vx = 0; // velocity information
         this.vy = 0;
         this.z = 0; // z-sorting if necessary... z sort normally done by y position
         this.objType = ObjectType.NONE;
+        this.cartesianHitTest = function (p) {
+            //console.log(this.polyData);
+            if (_this.polyData) {
+                // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
+                return PolyK.ContainsPoint(_this.polyData, p.x, p.y);
+            } else {
+                console.log("polyData not yet defined");
+            }
+        };
     }
+    GameObject.prototype.getType = function () {
+        return this.objType;
+    };
     GameObject.prototype.setSprite = function (newSprite) {
         this.sprite = newSprite;
     };
     GameObject.prototype.getSprite = function () {
         return this.sprite;
+    };
+    GameObject.prototype.setPolyData = function (p) {
+        this.polyData = p;
+        this.convertPolyDataToCartesian();
+    };
+    GameObject.prototype.convertPolyDataToCartesian = function () {
+        // all data provided is an anti-clockwise polygonal data in local bitmap coordinates 
+        // relative to the 0,0 top,left of the bitmap
+        // PolyK needs this data in cartesian format, with 0,0 at bottom,left of the world
+        //console.log(this.polyData);
+        // loop through the array
+        for (var i = 0; i < this.polyData.length; i++) {
+            if (i % 2 == 0) {
+                // x axis is same direction as cartesian
+                this.polyData[i] = this.polyData[i] + this.sprite.x; // world coord x
+            } else {
+                // bottom left of our "world" is 0,8192
+                var cartSpriteY = 8192 - this.sprite.y;
+                this.polyData[i] = cartSpriteY - this.polyData[i];
+            }
+        }
+        //console.log(this.polyData);
     };
     GameObject.prototype.update = function () {
         // NOP for base class functionality
@@ -153,6 +188,7 @@ var game = new Core();
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(1);
+var gameobject_1 = __webpack_require__(0);
 var island_1 = __webpack_require__(4);
 var ship_1 = __webpack_require__(5);
 var theSea = /** @class */function () {
@@ -223,6 +259,25 @@ var theSea = /** @class */function () {
                 _this.deltaY = 0;
                 _this.lastX = -1;
                 _this.lastY = -1;
+            }
+            //take the mouse coords and convert to world coords
+            var pos = new PIXI.Point(e.data.global.x, e.data.global.y);
+            var mouseWorld = _this.container.toLocal(pos);
+            // now convert this to cartesian coordinates
+            // x is fine as is
+            // y is inverted from bottom left of sea tiles 0,8192
+            mouseWorld.y = 8192 - mouseWorld.y;
+            // walk the object array and perform a PolyK hittest against each island
+            for (var _i = 0, _a = _this.objectArray; _i < _a.length; _i++) {
+                var entry = _a[_i];
+                if (entry.getType() == gameobject_1.ObjectType.ISLAND) {
+                    var retVal = entry.cartesianHitTest(mouseWorld);
+                    if (retVal == true) {
+                        console.log("Hit over " + entry.getSprite().name);
+                    } else {
+                        //console.log("hitTest returns: " + retVal + " mouse: " + mouseWorld.x + "," + mouseWorld.y);
+                    }
+                }
             }
         };
         // when done loading, arrange the sea tiles on theSea container
@@ -320,6 +375,8 @@ var theSea = /** @class */function () {
                     isle.setSprite(sprite);
                     _this.container.addChild(sprite);
                     _this.objectArray.push(isle);
+                    // save its polygonal data
+                    isle.setPolyData(json_data[key].polygonPts);
                     console.log("Adding " + sprite.name + " to theSea");
                 }
             }

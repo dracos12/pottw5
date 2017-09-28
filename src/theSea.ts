@@ -1,6 +1,7 @@
 
 import * as PIXI from 'pixi.js';
-import GameObject from './gameobject';
+import GameObject  from './gameobject';
+import { ObjectType } from './gameobject';
 import Island from './island';
 import Ship from './ship';
 
@@ -108,6 +109,26 @@ export default class theSea
             this.deltaY = 0;
             this.lastX = -1;
             this.lastY = -1;
+        }
+
+        //take the mouse coords and convert to world coords
+        let pos = new PIXI.Point(e.data.global.x, e.data.global.y);
+        let mouseWorld:PIXI.Point = this.container.toLocal(pos);
+        // now convert this to cartesian coordinates
+        // x is fine as is
+        // y is inverted from bottom left of sea tiles 0,8192
+        mouseWorld.y = 8192 - mouseWorld.y;
+
+        // walk the object array and perform a PolyK hittest against each island
+        for (let entry of this.objectArray) {
+            if (entry.getType() == ObjectType.ISLAND) {
+                var retVal = entry.cartesianHitTest(mouseWorld);
+                if (retVal == true) {
+                    console.log("Hit over " + entry.getSprite().name);
+                } else { 
+                    //console.log("hitTest returns: " + retVal + " mouse: " + mouseWorld.x + "," + mouseWorld.y);
+                }
+            }
         }
     }
     
@@ -255,6 +276,9 @@ export default class theSea
                 isle.setSprite(sprite);
                 this.container.addChild(sprite);
                 this.objectArray.push(isle);
+
+                // save its polygonal data
+                isle.setPolyData(json_data[key].polygonPts);
 
                 console.log("Adding " + sprite.name + " to theSea");
             }
