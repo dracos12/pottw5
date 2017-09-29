@@ -24,6 +24,15 @@ export default class theSea
 
     private selectedBoat:Ship; // what boat does the user have selected
 
+    private islandsLoaded:boolean = false;
+    private boatsLoaded:boolean = false;
+
+    private boatData:any;   // save the json data to pass to boats as they are created
+
+    private layerSeaTiles:PIXI.Container = new PIXI.Container();
+    private layerObjects:PIXI.Container = new PIXI.Container();
+    //private layerUI:PIXI.Container = new PIXI.Container();
+
     // javascript style mouse wheel handler, pixi does not support mouse wheel
     mouseWheelHandler = (e:any) => {
         //console.log(e);
@@ -66,13 +75,6 @@ export default class theSea
         //move the world so that the zoomed-location goes back to where it was on the screen before scaling        
         this.container.x += postZoomGlobal.x - preZoomGlobal.x ;   
         this.container.y += postZoomGlobal.y - preZoomGlobal.y; 
-    }
-
-    private polyKTest()
-    {
-        var p =  [0,0, 1,0, 1,1, 0,1];
-        var myBool = PolyK.IsSimple(p);
-        console.log("IsSimple retrurns: " + myBool);
     }
 
     // pixi style event handler, not the same arguments as javascript mouse event
@@ -121,7 +123,7 @@ export default class theSea
 
         // walk the object array and perform a PolyK hittest against each island
         for (let entry of this.objectArray) {
-            if (entry.getType() == ObjectType.ISLAND) {
+            if (entry.getType() == ObjectType.ISLAND || entry.getType() == ObjectType.SHIP) {
                 var retVal = entry.cartesianHitTest(mouseWorld);
                 if (retVal == true) {
                     console.log("Hit over " + entry.getSprite().name);
@@ -166,20 +168,23 @@ export default class theSea
         map13.x = 2048; map13.y = 6144;
         map14.x = 4096; map14.y = 6144; 
 
-        this.container.addChild(map1);
-        this.container.addChild(map2);
-        this.container.addChild(map3);
-        this.container.addChild(map4);
-        this.container.addChild(map5);
-        this.container.addChild(map6);
-        this.container.addChild(map7);
-        this.container.addChild(map8);
-        this.container.addChild(map9);
-        this.container.addChild(map10);
-        this.container.addChild(map11);
-        this.container.addChild(map12);
-        this.container.addChild(map13);
-        this.container.addChild(map14);
+        this.layerSeaTiles.addChild(map1);
+        this.layerSeaTiles.addChild(map2);
+        this.layerSeaTiles.addChild(map3);
+        this.layerSeaTiles.addChild(map4);
+        this.layerSeaTiles.addChild(map5);
+        this.layerSeaTiles.addChild(map6);
+        this.layerSeaTiles.addChild(map7);
+        this.layerSeaTiles.addChild(map8);
+        this.layerSeaTiles.addChild(map9);
+        this.layerSeaTiles.addChild(map10);
+        this.layerSeaTiles.addChild(map11);
+        this.layerSeaTiles.addChild(map12);
+        this.layerSeaTiles.addChild(map13);
+        this.layerSeaTiles.addChild(map14);
+
+        this.container.addChild(this.layerSeaTiles); // sea tiles sort to bottom
+        this.container.addChild(this.layerObjects); // all other objects will sort above it
 
         this.container.scale.x = this.container.scale.y = this.wheelScale; 
 
@@ -248,7 +253,34 @@ export default class theSea
         // load the island game data 
         this.loadJSON("./data/region1isles.json", this.onIslesLoaded)
 
-        // islands are stored in a pool of sprites
+        // load the boat data
+        this.loadJSON("./data/shipdata.json", this.onBoatsLoaded);
+
+    }
+
+    private onBoatsLoaded = (responseText:string) => 
+    {
+        var json_data = JSON.parse(responseText);
+        console.log(json_data);
+
+        // save the boat data to hand to boast as they are created
+        this.boatData = json_data;
+
+        // run through all entries in the json
+        // for (var key in json_data) {
+        //     if (json_data.hasOwnProperty(key)) { // "corvette" is the only boat so far 
+        //         if (key == "corvette") // we good
+        //         {
+
+        //         } else {
+        //             console.log("Found unrecognized key: " + key);
+        //         }
+        //     }
+        // }
+
+        this.boatsLoaded = true;
+
+        this.checkFinishLoad();
     }
 
     private onIslesLoaded = (responseText:string) => 
@@ -274,7 +306,7 @@ export default class theSea
 
                 // add sprite to the isle, this container, and the tracked object array
                 isle.setSprite(sprite);
-                this.container.addChild(sprite);
+                this.layerObjects.addChild(sprite);
                 this.objectArray.push(isle);
 
                 // save its polygonal data
@@ -284,28 +316,35 @@ export default class theSea
             }
         }
 
+        this.islandsLoaded = true;
+        this.checkFinishLoad();
+    }
 
-        // add a boat near guadelupe
-        let boat = new Ship();
-        boat.init();
-        boat.setPosition(6200,2600);
-        this.container.addChild(boat.getSprite());
-        this.objectArray.push(boat);
+    // make sure all asyncronous loads have completed
+    private checkFinishLoad() {
+        if (this.boatsLoaded && this.islandsLoaded)
+        {
 
-        this.selectedBoat = boat;
+            // add a boat near guadelupe
+            let boat = new Ship();
+            boat.init();
+            boat.setPosition(6200,2600);
+            this.layerObjects.addChild(boat.getSprite());
+            this.objectArray.push(boat);
+            boat.setPolyData(this.boatData.corvette);
 
-        // test polyK integration
-        this.polyKTest();
+            this.selectedBoat = boat;
 
-        // final step in loading process.. can now call loadcallback
-        this.loadCallback();
+            // final step in loading process.. can now call loadcallback
+            this.loadCallback();
+        }
     }
 
     private loadJSON(jsonFile:string, callback:Function) 
     {
         var xobj = new XMLHttpRequest();
             xobj.overrideMimeType("application/json");
-        xobj.open('GET', './data/region1isles.json', true); // Replace 'my_data' with the path to your file
+        xobj.open('GET', jsonFile, true); 
         xobj.onreadystatechange = function () {
             if (xobj.readyState == 4 && xobj.status == 200) {
                 // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -320,6 +359,9 @@ export default class theSea
         return this.container;
     }
 
+    //
+    // update function called per frame
+    //
     public update()
     {
         this.container.x += this.deltaX;
@@ -347,11 +389,70 @@ export default class theSea
 
     private updateObjectArray()
     {
+        // sort the children ascending as the renderer will render sprites in container ordrer
+        this.layerObjects.children.sort(this.objSort);
+
         // loop through our object array and call each element's update function
         for (let gameObj of this.objectArray)
         {
             gameObj.update();
         }
+
+        // check for collisions against the playerboat
+        this.checkPlayerBoatCollision();
+    }
+
+    private objSort(a:PIXI.DisplayObject, b:PIXI.DisplayObject)
+    {
+        if (a.y < b.y)
+            return -1;
+        else if (a.y == b.y)
+            return 0;
+        else if (a.y > b.y)
+            return 1;
+        else 
+            return 0;
+    }
+
+    private checkPlayerBoatCollision() {
+        // first do a simple box hit test against the player boat and all the islands
+        for (let entry of this.objectArray) {
+            if (entry.getType() == ObjectType.ISLAND) {
+                if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
+                    console.log("boxHit!");
+                    // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
+                    if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true)
+                    {
+                        console.log("Boat has struck - " + entry.getSprite().name);
+                        this.selectedBoat.allStop();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // if theres a hit, perform the polyk hittest for each poiint in the boats polykdata against the island polygon
+    }
+
+    private boxHitTest(s1:PIXI.Sprite, s2:PIXI.Sprite)
+    {
+        var x1 = s1.x;
+        var y1 = s1.y;
+        var w1 = s1.width;
+        var h1 = s1.height;
+
+        var x2 = s2.x;
+        var y2 = s2.y;
+        var w2 = s2.width;
+        var h2 = s2.height;
+
+        if (x1 + w1 > x2)
+                if (x1 < x2 + w2)
+                    if (y1 + h1 > y2)                
+                            if (y1 < y2 + h2)                    
+                                return true;    
+                                
+        return false;
     }
 
 }

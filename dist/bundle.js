@@ -71,6 +71,10 @@
 
 
 Object.defineProperty(exports, "__esModule", { value: true });
+//
+// GameObject - the root class of all sprites
+//
+var PIXI = __webpack_require__(1);
 var ObjectType;
 (function (ObjectType) {
     ObjectType[ObjectType["NONE"] = 0] = "NONE";
@@ -85,16 +89,22 @@ var GameObject = /** @class */function () {
         this.vy = 0;
         this.z = 0; // z-sorting if necessary... z sort normally done by y position
         this.objType = ObjectType.NONE;
+        this.cartPolyData = [];
         this.cartesianHitTest = function (p) {
             //console.log(this.polyData);
-            if (_this.polyData) {
+            if (_this.cartPolyData) {
                 // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
-                return PolyK.ContainsPoint(_this.polyData, p.x, p.y);
+                return PolyK.ContainsPoint(_this.cartPolyData, p.x, p.y);
             } else {
                 console.log("polyData not yet defined");
             }
         };
+        this.refPoint = new PIXI.Point(0, 0);
     }
+    GameObject.prototype.setRefPoint = function (x, y) {
+        this.refPoint.x = x;
+        this.refPoint.y = y;
+    };
     GameObject.prototype.getType = function () {
         return this.objType;
     };
@@ -106,7 +116,12 @@ var GameObject = /** @class */function () {
     };
     GameObject.prototype.setPolyData = function (p) {
         this.polyData = p;
+        // copy the data to the cartPolyDataArray
+        for (var i = 0; i < p.length; i++) this.cartPolyData[i] = p[i];
         this.convertPolyDataToCartesian();
+    };
+    GameObject.prototype.getCartPolyData = function () {
+        return this.cartPolyData;
     };
     GameObject.prototype.convertPolyDataToCartesian = function () {
         // all data provided is an anti-clockwise polygonal data in local bitmap coordinates 
@@ -117,11 +132,11 @@ var GameObject = /** @class */function () {
         for (var i = 0; i < this.polyData.length; i++) {
             if (i % 2 == 0) {
                 // x axis is same direction as cartesian
-                this.polyData[i] = this.polyData[i] + this.sprite.x; // world coord x
+                this.cartPolyData[i] = this.cartPolyData[i] + this.sprite.x; // world coord x
             } else {
                 // bottom left of our "world" is 0,8192
                 var cartSpriteY = 8192 - this.sprite.y;
-                this.polyData[i] = cartSpriteY - this.polyData[i];
+                this.cartPolyData[i] = cartSpriteY - this.cartPolyData[i];
             }
         }
         //console.log(this.polyData);
@@ -201,6 +216,11 @@ var theSea = /** @class */function () {
         this.lastY = -1;
         this.objectArray = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
         this.wheelScale = 0.25;
+        this.islandsLoaded = false;
+        this.boatsLoaded = false;
+        this.layerSeaTiles = new PIXI.Container();
+        this.layerObjects = new PIXI.Container();
+        //private layerUI:PIXI.Container = new PIXI.Container();
         // javascript style mouse wheel handler, pixi does not support mouse wheel
         this.mouseWheelHandler = function (e) {
             //console.log(e);
@@ -270,7 +290,7 @@ var theSea = /** @class */function () {
             // walk the object array and perform a PolyK hittest against each island
             for (var _i = 0, _a = _this.objectArray; _i < _a.length; _i++) {
                 var entry = _a[_i];
-                if (entry.getType() == gameobject_1.ObjectType.ISLAND) {
+                if (entry.getType() == gameobject_1.ObjectType.ISLAND || entry.getType() == gameobject_1.ObjectType.SHIP) {
                     var retVal = entry.cartesianHitTest(mouseWorld);
                     if (retVal == true) {
                         console.log("Hit over " + entry.getSprite().name);
@@ -326,20 +346,22 @@ var theSea = /** @class */function () {
             map13.y = 6144;
             map14.x = 4096;
             map14.y = 6144;
-            _this.container.addChild(map1);
-            _this.container.addChild(map2);
-            _this.container.addChild(map3);
-            _this.container.addChild(map4);
-            _this.container.addChild(map5);
-            _this.container.addChild(map6);
-            _this.container.addChild(map7);
-            _this.container.addChild(map8);
-            _this.container.addChild(map9);
-            _this.container.addChild(map10);
-            _this.container.addChild(map11);
-            _this.container.addChild(map12);
-            _this.container.addChild(map13);
-            _this.container.addChild(map14);
+            _this.layerSeaTiles.addChild(map1);
+            _this.layerSeaTiles.addChild(map2);
+            _this.layerSeaTiles.addChild(map3);
+            _this.layerSeaTiles.addChild(map4);
+            _this.layerSeaTiles.addChild(map5);
+            _this.layerSeaTiles.addChild(map6);
+            _this.layerSeaTiles.addChild(map7);
+            _this.layerSeaTiles.addChild(map8);
+            _this.layerSeaTiles.addChild(map9);
+            _this.layerSeaTiles.addChild(map10);
+            _this.layerSeaTiles.addChild(map11);
+            _this.layerSeaTiles.addChild(map12);
+            _this.layerSeaTiles.addChild(map13);
+            _this.layerSeaTiles.addChild(map14);
+            _this.container.addChild(_this.layerSeaTiles); // sea tiles sort to bottom
+            _this.container.addChild(_this.layerObjects); // all other objects will sort above it
             _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
             _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
         };
@@ -356,6 +378,24 @@ var theSea = /** @class */function () {
             }
         };
         this.keyUpHandler = function () {};
+        this.onBoatsLoaded = function (responseText) {
+            var json_data = JSON.parse(responseText);
+            console.log(json_data);
+            // save the boat data to hand to boast as they are created
+            _this.boatData = json_data;
+            // run through all entries in the json
+            // for (var key in json_data) {
+            //     if (json_data.hasOwnProperty(key)) { // "corvette" is the only boat so far 
+            //         if (key == "corvette") // we good
+            //         {
+            //         } else {
+            //             console.log("Found unrecognized key: " + key);
+            //         }
+            //     }
+            // }
+            _this.boatsLoaded = true;
+            _this.checkFinishLoad();
+        };
         this.onIslesLoaded = function (responseText) {
             var json_data = JSON.parse(responseText);
             console.log(json_data);
@@ -373,31 +413,17 @@ var theSea = /** @class */function () {
                     sprite.name = key;
                     // add sprite to the isle, this container, and the tracked object array
                     isle.setSprite(sprite);
-                    _this.container.addChild(sprite);
+                    _this.layerObjects.addChild(sprite);
                     _this.objectArray.push(isle);
                     // save its polygonal data
                     isle.setPolyData(json_data[key].polygonPts);
                     console.log("Adding " + sprite.name + " to theSea");
                 }
             }
-            // add a boat near guadelupe
-            var boat = new ship_1.default();
-            boat.init();
-            boat.setPosition(6200, 2600);
-            _this.container.addChild(boat.getSprite());
-            _this.objectArray.push(boat);
-            _this.selectedBoat = boat;
-            // test polyK integration
-            _this.polyKTest();
-            // final step in loading process.. can now call loadcallback
-            _this.loadCallback();
+            _this.islandsLoaded = true;
+            _this.checkFinishLoad();
         };
     }
-    theSea.prototype.polyKTest = function () {
-        var p = [0, 0, 1, 0, 1, 1, 0, 1];
-        var myBool = PolyK.IsSimple(p);
-        console.log("IsSimple retrurns: " + myBool);
-    };
     theSea.prototype.init = function (callback) {
         // load our background sea tiles
         PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
@@ -415,12 +441,28 @@ var theSea = /** @class */function () {
         // load the region1 islands
         // load the island game data 
         this.loadJSON("./data/region1isles.json", this.onIslesLoaded);
-        // islands are stored in a pool of sprites
+        // load the boat data
+        this.loadJSON("./data/shipdata.json", this.onBoatsLoaded);
+    };
+    // make sure all asyncronous loads have completed
+    theSea.prototype.checkFinishLoad = function () {
+        if (this.boatsLoaded && this.islandsLoaded) {
+            // add a boat near guadelupe
+            var boat = new ship_1.default();
+            boat.init();
+            boat.setPosition(6200, 2600);
+            this.layerObjects.addChild(boat.getSprite());
+            this.objectArray.push(boat);
+            boat.setPolyData(this.boatData.corvette);
+            this.selectedBoat = boat;
+            // final step in loading process.. can now call loadcallback
+            this.loadCallback();
+        }
     };
     theSea.prototype.loadJSON = function (jsonFile, callback) {
         var xobj = new XMLHttpRequest();
         xobj.overrideMimeType("application/json");
-        xobj.open('GET', './data/region1isles.json', true); // Replace 'my_data' with the path to your file
+        xobj.open('GET', jsonFile, true);
         xobj.onreadystatechange = function () {
             if (xobj.readyState == 4 && xobj.status == 200) {
                 // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -432,6 +474,9 @@ var theSea = /** @class */function () {
     theSea.prototype.getContainer = function () {
         return this.container;
     };
+    //
+    // update function called per frame
+    //
     theSea.prototype.update = function () {
         this.container.x += this.deltaX;
         this.container.y += this.deltaY;
@@ -445,11 +490,48 @@ var theSea = /** @class */function () {
         this.updateObjectArray();
     };
     theSea.prototype.updateObjectArray = function () {
+        // sort the children ascending as the renderer will render sprites in container ordrer
+        this.layerObjects.children.sort(this.objSort);
         // loop through our object array and call each element's update function
         for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
             var gameObj = _a[_i];
             gameObj.update();
         }
+        // check for collisions against the playerboat
+        this.checkPlayerBoatCollision();
+    };
+    theSea.prototype.objSort = function (a, b) {
+        if (a.y < b.y) return -1;else if (a.y == b.y) return 0;else if (a.y > b.y) return 1;else return 0;
+    };
+    theSea.prototype.checkPlayerBoatCollision = function () {
+        // first do a simple box hit test against the player boat and all the islands
+        for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
+            var entry = _a[_i];
+            if (entry.getType() == gameobject_1.ObjectType.ISLAND) {
+                if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
+                    console.log("boxHit!");
+                    // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
+                    if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true) {
+                        console.log("Boat has struck - " + entry.getSprite().name);
+                        this.selectedBoat.allStop();
+                        return;
+                    }
+                }
+            }
+        }
+        // if theres a hit, perform the polyk hittest for each poiint in the boats polykdata against the island polygon
+    };
+    theSea.prototype.boxHitTest = function (s1, s2) {
+        var x1 = s1.x;
+        var y1 = s1.y;
+        var w1 = s1.width;
+        var h1 = s1.height;
+        var x2 = s2.x;
+        var y2 = s2.y;
+        var w2 = s2.width;
+        var h2 = s2.height;
+        if (x1 + w1 > x2) if (x1 < x2 + w2) if (y1 + h1 > y2) if (y1 < y2 + h2) return true;
+        return false;
     };
     return theSea;
 }();
@@ -530,6 +612,19 @@ var Ship = /** @class */function (_super) {
     __extends(Ship, _super);
     function Ship() {
         var _this = _super.call(this) || this;
+        _this.polyNum = 0; // current heading corresponds to which index in the polyData array?
+        _this.cartPolyData8 = []; // an array of 8 arrays converted to cartesian
+        _this.cartesianHitTest = function (p) {
+            //console.log(this.polyData);
+            if (_this.cartPolyData8[_this.polyNum]) {
+                // calculate the polygonal data for the ships position and its current sprite/heading
+                _this.convertPolyDataToCartesian();
+                // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
+                return PolyK.ContainsPoint(_this.cartPolyData8[_this.polyNum], p.x, p.y);
+            } else {
+                console.log("polyData not yet defined");
+            }
+        };
         _this.increaseSail = function () {
             _this.sailState = 2; // no support for half sail as yet
             _this.targetSpeed = 1; // ramp up to 60 pixels/sec speed is in pixels per frame
@@ -547,11 +642,62 @@ var Ship = /** @class */function (_super) {
         _this.targetSpeed = 0;
         _this.heading = new Victor(1, 0); // east
         _this.degreeHeading = _this.heading.angleDeg();
+        for (var i = 0; i < 8; i++) {
+            _this.cartPolyData8.push(new Array());
+        }
         return _this;
     }
     Ship.prototype.init = function () {
         this.sprite = new PIXI.Sprite(); // an empty sprite
         this.matchHeadingToSprite(); // initialize the texture its using
+        this.name = "Nutmeg of Consolation";
+    };
+    Ship.prototype.setPolyData = function (p) {
+        // p is the ship record from shipdata.json
+        this.jsonData = p;
+        this.sprite.name = this.jsonData["fileName"];
+    };
+    // ships move so they must convert their polyData each time it is referenced
+    Ship.prototype.convertPolyDataToCartesian = function () {
+        if (!this.jsonData) return;
+        var root = this.jsonData["fileName"]; // root filename for subsequent polyData keys
+        // extract the 8-way polydata arrays in each subobject in this data
+        var key = root + "000" + (this.polyNum + 1) + ".png"; // polynum is zero based, frames are 1 based
+        if (this.jsonData.hasOwnProperty(key)) {
+            for (var k = 0; k < this.jsonData[key].polygonPts.length; k++) {
+                if (k % 2 == 0) {
+                    // x axis is same direction as cartesian
+                    this.cartPolyData8[this.polyNum][k] = this.jsonData[key].polygonPts[k] + this.sprite.x; // world coord x
+                } else {
+                    // bottom left of our "world" is 0,8192
+                    var cartSpriteY = 8192 - this.sprite.y;
+                    this.cartPolyData8[this.polyNum][k] = cartSpriteY - this.jsonData[key].polygonPts[k];
+                }
+            }
+        } else {
+            console.log("Failed to find key: " + key + " in ship data!");
+        }
+    };
+    Ship.prototype.hitTestByPolygon = function (polygonPts) {
+        // convert our polygonal data relative to our position
+        this.convertPolyDataToCartesian();
+        var x, y;
+        // console.log("Island polygon: " + polygonPts);
+        // console.log("Boat Pts: " + this.cartPolyData8[this.polyNum]);
+        for (var i = 0; i < this.cartPolyData8[this.polyNum].length; i += 2) {
+            x = this.cartPolyData8[this.polyNum][i];
+            y = this.cartPolyData8[this.polyNum][i + 1];
+            // for each point in our polygon, do a polyK hittest on the passed in polygon
+            if (PolyK.ContainsPoint(polygonPts, x, y)) {
+                console.log("hit!");
+                return true;
+            }
+        }
+        return false;
+    };
+    Ship.prototype.allStop = function () {
+        this.sailState = 0; // lower the sails!
+        this.speed = 0;
     };
     Ship.prototype.setPosition = function (x, y) {
         this.sprite.x = x;
@@ -567,7 +713,31 @@ var Ship = /** @class */function (_super) {
         if (this.sailState == 0) modFrame = 8;
         if (this.shipType == ShipType.CORVETTE) frameName = "Corvette2";else frameName = "Corvette2"; // add other ship sprites here as they are added
         var frameNum = 0;
-        if (a <= 22.5 && a > -22.5) frameNum = 3;else if (a <= 67.5 && a > 22.5) frameNum = 2;else if (a <= 112.5 && a > 67.5) frameNum = 1;else if (a <= 157.5 && a > 112.5) frameNum = 8;else if (a <= -157.5 || a > 157.5) frameNum = 7;else if (a <= -112.5 && a > -157.5) frameNum = 6;else if (a <= -67.5 && a > -112.5) frameNum = 5;else if (a <= -22.5 && a > -67.5) frameNum = 4;else console.log("Ship class has invalid angle, texture could not be set");
+        if (a <= 22.5 && a > -22.5) {
+            frameNum = 3;
+            this.polyNum = frameNum - 1; // polynum 0 based, used later as index into polygonData8
+        } else if (a <= 67.5 && a > 22.5) {
+            frameNum = 2;
+            this.polyNum = frameNum - 1;
+        } else if (a <= 112.5 && a > 67.5) {
+            frameNum = 1;
+            this.polyNum = frameNum - 1;
+        } else if (a <= 157.5 && a > 112.5) {
+            frameNum = 8;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -157.5 || a > 157.5) {
+            frameNum = 7;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -112.5 && a > -157.5) {
+            frameNum = 6;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -67.5 && a > -112.5) {
+            frameNum = 5;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -22.5 && a > -67.5) {
+            frameNum = 4;
+            this.polyNum = frameNum - 1;
+        } else console.log("Ship class has invalid angle, texture could not be set");
         if (this.usingFrame != frameNum + modFrame) {
             // replace our texture with the appropriate facing
             s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");

@@ -25,10 +25,22 @@ export default class GameObject
     protected sprite:PIXI.Sprite;
 
     protected polyData:any; // use any for ease of use with PolyK
+    protected cartPolyData:Array<number> = [];
+
+    // point within the sprite that is its "reference point" 
+    // z-sorting will be done relative to this point
+    // ships cannon balls will fire from this point etc.
+    protected refPoint:PIXI.Point; 
 
     constructor()
     {
-        
+        this.refPoint = new PIXI.Point(0,0);    
+    }
+
+    public setRefPoint(x:number, y:number)
+    {
+        this.refPoint.x = x;
+        this.refPoint.y = y;
     }
 
     public getType() {
@@ -47,10 +59,17 @@ export default class GameObject
 
     public setPolyData(p:any) {
         this.polyData = p;
+        // copy the data to the cartPolyDataArray
+        for (var i=0; i<p.length; i++)
+            this.cartPolyData[i] = p[i]; 
         this.convertPolyDataToCartesian();
     }
 
-    private convertPolyDataToCartesian()
+    public getCartPolyData() {
+        return this.cartPolyData;
+    }
+
+    protected convertPolyDataToCartesian()
     {
         // all data provided is an anti-clockwise polygonal data in local bitmap coordinates 
         // relative to the 0,0 top,left of the bitmap
@@ -63,13 +82,13 @@ export default class GameObject
             if (i%2 == 0) // each even index is an "x" coordinate
             {
                 // x axis is same direction as cartesian
-                this.polyData[i] = this.polyData[i] + this.sprite.x; // world coord x
+                this.cartPolyData[i] = this.cartPolyData[i] + this.sprite.x; // world coord x
             }
             else // each odd index is a "y" coordinate
             {
                 // bottom left of our "world" is 0,8192
                 var cartSpriteY = 8192 - this.sprite.y; 
-                this.polyData[i] = cartSpriteY - this.polyData[i];
+                this.cartPolyData[i] = cartSpriteY - this.cartPolyData[i];
             }   
         }
         //console.log(this.polyData);
@@ -77,9 +96,9 @@ export default class GameObject
 
     public cartesianHitTest = (p:PIXI.Point) => {
         //console.log(this.polyData);
-        if (this.polyData) {
+        if (this.cartPolyData) {
             // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
-            return PolyK.ContainsPoint(this.polyData, p.x, p.y);
+            return PolyK.ContainsPoint(this.cartPolyData, p.x, p.y);
         } else {
             console.log("polyData not yet defined");
         }
