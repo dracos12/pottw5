@@ -30,6 +30,7 @@ export default class Ship extends GameObject
 
     private usingFrame:number; // frame number in use, cached to prevent texture swap spam
     private cartPolyData8:Array<Array<number>> = []; // an array of 8 arrays converted to cartesian
+    private cartKeelData:Array<number> = [];
     private jsonData:any;      // object handed to us from the json loader
 
     constructor()
@@ -84,8 +85,36 @@ export default class Ship extends GameObject
                     this.cartPolyData8[this.polyNum][k] = cartSpriteY - this.jsonData[key].polygonPts[k];
                 }   
             }
+
+            this.cartKeelData = []; // clear the array
+            for (k=0; k<this.jsonData[key].keelPts.length; k++)
+            {
+                if (k%2 == 0) // each even index is an "x" coordinate
+                {
+                    // x axis is same direction as cartesian
+                    this.cartKeelData[k] = this.jsonData[key].keelPts[k] + this.sprite.x; // world coord x
+                }
+                else // each odd index is a "y" coordinate
+                {
+                    // bottom left of our "world" is 0,8192
+                    var cartSpriteY = 8192 - this.sprite.y; 
+                    this.cartKeelData[k] = cartSpriteY - this.jsonData[key].keelPts[k];
+                }                 
+            }
         } else {
             console.log("Failed to find key: " + key + " in ship data!");
+        }
+    }
+
+    public cartesianHitTest = (p:PIXI.Point) => {
+        //console.log(this.polyData);
+        if (this.cartPolyData8[this.polyNum]) {
+            // calculate the polygonal data for the ships position and its current sprite/heading
+            this.convertPolyDataToCartesian();
+            // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
+            return PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], p.x, p.y);
+        } else {
+            console.log("polyData not yet defined");
         }
     }
 
@@ -115,6 +144,42 @@ export default class Ship extends GameObject
         {
             x = this.cartPolyData8[this.polyNum][i];
             y = this.cartPolyData8[this.polyNum][i+1];
+            // for each point in our polygon, do a polyK hittest on the passed in polygon
+            if (PolyK.ContainsPoint(polygonPts, x, y)) {
+                console.log("hit!");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public cartesianHitTest = (p:PIXI.Point) => {
+        //console.log(this.polyData);
+        if (this.cartPolyData8[this.polyNum]) {
+            // calculate the polygonal data for the ships position and its current sprite/heading
+            this.convertPolyDataToCartesian();
+            // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
+            return PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], p.x, p.y);
+        } else {
+            console.log("polyData not yet defined");
+        }
+    }
+
+    public hitTestByKeel(polygonPts:any)
+    {
+        // convert our polygonal data relative to our position
+        this.convertPolyDataToCartesian();
+
+        var x, y;
+
+        // console.log("Island polygon: " + polygonPts);
+        // console.log("Boat Pts: " + this.cartPolyData8[this.polyNum]);
+
+        for(var i=0; i<this.cartKeelData.length; i+=2)
+        {
+            x = this.cartKeelData[i];
+            y = this.cartKeelData[i+1];
             // for each point in our polygon, do a polyK hittest on the passed in polygon
             if (PolyK.ContainsPoint(polygonPts, x, y)) {
                 console.log("hit!");
