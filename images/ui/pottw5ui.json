@@ -1,0 +1,100 @@
+{"frames": {
+
+"CannonArray.png":
+{
+	"frame": {"x":403,"y":263,"w":140,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":140,"h":106},
+	"sourceSize": {"w":140,"h":106}
+},
+"compassBase.png":
+{
+	"frame": {"x":1,"y":1,"w":400,"h":400},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":400,"h":400},
+	"sourceSize": {"w":400,"h":400}
+},
+"needleCannon.png":
+{
+	"frame": {"x":839,"y":1,"w":38,"h":165},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":165},
+	"sourceSize": {"w":38,"h":166}
+},
+"needleShip.png":
+{
+	"frame": {"x":793,"y":1,"w":44,"h":186},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":44,"h":186},
+	"sourceSize": {"w":44,"h":186}
+},
+"Sail_Yscale.png":
+{
+	"frame": {"x":763,"y":315,"w":143,"h":143},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":143,"h":143},
+	"sourceSize": {"w":143,"h":143}
+},
+"sliderBack.png":
+{
+	"frame": {"x":665,"y":1,"w":126,"h":312},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":126,"h":312},
+	"sourceSize": {"w":126,"h":312}
+},
+"sliderThumb2.png":
+{
+	"frame": {"x":908,"y":1,"w":23,"h":456},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":23,"h":456},
+	"sourceSize": {"w":23,"h":456}
+},
+"starRotate.png":
+{
+	"frame": {"x":403,"y":1,"w":260,"h":260},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":260,"h":260},
+	"sourceSize": {"w":260,"h":260}
+},
+"UI_Header.png":
+{
+	"frame": {"x":1,"y":518,"w":758,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":758,"h":42},
+	"sourceSize": {"w":758,"h":43}
+},
+"UIFooter.png":
+{
+	"frame": {"x":1,"y":403,"w":760,"h":113},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":760,"h":113},
+	"sourceSize": {"w":760,"h":113}
+},
+"WindIndicator.png":
+{
+	"frame": {"x":545,"y":263,"w":58,"h":83},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":58,"h":83},
+	"sourceSize": {"w":58,"h":83}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "pottw5ui.png",
+	"format": "RGBA8888",
+	"size": {"w":932,"h":561},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:1612e0c965beb325ae2b71a202851b32:33bb6329544b034a0daa8288044ce864:bcc0c8310e43279ad21cd3ac6bcc5caf$"
+}
+}

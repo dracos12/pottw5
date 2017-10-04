@@ -21,6 +21,7 @@ export default class theSea
     private objectArray: Array<GameObject> = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
 
     private wheelScale = 0.25;
+    private mouseDown:boolean = false;
 
     private selectedBoat:Ship; // what boat does the user have selected
 
@@ -77,6 +78,15 @@ export default class theSea
         this.container.y += postZoomGlobal.y - preZoomGlobal.y; 
     }
 
+    mouseUpHandler = (e:any) => {
+        this.mouseDown = false;
+    }
+    
+    mouseDownHandler = (e:any) => {
+        if (e.target == this.container)
+            this.mouseDown = true;
+    }
+
     // pixi style event handler, not the same arguments as javascript mouse event
     mouseMoveHandler = (e:any) => {
         //document.getElementById("log").innerText = e.type;
@@ -86,7 +96,15 @@ export default class theSea
 
        // console.log("L: " + this.container.toLocal(e.data.global).x + ", " + this.container.toLocal(e.data.global).y);
 
-        if (e.data.buttons == 1) // left button is down 
+        if (e.target != this.container)
+        {
+            return;
+        }
+
+        if (e.data.buttons == 0)
+            this.mouseDown = false;
+
+        if (this.mouseDown) // left button is down 
         {
             //console.log("LeftDown");
             var doDelta = true;
@@ -113,6 +131,10 @@ export default class theSea
             this.lastY = -1;
         }
 
+        /*
+         *
+         * mousemove/mouseover functionality for islands - test with polyk, prolly better done with pixi handling
+         * 
         //take the mouse coords and convert to world coords
         let pos = new PIXI.Point(e.data.global.x, e.data.global.y);
         let mouseWorld:PIXI.Point = this.container.toLocal(pos);
@@ -126,12 +148,13 @@ export default class theSea
             if (entry.getType() == ObjectType.ISLAND || entry.getType() == ObjectType.SHIP) {
                 var retVal = entry.cartesianHitTest(mouseWorld);
                 if (retVal == true) {
-                    console.log("Hit over " + entry.getSprite().name);
+                    //console.log("Hit over " + entry.getSprite().name);
                 } else { 
                     //console.log("hitTest returns: " + retVal + " mouse: " + mouseWorld.x + "," + mouseWorld.y);
                 }
             }
         }
+        */
     }
     
     // when done loading, arrange the sea tiles on theSea container
@@ -212,9 +235,13 @@ export default class theSea
             .add("images/4x4Region1/image_part_015.png")
             .add("images/islands/region1atlas.json")        // loader automagically loads all the textures in this atlas
             .add("images/ships/corvette2.json")
-            .load(this.setup);
 
         this.loadCallback = callback;
+
+        this.container.interactive = true;
+        this.container.on("mousemove", this.mouseMoveHandler);
+        this.container.on("mouseup",this.mouseUpHandler);
+        this.container.on("mousedown",this.mouseDownHandler);
 
         //Attach event listeners
         window.addEventListener(
@@ -223,6 +250,13 @@ export default class theSea
         window.addEventListener(
         "keyup", this.keyUpHandler, false
         );
+
+        window.addEventListener("sailTrimEvent", this.sailTrimHandler, false);
+    }
+
+    sailTrimHandler = (event:any) => {
+        // event.detail contains the data of percent 0->1 of of sail trim.. hadn this down to our boat
+        this.selectedBoat.setSailTrim(event.detail);
     }
 
     keyDownHandler = (event:any) => {
@@ -419,7 +453,7 @@ export default class theSea
         for (let entry of this.objectArray) {
             if (entry.getType() == ObjectType.ISLAND) {
                 if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
-                    console.log("boxHit!");
+                    //console.log("boxHit!");
                     // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
                     if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true)
                     {

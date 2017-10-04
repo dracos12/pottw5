@@ -1,10 +1,15 @@
 import * as PIXI from 'pixi.js';
 import theSea from './theSea';
+import MainHUD from './mainhud';
 
 export default class Core {
     private _renderer:PIXI.CanvasRenderer|PIXI.WebGLRenderer;
     private _world:PIXI.Container;
     private _sea:theSea;
+    private _hud:MainHUD;
+
+    private seaLoaded:boolean = false;
+    private hudLoaded:boolean = false;
 
     constructor() {
         this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight,{backgroundColor: 0x7BA4DF});
@@ -14,24 +19,66 @@ export default class Core {
         // create a new sea object
         this._sea = new theSea();
         this._sea.init(this.seaLoadedCallback);
+
+        // crteate the main hud
+        this._hud = new MainHUD();
+        this._hud.addLoaderAssets(); 
+
+        // load all the assets requested by theSea and Hud
+        PIXI.loader.load(this.onLoaded);
+
+        console.log("PotTW: build 0.0.13");
+    }
+
+    private onLoaded = () => 
+    {
+        // hud is done and needs no further loading
+        this.mainHUDLoaded();
+        // theSea needs to load its data files
+        this._sea.setup();
+
+        // the sea will call seaLoadedCallback when its finally done so we can proceed
+    }
+
+    private postLoad()
+    {
+        if (this.hudLoaded && this.seaLoaded)
+        {
+            this._world.addChild(this._sea.getContainer());
+            this._world.addChild(this._hud.getContainer());
+
+            // center hud on window size
+            let c = this._hud.getContainer();
+            c.x = (window.innerWidth - c.width) / 2;
+
+            //mousewheel not part of Pixi so add the event to the DOM
+            document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
+
+            this.update();
+        }
+    }
+
+    private mainHUDLoaded = () =>
+    {
+        let c = this._hud.getContainer();
+        c.x = 0;
+        c.y = 0;
+
+        this.hudLoaded = true;
+        this._hud.onAssetsLoaded();
+
+        this.postLoad();
     }
 
     private seaLoadedCallback = () =>
     {
-        // add listener to the stage - stage declared in main, top level js file
-        console.log("PotTW: build 0.0.12");
-        this._world.interactive = true;
-        this._world.on("mousemove", this._sea.mouseMoveHandler);
-        //mousewheel not part of Pixi so add the event to the DOM
-        document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
+        this.seaLoaded = true;
 
-        this._world.addChild(this._sea.getContainer());
-        this.update();
+        this.postLoad();
     }
 
     public update = () => 
     {
-
         this._sea.update();
 
         this._renderer.render(this._world);

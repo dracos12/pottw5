@@ -53,7 +53,7 @@ export default class Ship extends GameObject
     {
         this.sprite = new PIXI.Sprite(); // an empty sprite
         this.matchHeadingToSprite(); // initialize the texture its using
-        this.name = "Nutmeg of Consolation";
+        this.name = "Nutmeg of Consolation"; 
     }
 
     public setPolyData(p:any) {
@@ -118,18 +118,6 @@ export default class Ship extends GameObject
         }
     }
 
-    public cartesianHitTest = (p:PIXI.Point) => {
-        //console.log(this.polyData);
-        if (this.cartPolyData8[this.polyNum]) {
-            // calculate the polygonal data for the ships position and its current sprite/heading
-            this.convertPolyDataToCartesian();
-            // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
-            return PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], p.x, p.y);
-        } else {
-            console.log("polyData not yet defined");
-        }
-    }
-
     public hitTestByPolygon(polygonPts:any)
     {
         // convert our polygonal data relative to our position
@@ -152,18 +140,6 @@ export default class Ship extends GameObject
         }
 
         return false;
-    }
-
-    public cartesianHitTest = (p:PIXI.Point) => {
-        //console.log(this.polyData);
-        if (this.cartPolyData8[this.polyNum]) {
-            // calculate the polygonal data for the ships position and its current sprite/heading
-            this.convertPolyDataToCartesian();
-            // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
-            return PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], p.x, p.y);
-        } else {
-            console.log("polyData not yet defined");
-        }
     }
 
     public hitTestByKeel(polygonPts:any)
@@ -285,6 +261,20 @@ export default class Ship extends GameObject
         this.sailState = 0; // straight to no sails
         this.targetSpeed = 0; // ramp down to no velocity
         console.log("Aye! Decreasing sail!");
+    }
+
+    public setSailTrim(newTrim:number) {
+        // set our speed based off the sail trim... sail trim is 0->1
+        this.targetSpeed = newTrim * 1; // 1 is our max speed... max speed can be data driven per boat type
+        if (this.targetSpeed <= 0)
+        {
+            this.targetSpeed = 0;
+            this.sailState = 0;
+        } else {
+            this.sailState = 2; // sails up
+        }
+        console.log("setting Sail Trim: " + newTrim.toFixed(2));
+        
     }
 
     public wheelStarboard() {
