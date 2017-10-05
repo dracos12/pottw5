@@ -212,6 +212,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/CounterProgress.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>13,13,25,25</rect>
+                <key>scale9Paddings</key>
+                <rect>13,13,25,25</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/Sail_Yscale.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -248,6 +261,19 @@
                 <rect>190,11,379,22</rect>
                 <key>scale9Paddings</key>
                 <rect>190,11,379,22</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/Watch.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>16,19,32,38</rect>
+                <key>scale9Paddings</key>
+                <rect>16,19,32,38</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -356,6 +382,8 @@
             <filename>../../../Art/pottw5/ui/Sail_Yscale.png</filename>
             <filename>../../../Art/pottw5/ui/sliderBack.png</filename>
             <filename>../../../Art/pottw5/ui/sliderThumb2.png</filename>
+            <filename>../../../Art/pottw5/ui/CounterProgress.png</filename>
+            <filename>../../../Art/pottw5/ui/Watch.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
