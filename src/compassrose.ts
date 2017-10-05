@@ -7,6 +7,7 @@
 
 import * as PIXI from 'pixi.js';
 import Ship from './ship';
+import Watch from './watch';
 
 export default class CompassRose extends PIXI.Container
 {
@@ -19,6 +20,8 @@ export default class CompassRose extends PIXI.Container
     private trackingShip:Ship;
 
     private animRot:number = 0;
+
+
 
     // init assumes it has its sprite assets available
     public init()
@@ -35,7 +38,7 @@ export default class CompassRose extends PIXI.Container
         this.needleHeading.anchor.y = 1;   // anchor at center bottom
         this.needleHeading.x = 200;
         this.needleHeading.y = 200;
-        this.needleHeading.rotation = this.getRads(15);
+        this.needleHeading.rotation = CompassRose.getRads(15);
 
         this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
         // this.needleCannon.pivot.x = this.needleCannon.width / 2;
@@ -44,7 +47,7 @@ export default class CompassRose extends PIXI.Container
         this.needleCannon.anchor.y = 1;   // anchor at center bottom
         this.needleCannon.x = 200;
         this.needleCannon.y = 200; // centered on compass base
-        this.needleCannon.rotation = this.getRads(105);
+        this.needleCannon.rotation = CompassRose.getRads(105);
 
         this.windDirection = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
         // this.windDirection.pivot.x = 29;
@@ -69,7 +72,7 @@ export default class CompassRose extends PIXI.Container
         this.trackShip(newShip);
     }
 
-    private getRads(degrees:number)
+    public static getRads(degrees:number)
     {
         return degrees * Math.PI / 180;
     }
@@ -109,7 +112,7 @@ export default class CompassRose extends PIXI.Container
     public update()
     {
         if (this.trackingShip)
-            this.needleHeading.rotation = this.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
+            this.needleHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
         // this.animRot += 0.1;
         // this.needleHeading.rotation = this.getRads(this.animRot);
         // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));

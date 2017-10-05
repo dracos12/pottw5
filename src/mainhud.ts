@@ -5,6 +5,7 @@
 import * as PIXI from 'pixi.js';
 import sailTrim from './sailtrim';
 import CompassRose from './compassrose';
+import Watch from './watch';
 
 export default class MainHUD 
 {
@@ -17,6 +18,9 @@ export default class MainHUD
     private rightCannonBattery:PIXI.Sprite;
     private leftCannonBattery:PIXI.Sprite;
     private _sailTrim:sailTrim;
+
+    private watch:Watch;
+    
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -62,12 +66,19 @@ export default class MainHUD
         this.leftCannonBattery.y = this.footer.y;
         this.leftCannonBattery.scale.x = -1; // flip the art so it points left
 
+        this.watch = new Watch();
+        this.watch.init();
+
+        this.watch.x = this.compassRose.x + this.compassRose.width/2 - this.watch.width/2;
+        this.watch.y = this.compassRose.y - this.watch.height - 5;
+
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
         this.container.addChild(this.rightCannonBattery);
         this.container.addChild(this.leftCannonBattery);
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
+        this.container.addChild(this.watch);
     }
 
     public getContainer()
@@ -78,5 +89,6 @@ export default class MainHUD
     public update()
     {
         this.compassRose.update();
+        this.watch.update();
     }
 } 
