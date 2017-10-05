@@ -2,7 +2,7 @@
 
 "CannonArray.png":
 {
-	"frame": {"x":548,"y":474,"w":140,"h":106},
+	"frame": {"x":403,"y":263,"w":140,"h":106},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":140,"h":106},
@@ -10,7 +10,7 @@
 },
 "compassBase.png":
 {
-	"frame": {"x":1,"y":160,"w":400,"h":400},
+	"frame": {"x":1,"y":1,"w":400,"h":400},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":400,"h":400},
@@ -18,15 +18,15 @@
 },
 "CounterProgress.png":
 {
-	"frame": {"x":548,"y":422,"w":50,"h":50},
+	"frame": {"x":589,"y":348,"w":33,"h":33},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":50},
-	"sourceSize": {"w":50,"h":50}
+	"spriteSourceSize": {"x":0,"y":0,"w":33,"h":33},
+	"sourceSize": {"w":33,"h":33}
 },
 "needleCannon.png":
 {
-	"frame": {"x":818,"y":189,"w":38,"h":165},
+	"frame": {"x":839,"y":1,"w":38,"h":165},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":165},
@@ -34,7 +34,7 @@
 },
 "needleShip.png":
 {
-	"frame": {"x":818,"y":1,"w":44,"h":186},
+	"frame": {"x":793,"y":1,"w":44,"h":186},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":44,"h":186},
@@ -42,7 +42,7 @@
 },
 "Sail_Yscale.png":
 {
-	"frame": {"x":403,"y":422,"w":143,"h":143},
+	"frame": {"x":763,"y":315,"w":143,"h":143},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":143,"h":143},
@@ -50,7 +50,7 @@
 },
 "sliderBack.png":
 {
-	"frame": {"x":665,"y":160,"w":126,"h":312},
+	"frame": {"x":665,"y":1,"w":126,"h":312},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":126,"h":312},
@@ -58,7 +58,7 @@
 },
 "sliderThumb2.png":
 {
-	"frame": {"x":793,"y":1,"w":23,"h":456},
+	"frame": {"x":908,"y":1,"w":23,"h":456},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":23,"h":456},
@@ -66,7 +66,7 @@
 },
 "starRotate.png":
 {
-	"frame": {"x":403,"y":160,"w":260,"h":260},
+	"frame": {"x":403,"y":1,"w":260,"h":260},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":260,"h":260},
@@ -74,7 +74,7 @@
 },
 "UI_Header.png":
 {
-	"frame": {"x":1,"y":116,"w":758,"h":42},
+	"frame": {"x":1,"y":518,"w":758,"h":42},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":758,"h":42},
@@ -82,7 +82,7 @@
 },
 "UIFooter.png":
 {
-	"frame": {"x":1,"y":1,"w":760,"h":113},
+	"frame": {"x":1,"y":403,"w":760,"h":113},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":760,"h":113},
@@ -90,15 +90,15 @@
 },
 "Watch.png":
 {
-	"frame": {"x":750,"y":474,"w":63,"h":75},
+	"frame": {"x":545,"y":348,"w":42,"h":49},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":63,"h":75},
-	"sourceSize": {"w":63,"h":75}
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":49},
+	"sourceSize": {"w":42,"h":49}
 },
 "WindIndicator.png":
 {
-	"frame": {"x":690,"y":474,"w":58,"h":83},
+	"frame": {"x":545,"y":263,"w":58,"h":83},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":58,"h":83},
@@ -109,8 +109,8 @@
 	"version": "1.0",
 	"image": "pottw5ui.png",
 	"format": "RGBA8888",
-	"size": {"w":863,"h":581},
+	"size": {"w":932,"h":561},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:cb64a19cc7e3c5fe91f76c2da6cb89cf:e4c550da3da31f99e986621b44b3bcf2:bcc0c8310e43279ad21cd3ac6bcc5caf$"
+	"smartupdate": "$TexturePacker:SmartUpdate:4ff5de6585b935e2163c6b99f519eeeb:4a790180ef022d88865e695116c8c850:bcc0c8310e43279ad21cd3ac6bcc5caf$"
 }
 }
