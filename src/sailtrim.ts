@@ -54,11 +54,25 @@ export default class sailTrim extends PIXI.Container
         this.mainLine.on("mousemove", this.mouseMoveHandler);
         this.mainLine.on("mousedown", this.mouseDownHandler);
         this.mainLine.on("mouseup", this.mouseUpHandler);
+
+        this.setSailTrimPercent(0); // default to all stop
     }
 
     public getSailTrimPercent()
     {
         return this.sailTrimPercent;
+    }
+
+    public setSailTrimPercent(percent:number)
+    {
+        // set the percentage here
+        this.sailTrimPercent = percent; //(this.mainLine.y + 100) / 210;
+
+        // set the mainLine position
+        this.mainLine.y = -100 + 210 * percent; // -100 is the zero position in y for the main sheet block
+                        
+        // sail scale goes from 0 - > 1.33 -- capped for visual appeal
+        this.sail.scale.y = this.sailTrimPercent * 1.33;
     }
 
     mouseMoveHandler = (e:any) => {
@@ -74,7 +88,7 @@ export default class sailTrim extends PIXI.Container
         {
             // move the mainlLine up and down only depending on delta in Y
             if (this.lastY != -1) {
-                this.deltaY = this.lastY - e.data.global.y;
+                this.deltaY = (this.lastY - e.data.global.y) * (1 / this.scale.y);
                 // move the mainLine
                 this.mainLine.y -= this.deltaY;
                 // cap the movement
@@ -86,7 +100,8 @@ export default class sailTrim extends PIXI.Container
                 // set the percentage here
                 this.sailTrimPercent = (this.mainLine.y + 100) / 210;
 
-                this.sail.scale.y = this.sailTrimPercent * 2;
+                // sail scale goes from 0 - > 1.33 -- capped for visual appeal
+                this.sail.scale.y = this.sailTrimPercent * 1.33;
             }
 
             this.lastY = e.data.global.y;

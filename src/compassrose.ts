@@ -6,6 +6,7 @@
 //
 
 import * as PIXI from 'pixi.js';
+import Ship from './ship';
 
 export default class CompassRose extends PIXI.Container
 {
@@ -14,6 +15,10 @@ export default class CompassRose extends PIXI.Container
     private needleHeading:PIXI.Sprite; // ship heading needle
     private needleCannon:PIXI.Sprite; // cannon needle
     private windDirection:PIXI.Sprite;  // wind direction indicator
+
+    private trackingShip:Ship;
+
+    private animRot:number = 0;
 
     // init assumes it has its sprite assets available
     public init()
@@ -54,10 +59,59 @@ export default class CompassRose extends PIXI.Container
         this.addChild(this.needleHeading);
         this.addChild(this.needleCannon);
         this.addChild(this.starCap);
+
+        window.addEventListener("boatSelected", this.boatSelectedHandler, false);
+    }
+
+    boatSelectedHandler = (event:any) => {
+        // event.detail the reference to the tracked ship
+        var newShip:Ship = event.detail;
+        this.trackShip(newShip);
     }
 
     private getRads(degrees:number)
     {
         return degrees * Math.PI / 180;
+    }
+
+    public static convertCartToCompass(degrees:number)
+    {
+        // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)
+        // and convert it to compass rotation (0 is along the y axis "up" and sweeps clockwise)
+
+        // cart will be from 0 -> 180 or 0 -> -180 for top or bottom hemisphere
+        // compass rotations are just 0 -> 360
+
+        let compassAngle = 0;
+
+        if (degrees < 0) 
+        {
+            compassAngle = 90 + Math.abs(degrees);    
+        }
+        else if (degrees > 90)
+        {
+            compassAngle = 180 - degrees + 270;
+        }
+        else
+        {
+            compassAngle = 90 - degrees;
+        }
+
+        return compassAngle;
+    }
+
+    // set the ship we should track for heading info
+    public trackShip(ship:Ship)
+    {
+        this.trackingShip = ship;
+    }
+
+    public update()
+    {
+        if (this.trackingShip)
+            this.needleHeading.rotation = this.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
+        // this.animRot += 0.1;
+        // this.needleHeading.rotation = this.getRads(this.animRot);
+        // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
     }
 }

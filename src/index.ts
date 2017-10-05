@@ -20,7 +20,7 @@ export default class Core {
         this._sea = new theSea();
         this._sea.init(this.seaLoadedCallback);
 
-        // crteate the main hud
+        // create the main hud
         this._hud = new MainHUD();
         this._hud.addLoaderAssets(); 
 
@@ -80,6 +80,7 @@ export default class Core {
     public update = () => 
     {
         this._sea.update();
+        this._hud.update();
 
         this._renderer.render(this._world);
 

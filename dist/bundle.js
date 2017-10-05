@@ -191,6 +191,7 @@ var Core = /** @class */function () {
         };
         this.update = function () {
             _this._sea.update();
+            _this._hud.update();
             _this._renderer.render(_this._world);
             requestAnimationFrame(_this.update);
         };
@@ -200,7 +201,7 @@ var Core = /** @class */function () {
         // create a new sea object
         this._sea = new theSea_1.default();
         this._sea.init(this.seaLoadedCallback);
-        // crteate the main hud
+        // create the main hud
         this._hud = new mainhud_1.default();
         this._hud.addLoaderAssets();
         // load all the assets requested by theSea and Hud
@@ -509,6 +510,11 @@ var theSea = /** @class */function () {
             this.objectArray.push(boat);
             boat.setPolyData(this.boatData.corvette);
             this.selectedBoat = boat;
+            // send a message that we have a new selected boat
+            var myEvent = new CustomEvent("boatSelected", {
+                'detail': this.selectedBoat
+            });
+            window.dispatchEvent(myEvent);
             // final step in loading process.. can now call loadcallback
             this.loadCallback();
         }
@@ -887,6 +893,9 @@ var Ship = /** @class */function (_super) {
         this.updatePosition();
         // update its sprite if necessary
         this.matchHeadingToSprite();
+    };
+    Ship.prototype.getHeading = function () {
+        return this.degreeHeading;
     };
     return Ship;
 }(gameobject_1.default);
@@ -2255,27 +2264,37 @@ var MainHUD = /** @class */function () {
         this.footer = new PIXI.Sprite(PIXI.Texture.fromFrame("UIFooter.png"));
         this.footer.x = 0;
         this.footer.y = window.innerHeight - this.footer.height;
-        this.cannons = new PIXI.Sprite(PIXI.Texture.fromFrame("CannonArray.png"));
-        this.cannons.x = this.footer.width - this.cannons.width + 40;
-        this.cannons.y = this.footer.y;
-        this.compassRose = new compassrose_1.default();
-        this.compassRose.init();
-        this.compassRose.scale.x = 0.67;
-        this.compassRose.scale.y = 0.67;
-        this.compassRose.x = this.cannons.x - this.compassRose.width + 20;
-        this.compassRose.y = window.innerHeight - this.compassRose.height;
+        this.rightCannonBattery = new PIXI.Sprite(PIXI.Texture.fromFrame("CannonArray.png"));
+        this.rightCannonBattery.x = this.footer.width - this.rightCannonBattery.width + 40;
+        this.rightCannonBattery.y = this.footer.y;
+        // sail trim nbext to guns
         this._sailTrim = new sailtrim_1.default();
         this._sailTrim.init();
-        this._sailTrim.x = this.compassRose.x - this._sailTrim.width - 5;
+        this._sailTrim.scale.x = this._sailTrim.scale.y = 0.67;
+        this._sailTrim.x = this.rightCannonBattery.x - this._sailTrim.width + 20;
         this._sailTrim.y = window.innerHeight - this._sailTrim.height;
+        this.compassRose = new compassrose_1.default();
+        this.compassRose.init();
+        this.compassRose.scale.x = 0.33;
+        this.compassRose.scale.y = 0.33;
+        this.compassRose.x = this._sailTrim.x - this.compassRose.width;
+        this.compassRose.y = window.innerHeight - this.compassRose.height;
+        this.leftCannonBattery = new PIXI.Sprite(PIXI.Texture.fromFrame("CannonArray.png"));
+        this.leftCannonBattery.x = this.compassRose.x; // scaleX will be flipped which makes its anchor point top right
+        this.leftCannonBattery.y = this.footer.y;
+        this.leftCannonBattery.scale.x = -1; // flip the art so it points left
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
-        this.container.addChild(this.cannons);
+        this.container.addChild(this.rightCannonBattery);
+        this.container.addChild(this.leftCannonBattery);
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
     };
     MainHUD.prototype.getContainer = function () {
         return this.container;
+    };
+    MainHUD.prototype.update = function () {
+        this.compassRose.update();
     };
     return MainHUD;
 }();
@@ -2322,14 +2341,15 @@ var sailTrim = /** @class */function (_super) {
             if (_this.mouseDown) {
                 // move the mainlLine up and down only depending on delta in Y
                 if (_this.lastY != -1) {
-                    _this.deltaY = _this.lastY - e.data.global.y;
+                    _this.deltaY = (_this.lastY - e.data.global.y) * (1 / _this.scale.y);
                     // move the mainLine
                     _this.mainLine.y -= _this.deltaY;
                     // cap the movement
                     if (_this.mainLine.y < -100) _this.mainLine.y = -100;else if (_this.mainLine.y > 110) _this.mainLine.y = 110;
                     // set the percentage here
                     _this.sailTrimPercent = (_this.mainLine.y + 100) / 210;
-                    _this.sail.scale.y = _this.sailTrimPercent * 2;
+                    // sail scale goes from 0 - > 1.33 -- capped for visual appeal
+                    _this.sail.scale.y = _this.sailTrimPercent * 1.33;
                 }
                 _this.lastY = e.data.global.y;
             }
@@ -2371,9 +2391,18 @@ var sailTrim = /** @class */function (_super) {
         this.mainLine.on("mousemove", this.mouseMoveHandler);
         this.mainLine.on("mousedown", this.mouseDownHandler);
         this.mainLine.on("mouseup", this.mouseUpHandler);
+        this.setSailTrimPercent(0); // default to all stop
     };
     sailTrim.prototype.getSailTrimPercent = function () {
         return this.sailTrimPercent;
+    };
+    sailTrim.prototype.setSailTrimPercent = function (percent) {
+        // set the percentage here
+        this.sailTrimPercent = percent; //(this.mainLine.y + 100) / 210;
+        // set the mainLine position
+        this.mainLine.y = -100 + 210 * percent; // -100 is the zero position in y for the main sheet block
+        // sail scale goes from 0 - > 1.33 -- capped for visual appeal
+        this.sail.scale.y = this.sailTrimPercent * 1.33;
     };
     sailTrim.prototype.endSetTrim = function () {
         this.mouseDown = false;
@@ -2419,7 +2448,14 @@ var PIXI = __webpack_require__(0);
 var CompassRose = /** @class */function (_super) {
     __extends(CompassRose, _super);
     function CompassRose() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.animRot = 0;
+        _this.boatSelectedHandler = function (event) {
+            // event.detail the reference to the tracked ship
+            var newShip = event.detail;
+            _this.trackShip(newShip);
+        };
+        return _this;
     }
     // init assumes it has its sprite assets available
     CompassRose.prototype.init = function () {
@@ -2455,9 +2491,35 @@ var CompassRose = /** @class */function (_super) {
         this.addChild(this.needleHeading);
         this.addChild(this.needleCannon);
         this.addChild(this.starCap);
+        window.addEventListener("boatSelected", this.boatSelectedHandler, false);
     };
     CompassRose.prototype.getRads = function (degrees) {
         return degrees * Math.PI / 180;
+    };
+    CompassRose.convertCartToCompass = function (degrees) {
+        // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)
+        // and convert it to compass rotation (0 is along the y axis "up" and sweeps clockwise)
+        // cart will be from 0 -> 180 or 0 -> -180 for top or bottom hemisphere
+        // compass rotations are just 0 -> 360
+        var compassAngle = 0;
+        if (degrees < 0) {
+            compassAngle = 90 + Math.abs(degrees);
+        } else if (degrees > 90) {
+            compassAngle = 180 - degrees + 270;
+        } else {
+            compassAngle = 90 - degrees;
+        }
+        return compassAngle;
+    };
+    // set the ship we should track for heading info
+    CompassRose.prototype.trackShip = function (ship) {
+        this.trackingShip = ship;
+    };
+    CompassRose.prototype.update = function () {
+        if (this.trackingShip) this.needleHeading.rotation = this.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
+        // this.animRot += 0.1;
+        // this.needleHeading.rotation = this.getRads(this.animRot);
+        // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
     };
     return CompassRose;
 }(PIXI.Container);

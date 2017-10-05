@@ -368,6 +368,13 @@ export default class theSea
             boat.setPolyData(this.boatData.corvette);
 
             this.selectedBoat = boat;
+            // send a message that we have a new selected boat
+            var myEvent = new CustomEvent("boatSelected",
+            {
+                'detail': this.selectedBoat
+            });
+    
+            window.dispatchEvent(myEvent);
 
             // final step in loading process.. can now call loadcallback
             this.loadCallback();

@@ -322,4 +322,9 @@ export default class Ship extends GameObject
         this.matchHeadingToSprite();
 
     }
+
+    public getHeading()
+    {
+        return this.degreeHeading;
+    }
 }
