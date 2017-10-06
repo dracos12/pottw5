@@ -8,20 +8,20 @@
 import * as PIXI from 'pixi.js';
 import Ship from './ship';
 import Watch from './watch';
+import Victor = require('victor');
 
 export default class CompassRose extends PIXI.Container
 {
     private compassBase:PIXI.Sprite; // base with 32 headings
     private starCap:PIXI.Sprite;     // star cap to hide the bases of the layered needles beneath it
     private needleHeading:PIXI.Sprite; // ship heading needle
+    private needleGhostHeading:PIXI.Sprite; // ghost needle for user to move to proposed new heading
     private needleCannon:PIXI.Sprite; // cannon needle
     private windDirection:PIXI.Sprite;  // wind direction indicator
-
     private trackingShip:Ship;
-
     private animRot:number = 0;
-
-
+    private mouseDown:boolean = false;
+    private trackedNewHeading:number = 0;
 
     // init assumes it has its sprite assets available
     public init()
@@ -39,6 +39,16 @@ export default class CompassRose extends PIXI.Container
         this.needleHeading.x = 200;
         this.needleHeading.y = 200;
         this.needleHeading.rotation = CompassRose.getRads(15);
+
+        // the ghost heading needle
+        this.needleGhostHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
+        this.needleGhostHeading.anchor.x = 0.5;
+        this.needleGhostHeading.anchor.y = 1;   // anchor at center bottom
+        this.needleGhostHeading.x = 200;
+        this.needleGhostHeading.y = 200;
+        this.needleGhostHeading.rotation = CompassRose.getRads(15);
+        this.needleGhostHeading.visible = false;
+        this.needleGhostHeading.alpha = 0.67;
 
         this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
         // this.needleCannon.pivot.x = this.needleCannon.width / 2;
@@ -60,16 +70,65 @@ export default class CompassRose extends PIXI.Container
         this.addChild(this.compassBase);    // z order will be in child order, back to front
         this.addChild(this.windDirection);
         this.addChild(this.needleHeading);
+        this.addChild(this.needleGhostHeading);
         this.addChild(this.needleCannon);
         this.addChild(this.starCap);
 
-        window.addEventListener("boatSelected", this.boatSelectedHandler, false);
+        this.needleHeading.interactive = true;
+        this.needleHeading.on("mousedown", this.mouseDownHandler);
+
+        this.needleHeading.on("mousemove", this.mouseMoveHandler);
+        this.needleHeading.on("mouseup", this.mouseUpHandler);
     }
 
-    boatSelectedHandler = (event:any) => {
-        // event.detail the reference to the tracked ship
-        var newShip:Ship = event.detail;
-        this.trackShip(newShip);
+    private endSetHeading() {
+        if (this.mouseDown == true) {
+            this.mouseDown = false;
+
+            console.log("CompassRose: END ghost heading");
+            
+            var myEvent = new CustomEvent("changeHeading",
+            {
+                'detail': this.trackedNewHeading
+            });
+    
+            window.dispatchEvent(myEvent);
+        }
+        // else ignore - might be called as mouse moves without mousedown
+    }
+
+    mouseMoveHandler = (e:any) => {
+        
+        if (e.data.buttons == 0)
+            this.endSetHeading();
+
+        // mouse has moved, find the angle relative to the center of the compass and rotate the ghost image there
+        if (this.mouseDown) {
+            this.needleGhostHeading.visible = true;
+            // get local coords from mouse coords
+            let locPt = this.toLocal(new PIXI.Point(e.data.global.x,e.data.global.y));
+            // get a vector from these coords
+            let vic = new Victor(locPt.x - this.compassBase.width/2, -(locPt.y - this.compassBase.height/2));
+            let angDeg = vic.angleDeg();
+            this.needleGhostHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(angDeg));
+            //console.log("Mouse Degrees: " + vic.angleDeg());
+            this.trackedNewHeading = angDeg;
+        }
+
+    }
+
+    mouseDownHandler = (e:any) => {
+        if (e.target == this.needleHeading)
+        {
+            this.mouseDown = true;
+            console.log("CompassRose: START ghost heading");
+        }
+        
+    }
+
+    mouseUpHandler = (e:any) => {
+        // release mouse no matter what the e.target was
+        this.endSetHeading();
     }
 
     public static getRads(degrees:number)

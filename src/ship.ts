@@ -5,6 +5,7 @@
 import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
 import Victor = require('victor');
+import CompassRose from './compassrose';
 
 export const enum ShipType {
     SLOOP,
@@ -20,8 +21,14 @@ export default class Ship extends GameObject
 {
     private heading:Victor; // normalized ship direction
     private degreeHeading:number; // heading expressed as degrees
+    private targetHeading:number;
+    private toLarboard:boolean = false; // which direction to turn to targetHeading
+    private angularSpeed:number = 30; // boat characteristic in degrees/second
+    private lastTime:number; // record last timestamp
+
     private speed:number;   // scalar for speed (why not use a velocity vector to combine heading and speed?)
     private targetSpeed:number;
+
     private name:string;    // all boats must have a name! ;)
     private sailState:number; // 0 = down, 1 = full sail, 2 = half sail
     private polyNum:number= 0; // current heading corresponds to which index in the polyData array?
@@ -43,6 +50,8 @@ export default class Ship extends GameObject
         this.targetSpeed = 0;
         this.heading = new Victor(1,0); // east
         this.degreeHeading = this.heading.angleDeg(); 
+        this.targetHeading = this.degreeHeading;
+        this.lastTime = 0;
 
         for (var i=0; i<8; i++) {
             this.cartPolyData8.push(new Array<number>());
@@ -316,6 +325,41 @@ export default class Ship extends GameObject
             }
         }
 
+        if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
+            var now = Date.now();
+            var deltaTime;
+            if (this.lastTime != 0)
+            {
+                deltaTime = now - this.lastTime;
+                var deltaAngle = deltaTime * (this.angularSpeed/1000);
+                // move to the target in the direction indicated by toLarboard
+                if (this.toLarboard) // move to target by adding to degree angle
+                {
+                    this.degreeHeading += deltaAngle;
+                    if (this.degreeHeading > 180)
+                        this.degreeHeading -= 360;
+                }
+                else // move to target by subtracting to degree angle
+                {
+                    this.degreeHeading -= deltaAngle;
+                    if (this.degreeHeading < -180)
+                        this.degreeHeading += 360;
+                }
+                
+                var xpart = Math.cos(CompassRose.getRads(this.degreeHeading));
+                var ypart = Math.sin(CompassRose.getRads(this.degreeHeading));
+                
+                this.heading.x = xpart; 
+                this.heading.y = ypart; // y is flipped in worldspace compared to cartesian values
+                this.heading.normalize(); // make sure its normalized
+
+                //console.log("target: " + this.targetHeading.toFixed(0) + " heading: " + this.degreeHeading.toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
+
+            }
+
+            this.lastTime = now; 
+        }
+
         this.updatePosition();
 
         // update its sprite if necessary
@@ -326,5 +370,71 @@ export default class Ship extends GameObject
     public getHeading()
     {
         return this.degreeHeading;
+    }
+
+    public changeHeading(newHeading:number)
+    {
+        // change our heading to the newHeading
+        // we accomplish this over time dictated by the skill of our crew
+        // for now use the scale 3000->10000 for good->bad crew skill levels
+
+        // small heading changes take less time than large ones
+        // tacking through the wind adds a time penalty as the force decays then rises
+        let deltaDegrees = this.larOrStarboard(newHeading);
+        this.targetHeading = newHeading;
+        if (deltaDegrees < 0)
+            this.toLarboard = false;
+        else    
+            this.toLarboard = true;
+        
+        // reset lastTime
+        this.lastTime = 0;
+
+        // caluclate degrees per second, multiply by 1000 to convert to milliseconds
+        let timeToTurn = (Math.abs(deltaDegrees) / this.angularSpeed) * 1000;
+        console.log("Changing heading of " + deltaDegrees + " in " + timeToTurn + " milliseconds");
+        return timeToTurn;
+    }
+
+    // returns -degrees for starboard (subtract from heading until there)
+    // return +degrees for larboard (add to heading until there)
+    private larOrStarboard(newHeading:number)
+    {
+        // convert to 360 paradigm (0 being along the positive x axis, sweeping anticlockwise)
+        var to;
+        var from;
+
+        var left;
+        var right;
+
+        if (this.degreeHeading < 0)
+            from = this.degreeHeading + 360;
+        else   
+            from = this.degreeHeading;
+
+        if (newHeading < 0)
+            to = newHeading + 360;
+        else
+            to = newHeading;
+
+        if (from < to)
+        {
+            left = to - from;
+            right = (360 - to) + from;
+        }
+        else 
+        {
+            left = (360 - from) + to;
+            right = from - to;
+            
+            //left = to - from;
+            //right = (360 - to) + from;
+        }
+
+        if (right < left)
+            return -right; // go right, right also contains the degrees needed 
+        else
+            return left; // go left, left contains the degrees needed
+
     }
 }

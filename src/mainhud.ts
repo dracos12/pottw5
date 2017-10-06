@@ -6,6 +6,7 @@ import * as PIXI from 'pixi.js';
 import sailTrim from './sailtrim';
 import CompassRose from './compassrose';
 import Watch from './watch';
+import Ship from './ship';
 
 export default class MainHUD 
 {
@@ -20,6 +21,8 @@ export default class MainHUD
     private _sailTrim:sailTrim;
 
     private watch:Watch;
+
+    private trackShip:Ship; // the ship the hud is currently tracking
     
 
     // request the assets we need loaded
@@ -79,11 +82,39 @@ export default class MainHUD
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
         this.container.addChild(this.watch);
+
+        this.watch.visible = false;
+
+        window.addEventListener("boatSelected", this.boatSelectedHandler, false);
+        window.addEventListener("changeHeading", this.changeHeadingHandler, false);
     }
 
     public getContainer()
     {
         return this.container;
+    }
+
+    changeHeadingHandler = (event:any) => {
+        console.log("changeHeadingHandler received!");
+        // ask the boat to change to new heading, it will return how much time this take
+        var newHeading = event.detail;
+        let headingTime = this.trackShip.changeHeading(newHeading);
+        // display a watch over the compass set to countdown by this time (milliseconds)
+        this.watch.visible = true;
+        this.watch.countDown(headingTime);
+        this.watch.start(this.onCountDone);
+    }
+
+    onCountDone = () => {
+        this.watch.visible = false;
+        console.log("onCountDone!");
+    }
+
+    boatSelectedHandler = (event:any) => {
+        // event.detail the reference to the tracked ship
+        var newShip:Ship = event.detail;
+        this.compassRose.trackShip(newShip);
+        this.trackShip = newShip;
     }
 
     public update()

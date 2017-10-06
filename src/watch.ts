@@ -19,6 +19,8 @@ export default class Watch extends PIXI.Container
     private totalTime:number = 0;
     private timeElapsed:number = 0;
 
+    private started:boolean = false;
+
     private timeToZero(seconds:number)
     {
 
@@ -42,7 +44,17 @@ export default class Watch extends PIXI.Container
 
     public start(callback:Function)
     {
+        this.percentDone = 0;
+        this.timeElapsed = 0;
+        this.lastTime = 0;
         this.finishedCallback = callback;
+        this.started = true;
+        console.log("watch started");
+    }
+
+    public stop()
+    {
+        this.started = false;
     }
 
     private doMask()
@@ -71,17 +83,36 @@ export default class Watch extends PIXI.Container
         this.addChild(this.counterMask);
     }
 
+    public countDown(timeToCount:number)
+    {
+        // all units in milliseconds
+        this.totalTime = timeToCount;
+    }
+
     public update()
     {
-        // let now = Date.prototype.getTime();
-        // this.timeElapsed += now - this.lastTime;
+        if (this.started)
+        {
+            let now = Date.now();
+            if (this.lastTime != 0)
+                this.timeElapsed += now - this.lastTime;
 
-        // this.percentDone = (this.totalTime - this.timeElapsed) / this.totalTime;
+            this.lastTime = now;
 
-        this.percentDone += 0.0125;
-        if (this.percentDone > 1)
-            this.percentDone = 0;
+            this.percentDone = 1 - (this.totalTime - this.timeElapsed) / this.totalTime;
 
-        this.doMask();
+            if (this.percentDone >= 1)
+                this.percentDone = 1;
+
+            this.doMask();
+
+            if (this.percentDone == 1)
+            {
+                this.stop();
+                // call our callback to indicate we are finished
+                if (this.finishedCallback)
+                    this.finishedCallback();
+            }
+        }
     }
 }

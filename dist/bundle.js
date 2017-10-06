@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -160,749 +160,158 @@ exports.default = GameObject;
 
 "use strict";
 
+//
+// CompassRose class widget 
+//  displays ship heading, cannon angle, and wind direction
+//  ship heading is interactive and allows the player to change the heading
+//  allows the player to adjust the cannon angle as well
+//
 
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var theSea_1 = __webpack_require__(3);
-var mainhud_1 = __webpack_require__(7);
-var Core = /** @class */function () {
-    function Core() {
-        var _this = this;
-        this.seaLoaded = false;
-        this.hudLoaded = false;
-        this.onLoaded = function () {
-            // hud is done and needs no further loading
-            _this.mainHUDLoaded();
-            // theSea needs to load its data files
-            _this._sea.setup();
-            // the sea will call seaLoadedCallback when its finally done so we can proceed
+var Victor = __webpack_require__(3);
+var CompassRose = /** @class */function (_super) {
+    __extends(CompassRose, _super);
+    function CompassRose() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.animRot = 0;
+        _this.mouseDown = false;
+        _this.trackedNewHeading = 0;
+        _this.mouseMoveHandler = function (e) {
+            if (e.data.buttons == 0) _this.endSetHeading();
+            // mouse has moved, find the angle relative to the center of the compass and rotate the ghost image there
+            if (_this.mouseDown) {
+                _this.needleGhostHeading.visible = true;
+                // get local coords from mouse coords
+                var locPt = _this.toLocal(new PIXI.Point(e.data.global.x, e.data.global.y));
+                // get a vector from these coords
+                var vic = new Victor(locPt.x - _this.compassBase.width / 2, -(locPt.y - _this.compassBase.height / 2));
+                var angDeg = vic.angleDeg();
+                _this.needleGhostHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(angDeg));
+                //console.log("Mouse Degrees: " + vic.angleDeg());
+                _this.trackedNewHeading = angDeg;
+            }
         };
-        this.mainHUDLoaded = function () {
-            var c = _this._hud.getContainer();
-            c.x = 0;
-            c.y = 0;
-            _this.hudLoaded = true;
-            _this._hud.onAssetsLoaded();
-            _this.postLoad();
+        _this.mouseDownHandler = function (e) {
+            if (e.target == _this.needleHeading) {
+                _this.mouseDown = true;
+                console.log("CompassRose: START ghost heading");
+            }
         };
-        this.seaLoadedCallback = function () {
-            _this.seaLoaded = true;
-            _this.postLoad();
+        _this.mouseUpHandler = function (e) {
+            // release mouse no matter what the e.target was
+            _this.endSetHeading();
         };
-        this.update = function () {
-            _this._sea.update();
-            _this._hud.update();
-            _this._renderer.render(_this._world);
-            requestAnimationFrame(_this.update);
-        };
-        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { backgroundColor: 0x7BA4DF });
-        this._world = new PIXI.Container();
-        document.body.appendChild(this._renderer.view);
-        // create a new sea object
-        this._sea = new theSea_1.default();
-        this._sea.init(this.seaLoadedCallback);
-        // create the main hud
-        this._hud = new mainhud_1.default();
-        this._hud.addLoaderAssets();
-        // load all the assets requested by theSea and Hud
-        PIXI.loader.load(this.onLoaded);
-        console.log("PotTW: build 0.0.13");
+        return _this;
     }
-    Core.prototype.postLoad = function () {
-        if (this.hudLoaded && this.seaLoaded) {
-            this._world.addChild(this._sea.getContainer());
-            this._world.addChild(this._hud.getContainer());
-            // center hud on window size
-            var c = this._hud.getContainer();
-            c.x = (window.innerWidth - c.width) / 2;
-            //mousewheel not part of Pixi so add the event to the DOM
-            document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
-            this.update();
-        }
+    // init assumes it has its sprite assets available
+    CompassRose.prototype.init = function () {
+        this.compassBase = new PIXI.Sprite(PIXI.Texture.fromFrame("compassBase.png"));
+        this.starCap = new PIXI.Sprite(PIXI.Texture.fromFrame("starRotate.png"));
+        this.starCap.x = (this.compassBase.width - this.starCap.width) / 2;
+        this.starCap.y = (this.compassBase.height - this.starCap.height) / 2; // centered
+        this.needleHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
+        // this.needleHeading.pivot.x = this.needleHeading.width / 2;
+        // this.needleHeading.pivot.y = this.needleHeading.height;  // bottom center of sprite
+        this.needleHeading.anchor.x = 0.5;
+        this.needleHeading.anchor.y = 1; // anchor at center bottom
+        this.needleHeading.x = 200;
+        this.needleHeading.y = 200;
+        this.needleHeading.rotation = CompassRose.getRads(15);
+        // the ghost heading needle
+        this.needleGhostHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
+        this.needleGhostHeading.anchor.x = 0.5;
+        this.needleGhostHeading.anchor.y = 1; // anchor at center bottom
+        this.needleGhostHeading.x = 200;
+        this.needleGhostHeading.y = 200;
+        this.needleGhostHeading.rotation = CompassRose.getRads(15);
+        this.needleGhostHeading.visible = false;
+        this.needleGhostHeading.alpha = 0.67;
+        this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
+        // this.needleCannon.pivot.x = this.needleCannon.width / 2;
+        // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
+        this.needleCannon.anchor.x = 0.5;
+        this.needleCannon.anchor.y = 1; // anchor at center bottom
+        this.needleCannon.x = 200;
+        this.needleCannon.y = 200; // centered on compass base
+        this.needleCannon.rotation = CompassRose.getRads(105);
+        this.windDirection = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
+        // this.windDirection.pivot.x = 29;
+        // this.windDirection.pivot.y = 183;  // will rotate around this point against the compass base background
+        this.windDirection.anchor.x = 0.5;
+        this.windDirection.anchor.y = 2.5;
+        this.windDirection.x = 200; //this.compassBase.width / 2 - this.windDirection.width / 2;
+        this.windDirection.y = 200; //17; // magic number
+        this.addChild(this.compassBase); // z order will be in child order, back to front
+        this.addChild(this.windDirection);
+        this.addChild(this.needleHeading);
+        this.addChild(this.needleGhostHeading);
+        this.addChild(this.needleCannon);
+        this.addChild(this.starCap);
+        this.needleHeading.interactive = true;
+        this.needleHeading.on("mousedown", this.mouseDownHandler);
+        this.needleHeading.on("mousemove", this.mouseMoveHandler);
+        this.needleHeading.on("mouseup", this.mouseUpHandler);
     };
-    return Core;
-}();
-exports.default = Core;
-var game = new Core();
+    CompassRose.prototype.endSetHeading = function () {
+        if (this.mouseDown == true) {
+            this.mouseDown = false;
+            console.log("CompassRose: END ghost heading");
+            var myEvent = new CustomEvent("changeHeading", {
+                'detail': this.trackedNewHeading
+            });
+            window.dispatchEvent(myEvent);
+        }
+        // else ignore - might be called as mouse moves without mousedown
+    };
+    CompassRose.getRads = function (degrees) {
+        return degrees * Math.PI / 180;
+    };
+    CompassRose.convertCartToCompass = function (degrees) {
+        // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)
+        // and convert it to compass rotation (0 is along the y axis "up" and sweeps clockwise)
+        // cart will be from 0 -> 180 or 0 -> -180 for top or bottom hemisphere
+        // compass rotations are just 0 -> 360
+        var compassAngle = 0;
+        if (degrees < 0) {
+            compassAngle = 90 + Math.abs(degrees);
+        } else if (degrees > 90) {
+            compassAngle = 180 - degrees + 270;
+        } else {
+            compassAngle = 90 - degrees;
+        }
+        return compassAngle;
+    };
+    // set the ship we should track for heading info
+    CompassRose.prototype.trackShip = function (ship) {
+        this.trackingShip = ship;
+    };
+    CompassRose.prototype.update = function () {
+        if (this.trackingShip) this.needleHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
+        // this.animRot += 0.1;
+        // this.needleHeading.rotation = this.getRads(this.animRot);
+        // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
+    };
+    return CompassRose;
+}(PIXI.Container);
+exports.default = CompassRose;
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(0);
-var gameobject_1 = __webpack_require__(1);
-var island_1 = __webpack_require__(4);
-var ship_1 = __webpack_require__(5);
-var theSea = /** @class */function () {
-    function theSea() {
-        var _this = this;
-        this.container = new PIXI.Container();
-        this.deltaX = 0;
-        this.deltaY = 0;
-        this.lastX = -1;
-        this.lastY = -1;
-        this.objectArray = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
-        this.wheelScale = 0.25;
-        this.mouseDown = false;
-        this.islandsLoaded = false;
-        this.boatsLoaded = false;
-        this.layerSeaTiles = new PIXI.Container();
-        this.layerObjects = new PIXI.Container();
-        //private layerUI:PIXI.Container = new PIXI.Container();
-        // javascript style mouse wheel handler, pixi does not support mouse wheel
-        this.mouseWheelHandler = function (e) {
-            //console.log(e);
-            if (e.wheelDelta > 0) {
-                _this.wheelScale += 0.05;
-                if (_this.wheelScale > 2.0) _this.wheelScale = 2.0;
-                //console.log("wheel in");
-            } else {
-                _this.wheelScale -= 0.05;
-                if (_this.wheelScale < 0.10) _this.wheelScale = 0.10;
-                //console.log("wheel out");
-            }
-            var pos = new PIXI.Point(e.clientX, e.clientY);
-            var preZoomWorld = _this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);  
-            //
-            // perform the scale to the container
-            //
-            _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
-            // console.log("scale: " + this.wheelScale.toFixed(2) + 
-            //             " pos: " + this.container.x.toFixed(2) + "," + this.container.y.toFixed(2) + " " + 
-            //             "w: " + this.container.width.toFixed(2) + 
-            //             " h: " + this.container.height.toFixed(2) +
-            //             " mouse: " + e.clientX + "," + e.clientY
-            //             );
-            //where is the zoom location now, after we changed the scale?
-            var postZoomWorld = _this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);
-            //console.log("pre: " + preZoomWorld.x + "," + preZoomWorld.y + " post: " + postZoomWorld.x + "," + postZoomWorld.y);
-            var preZoomGlobal = _this.container.toGlobal(preZoomWorld);
-            var postZoomGlobal = _this.container.toGlobal(postZoomWorld);
-            //move the world so that the zoomed-location goes back to where it was on the screen before scaling        
-            _this.container.x += postZoomGlobal.x - preZoomGlobal.x;
-            _this.container.y += postZoomGlobal.y - preZoomGlobal.y;
-        };
-        this.mouseUpHandler = function (e) {
-            _this.mouseDown = false;
-        };
-        this.mouseDownHandler = function (e) {
-            if (e.target == _this.container) _this.mouseDown = true;
-        };
-        // pixi style event handler, not the same arguments as javascript mouse event
-        this.mouseMoveHandler = function (e) {
-            //document.getElementById("log").innerText = e.type;
-            //console.log("G: " +e.data.global.x + "," + e.data.global.y);
-            //console.log("mouseMoved");
-            // console.log(this);
-            // console.log("L: " + this.container.toLocal(e.data.global).x + ", " + this.container.toLocal(e.data.global).y);
-            if (e.target != _this.container) {
-                return;
-            }
-            if (e.data.buttons == 0) _this.mouseDown = false;
-            if (_this.mouseDown) {
-                //console.log("LeftDown");
-                var doDelta = true;
-                if (_this.lastX == -1) doDelta = false;
-                if (doDelta) {
-                    _this.deltaX = e.data.global.x - _this.lastX;
-                    _this.deltaY = e.data.global.y - _this.lastY;
-                    //console.log(this.deltaX + "," + this.deltaY);
-                }
-                //console.log(e);
-                //console.log(e.data.global.x + "," + e.data.global.y);
-                _this.lastX = e.data.global.x;
-                _this.lastY = e.data.global.y;
-            } else {
-                _this.deltaX = 0;
-                _this.deltaY = 0;
-                _this.lastX = -1;
-                _this.lastY = -1;
-            }
-            /*
-             *
-             * mousemove/mouseover functionality for islands - test with polyk, prolly better done with pixi handling
-             *
-            //take the mouse coords and convert to world coords
-            let pos = new PIXI.Point(e.data.global.x, e.data.global.y);
-            let mouseWorld:PIXI.Point = this.container.toLocal(pos);
-            // now convert this to cartesian coordinates
-            // x is fine as is
-            // y is inverted from bottom left of sea tiles 0,8192
-            mouseWorld.y = 8192 - mouseWorld.y;
-                  // walk the object array and perform a PolyK hittest against each island
-            for (let entry of this.objectArray) {
-                if (entry.getType() == ObjectType.ISLAND || entry.getType() == ObjectType.SHIP) {
-                    var retVal = entry.cartesianHitTest(mouseWorld);
-                    if (retVal == true) {
-                        //console.log("Hit over " + entry.getSprite().name);
-                    } else {
-                        //console.log("hitTest returns: " + retVal + " mouse: " + mouseWorld.x + "," + mouseWorld.y);
-                    }
-                }
-            }
-            */
-        };
-        // when done loading, arrange the sea tiles on theSea container
-        this.setup = function () {
-            var map1 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_002.png"].texture);
-            var map2 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_003.png"].texture);
-            var map3 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_004.png"].texture);
-            var map4 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_005.png"].texture);
-            var map5 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_006.png"].texture);
-            var map6 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_007.png"].texture);
-            var map7 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_008.png"].texture);
-            var map8 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_009.png"].texture);
-            var map9 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_010.png"].texture);
-            var map10 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_011.png"].texture);
-            var map11 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_012.png"].texture);
-            var map12 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_013.png"].texture);
-            var map13 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_014.png"].texture);
-            var map14 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_015.png"].texture);
-            // arranged left to right top to bottom
-            // however the upleft tile is empty as is the lower left tile.. only tiles 2-15 are not empty sea
-            map1.x = 2048;
-            map1.y = 0;
-            map2.x = 4096;
-            map2.y = 0;
-            map3.x = 6144;
-            map3.y = 0;
-            map4.x = 0;
-            map4.y = 2048;
-            map5.x = 2048;
-            map5.y = 2048;
-            map6.x = 4096;
-            map6.y = 2048;
-            map7.x = 6144;
-            map7.y = 2048;
-            map8.x = 0;
-            map8.y = 4096;
-            map9.x = 2048;
-            map9.y = 4096;
-            map10.x = 4096;
-            map10.y = 4096;
-            map11.x = 6144;
-            map11.y = 4096;
-            map12.x = 0;
-            map12.y = 6144;
-            map13.x = 2048;
-            map13.y = 6144;
-            map14.x = 4096;
-            map14.y = 6144;
-            _this.layerSeaTiles.addChild(map1);
-            _this.layerSeaTiles.addChild(map2);
-            _this.layerSeaTiles.addChild(map3);
-            _this.layerSeaTiles.addChild(map4);
-            _this.layerSeaTiles.addChild(map5);
-            _this.layerSeaTiles.addChild(map6);
-            _this.layerSeaTiles.addChild(map7);
-            _this.layerSeaTiles.addChild(map8);
-            _this.layerSeaTiles.addChild(map9);
-            _this.layerSeaTiles.addChild(map10);
-            _this.layerSeaTiles.addChild(map11);
-            _this.layerSeaTiles.addChild(map12);
-            _this.layerSeaTiles.addChild(map13);
-            _this.layerSeaTiles.addChild(map14);
-            _this.container.addChild(_this.layerSeaTiles); // sea tiles sort to bottom
-            _this.container.addChild(_this.layerObjects); // all other objects will sort above it
-            _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
-            _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
-        };
-        this.sailTrimHandler = function (event) {
-            // event.detail contains the data of percent 0->1 of of sail trim.. hadn this down to our boat
-            _this.selectedBoat.setSailTrim(event.detail);
-        };
-        this.keyDownHandler = function (event) {
-            console.log("Pressed key: " + event.keyCode);
-            if (event.keyCode === 38) {
-                _this.selectedBoat.increaseSail();
-            } else if (event.keyCode === 40) {
-                _this.selectedBoat.decreaseSail();
-            } else if (event.keyCode === 37) {
-                _this.selectedBoat.wheelLarboard();
-            } else if (event.keyCode === 39) {
-                _this.selectedBoat.wheelStarboard();
-            }
-        };
-        this.keyUpHandler = function () {};
-        this.onBoatsLoaded = function (responseText) {
-            var json_data = JSON.parse(responseText);
-            console.log(json_data);
-            // save the boat data to hand to boast as they are created
-            _this.boatData = json_data;
-            // run through all entries in the json
-            // for (var key in json_data) {
-            //     if (json_data.hasOwnProperty(key)) { // "corvette" is the only boat so far 
-            //         if (key == "corvette") // we good
-            //         {
-            //         } else {
-            //             console.log("Found unrecognized key: " + key);
-            //         }
-            //     }
-            // }
-            _this.boatsLoaded = true;
-            _this.checkFinishLoad();
-        };
-        this.onIslesLoaded = function (responseText) {
-            var json_data = JSON.parse(responseText);
-            console.log(json_data);
-            console.log(PIXI.loader.resources);
-            // run through all entries in the json
-            for (var key in json_data) {
-                if (json_data.hasOwnProperty(key)) {
-                    // create a sprite for each
-                    var isle = new island_1.default();
-                    var sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
-                    // position the sprite according to the data
-                    sprite.x = json_data[key].x;
-                    sprite.y = json_data[key].y;
-                    // tag each sprite with its name (the key)
-                    sprite.name = key;
-                    // add sprite to the isle, this container, and the tracked object array
-                    isle.setSprite(sprite);
-                    _this.layerObjects.addChild(sprite);
-                    _this.objectArray.push(isle);
-                    // save its polygonal data
-                    isle.setPolyData(json_data[key].polygonPts);
-                    console.log("Adding " + sprite.name + " to theSea");
-                }
-            }
-            _this.islandsLoaded = true;
-            _this.checkFinishLoad();
-        };
-    }
-    theSea.prototype.init = function (callback) {
-        // load our background sea tiles
-        PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
-        .add("images/ships/corvette2.json");
-        this.loadCallback = callback;
-        this.container.interactive = true;
-        this.container.on("mousemove", this.mouseMoveHandler);
-        this.container.on("mouseup", this.mouseUpHandler);
-        this.container.on("mousedown", this.mouseDownHandler);
-        //Attach event listeners
-        window.addEventListener("keydown", this.keyDownHandler, false);
-        window.addEventListener("keyup", this.keyUpHandler, false);
-        window.addEventListener("sailTrimEvent", this.sailTrimHandler, false);
-    };
-    theSea.prototype.loadRegion = function (regionName) {
-        // load the region1 background sea tiles
-        if (regionName === void 0) {
-            regionName = "region1";
-        }
-        // load the region1 islands
-        // load the island game data 
-        this.loadJSON("./data/region1isles.json", this.onIslesLoaded);
-        // load the boat data
-        this.loadJSON("./data/shipdata.json", this.onBoatsLoaded);
-    };
-    // make sure all asyncronous loads have completed
-    theSea.prototype.checkFinishLoad = function () {
-        if (this.boatsLoaded && this.islandsLoaded) {
-            // add a boat near guadelupe
-            var boat = new ship_1.default();
-            boat.init();
-            boat.setPosition(6200, 2600);
-            this.layerObjects.addChild(boat.getSprite());
-            this.objectArray.push(boat);
-            boat.setPolyData(this.boatData.corvette);
-            this.selectedBoat = boat;
-            // send a message that we have a new selected boat
-            var myEvent = new CustomEvent("boatSelected", {
-                'detail': this.selectedBoat
-            });
-            window.dispatchEvent(myEvent);
-            // final step in loading process.. can now call loadcallback
-            this.loadCallback();
-        }
-    };
-    theSea.prototype.loadJSON = function (jsonFile, callback) {
-        var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType("application/json");
-        xobj.open('GET', jsonFile, true);
-        xobj.onreadystatechange = function () {
-            if (xobj.readyState == 4 && xobj.status == 200) {
-                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-                callback(xobj.responseText);
-            }
-        };
-        xobj.send(null);
-    };
-    theSea.prototype.getContainer = function () {
-        return this.container;
-    };
-    //
-    // update function called per frame
-    //
-    theSea.prototype.update = function () {
-        this.container.x += this.deltaX;
-        this.container.y += this.deltaY;
-        if (this.container.x > 0) this.container.x = 0;
-        if (this.container.y > 0) this.container.y = 0;
-        if (this.container.x < -(this.container.width - window.innerWidth)) this.container.x = -(this.container.width - window.innerWidth);
-        if (this.container.y < -(this.container.height - window.innerHeight)) this.container.y = -(this.container.height - window.innerHeight);
-        this.deltaX = 0;
-        this.deltaY = 0; // clear the data, await next mousemove
-        // console.log(this.deltaX + "," + this.deltaY);
-        this.updateObjectArray();
-    };
-    theSea.prototype.updateObjectArray = function () {
-        // sort the children ascending as the renderer will render sprites in container ordrer
-        this.layerObjects.children.sort(this.objSort);
-        // loop through our object array and call each element's update function
-        for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
-            var gameObj = _a[_i];
-            gameObj.update();
-        }
-        // check for collisions against the playerboat
-        this.checkPlayerBoatCollision();
-    };
-    theSea.prototype.objSort = function (a, b) {
-        if (a.y < b.y) return -1;else if (a.y == b.y) return 0;else if (a.y > b.y) return 1;else return 0;
-    };
-    theSea.prototype.checkPlayerBoatCollision = function () {
-        // first do a simple box hit test against the player boat and all the islands
-        for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
-            var entry = _a[_i];
-            if (entry.getType() == gameobject_1.ObjectType.ISLAND) {
-                if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
-                    //console.log("boxHit!");
-                    // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
-                    if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true) {
-                        console.log("Boat has struck - " + entry.getSprite().name);
-                        this.selectedBoat.allStop();
-                        return;
-                    }
-                }
-            }
-        }
-        // if theres a hit, perform the polyk hittest for each poiint in the boats polykdata against the island polygon
-    };
-    theSea.prototype.boxHitTest = function (s1, s2) {
-        var x1 = s1.x;
-        var y1 = s1.y;
-        var w1 = s1.width;
-        var h1 = s1.height;
-        var x2 = s2.x;
-        var y2 = s2.y;
-        var w2 = s2.width;
-        var h2 = s2.height;
-        if (x1 + w1 > x2) if (x1 < x2 + w2) if (y1 + h1 > y2) if (y1 < y2 + h2) return true;
-        return false;
-    };
-    return theSea;
-}();
-exports.default = theSea;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __extends = this && this.__extends || function () {
-    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-        d.__proto__ = b;
-    } || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-Object.defineProperty(exports, "__esModule", { value: true });
-var gameobject_1 = __webpack_require__(1);
-var gameobject_2 = __webpack_require__(1);
-var Island = /** @class */function (_super) {
-    __extends(Island, _super);
-    function Island() {
-        var _this = _super.call(this) || this;
-        _this.objType = gameobject_2.ObjectType.ISLAND;
-        return _this;
-    }
-    return Island;
-}(gameobject_1.default);
-exports.default = Island;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-//
-// ship class to handle all things... boat!
-//
-
-var __extends = this && this.__extends || function () {
-    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-        d.__proto__ = b;
-    } || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-Object.defineProperty(exports, "__esModule", { value: true });
-var gameobject_1 = __webpack_require__(1);
-var gameobject_2 = __webpack_require__(1);
-var Victor = __webpack_require__(6);
-var ShipType;
-(function (ShipType) {
-    ShipType[ShipType["SLOOP"] = 0] = "SLOOP";
-    ShipType[ShipType["SCHOONER"] = 1] = "SCHOONER";
-    ShipType[ShipType["XEBEC"] = 2] = "XEBEC";
-    ShipType[ShipType["BRIG"] = 3] = "BRIG";
-    ShipType[ShipType["CORVETTE"] = 4] = "CORVETTE";
-})(ShipType = exports.ShipType || (exports.ShipType = {}));
-var Ship = /** @class */function (_super) {
-    __extends(Ship, _super);
-    function Ship() {
-        var _this = _super.call(this) || this;
-        _this.polyNum = 0; // current heading corresponds to which index in the polyData array?
-        _this.cartPolyData8 = []; // an array of 8 arrays converted to cartesian
-        _this.cartKeelData = [];
-        _this.cartesianHitTest = function (p) {
-            //console.log(this.polyData);
-            if (_this.cartPolyData8[_this.polyNum]) {
-                // calculate the polygonal data for the ships position and its current sprite/heading
-                _this.convertPolyDataToCartesian();
-                // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
-                return PolyK.ContainsPoint(_this.cartPolyData8[_this.polyNum], p.x, p.y);
-            } else {
-                console.log("polyData not yet defined");
-            }
-        };
-        _this.increaseSail = function () {
-            _this.sailState = 2; // no support for half sail as yet
-            _this.targetSpeed = 1; // ramp up to 60 pixels/sec speed is in pixels per frame
-            console.log("increasing sail Captain!");
-        };
-        _this.decreaseSail = function () {
-            _this.sailState = 0; // straight to no sails
-            _this.targetSpeed = 0; // ramp down to no velocity
-            console.log("Aye! Decreasing sail!");
-        };
-        _this.objType = gameobject_2.ObjectType.SHIP;
-        _this.shipType = ShipType.CORVETTE;
-        _this.sailState = 0; // down
-        _this.speed = 0;
-        _this.targetSpeed = 0;
-        _this.heading = new Victor(1, 0); // east
-        _this.degreeHeading = _this.heading.angleDeg();
-        for (var i = 0; i < 8; i++) {
-            _this.cartPolyData8.push(new Array());
-        }
-        return _this;
-    }
-    Ship.prototype.init = function () {
-        this.sprite = new PIXI.Sprite(); // an empty sprite
-        this.matchHeadingToSprite(); // initialize the texture its using
-        this.name = "Nutmeg of Consolation";
-    };
-    Ship.prototype.setPolyData = function (p) {
-        // p is the ship record from shipdata.json
-        this.jsonData = p;
-        this.sprite.name = this.jsonData["fileName"];
-    };
-    // ships move so they must convert their polyData each time it is referenced
-    Ship.prototype.convertPolyDataToCartesian = function () {
-        if (!this.jsonData) return;
-        var root = this.jsonData["fileName"]; // root filename for subsequent polyData keys
-        // extract the 8-way polydata arrays in each subobject in this data
-        var key = root + "000" + (this.polyNum + 1) + ".png"; // polynum is zero based, frames are 1 based
-        if (this.jsonData.hasOwnProperty(key)) {
-            for (var k = 0; k < this.jsonData[key].polygonPts.length; k++) {
-                if (k % 2 == 0) {
-                    // x axis is same direction as cartesian
-                    this.cartPolyData8[this.polyNum][k] = this.jsonData[key].polygonPts[k] + this.sprite.x; // world coord x
-                } else {
-                    // bottom left of our "world" is 0,8192
-                    var cartSpriteY = 8192 - this.sprite.y;
-                    this.cartPolyData8[this.polyNum][k] = cartSpriteY - this.jsonData[key].polygonPts[k];
-                }
-            }
-            this.cartKeelData = []; // clear the array
-            for (k = 0; k < this.jsonData[key].keelPts.length; k++) {
-                if (k % 2 == 0) {
-                    // x axis is same direction as cartesian
-                    this.cartKeelData[k] = this.jsonData[key].keelPts[k] + this.sprite.x; // world coord x
-                } else {
-                    // bottom left of our "world" is 0,8192
-                    var cartSpriteY = 8192 - this.sprite.y;
-                    this.cartKeelData[k] = cartSpriteY - this.jsonData[key].keelPts[k];
-                }
-            }
-        } else {
-            console.log("Failed to find key: " + key + " in ship data!");
-        }
-    };
-    Ship.prototype.hitTestByPolygon = function (polygonPts) {
-        // convert our polygonal data relative to our position
-        this.convertPolyDataToCartesian();
-        var x, y;
-        // console.log("Island polygon: " + polygonPts);
-        // console.log("Boat Pts: " + this.cartPolyData8[this.polyNum]);
-        for (var i = 0; i < this.cartPolyData8[this.polyNum].length; i += 2) {
-            x = this.cartPolyData8[this.polyNum][i];
-            y = this.cartPolyData8[this.polyNum][i + 1];
-            // for each point in our polygon, do a polyK hittest on the passed in polygon
-            if (PolyK.ContainsPoint(polygonPts, x, y)) {
-                console.log("hit!");
-                return true;
-            }
-        }
-        return false;
-    };
-    Ship.prototype.hitTestByKeel = function (polygonPts) {
-        // convert our polygonal data relative to our position
-        this.convertPolyDataToCartesian();
-        var x, y;
-        // console.log("Island polygon: " + polygonPts);
-        // console.log("Boat Pts: " + this.cartPolyData8[this.polyNum]);
-        for (var i = 0; i < this.cartKeelData.length; i += 2) {
-            x = this.cartKeelData[i];
-            y = this.cartKeelData[i + 1];
-            // for each point in our polygon, do a polyK hittest on the passed in polygon
-            if (PolyK.ContainsPoint(polygonPts, x, y)) {
-                console.log("hit!");
-                return true;
-            }
-        }
-        return false;
-    };
-    Ship.prototype.allStop = function () {
-        this.sailState = 0; // lower the sails!
-        this.speed = 0;
-    };
-    Ship.prototype.setPosition = function (x, y) {
-        this.sprite.x = x;
-        this.sprite.y = y;
-    };
-    Ship.prototype.matchHeadingToSprite = function () {
-        // pick the spirte that is closest to ships heading... 
-        // we have 8 directional sprites
-        var a = this.heading.angleDeg();
-        var s = this.getSprite();
-        var modFrame = 0;
-        var frameName = "";
-        if (this.sailState == 0) modFrame = 8;
-        if (this.shipType == ShipType.CORVETTE) frameName = "Corvette2";else frameName = "Corvette2"; // add other ship sprites here as they are added
-        var frameNum = 0;
-        if (a <= 22.5 && a > -22.5) {
-            frameNum = 3;
-            this.polyNum = frameNum - 1; // polynum 0 based, used later as index into polygonData8
-        } else if (a <= 67.5 && a > 22.5) {
-            frameNum = 2;
-            this.polyNum = frameNum - 1;
-        } else if (a <= 112.5 && a > 67.5) {
-            frameNum = 1;
-            this.polyNum = frameNum - 1;
-        } else if (a <= 157.5 && a > 112.5) {
-            frameNum = 8;
-            this.polyNum = frameNum - 1;
-        } else if (a <= -157.5 || a > 157.5) {
-            frameNum = 7;
-            this.polyNum = frameNum - 1;
-        } else if (a <= -112.5 && a > -157.5) {
-            frameNum = 6;
-            this.polyNum = frameNum - 1;
-        } else if (a <= -67.5 && a > -112.5) {
-            frameNum = 5;
-            this.polyNum = frameNum - 1;
-        } else if (a <= -22.5 && a > -67.5) {
-            frameNum = 4;
-            this.polyNum = frameNum - 1;
-        } else console.log("Ship class has invalid angle, texture could not be set");
-        if (this.usingFrame != frameNum + modFrame) {
-            // replace our texture with the appropriate facing
-            s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
-            //console.log("replacing texture with frame: " + (frameNum + modFrame));
-            console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum);
-            this.usingFrame = frameNum + modFrame;
-        }
-    };
-    Ship.prototype.getFrameString = function (frameNum, mod) {
-        var n = frameNum;
-        if (mod != 0) n += mod;
-        return this.zeroPad(n, 4);
-    };
-    Ship.prototype.zeroPad = function (num, numZeros) {
-        var an = Math.abs(num);
-        var digitCount = 1 + Math.floor(Math.log(an) / Math.LN10);
-        if (digitCount >= numZeros) {
-            return num.toString();
-        }
-        var zeroString = Math.pow(10, numZeros - digitCount).toString().substr(1);
-        return num < 0 ? '-' + zeroString + an : zeroString + an;
-    };
-    Ship.prototype.setSailTrim = function (newTrim) {
-        // set our speed based off the sail trim... sail trim is 0->1
-        this.targetSpeed = newTrim * 1; // 1 is our max speed... max speed can be data driven per boat type
-        if (this.targetSpeed <= 0) {
-            this.targetSpeed = 0;
-            this.sailState = 0;
-        } else {
-            this.sailState = 2; // sails up
-        }
-        console.log("setting Sail Trim: " + newTrim.toFixed(2));
-    };
-    Ship.prototype.wheelStarboard = function () {
-        this.heading.rotateDeg(-15);
-        this.heading.normalize();
-        this.degreeHeading = this.heading.angleDeg();
-        console.log("Aye Starboard wheel! Heading to: " + this.degreeHeading.toFixed(0));
-    };
-    // Victor lib is broken... rotate does what rotateby docs say, rotateby is broken
-    Ship.prototype.wheelLarboard = function () {
-        this.heading.rotateDeg(15);
-        this.heading.normalize();
-        this.degreeHeading = this.heading.angleDeg();
-        console.log("Wheel a'Larboard Captain! Heading to: " + this.degreeHeading.toFixed(0) + " angDeg: " + this.heading.angleDeg().toFixed(0));
-    };
-    Ship.prototype.updatePosition = function () {
-        // modify x and y based off heading and speed
-        var s = this.getSprite();
-        s.x += this.speed * this.heading.x;
-        s.y += this.speed * -this.heading.y; // y is inverted... heading in cartesean, but our position coords origin is top,left
-    };
-    Ship.prototype.update = function () {
-        // update the sprite position by the speed + heading
-        if (this.targetSpeed != this.speed) {
-            if (this.targetSpeed > this.speed) {
-                this.speed += 0.01;
-                if (this.speed > this.targetSpeed) this.speed = this.targetSpeed;
-            } else {
-                this.speed -= 0.01;
-                if (this.speed < this.targetSpeed) this.speed = this.targetSpeed;
-            }
-        }
-        this.updatePosition();
-        // update its sprite if necessary
-        this.matchHeadingToSprite();
-    };
-    Ship.prototype.getHeading = function () {
-        return this.degreeHeading;
-    };
-    return Ship;
-}(gameobject_1.default);
-exports.default = Ship;
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports) {
 
 exports = module.exports = Victor;
@@ -2232,7 +1641,820 @@ function degrees2radian (deg) {
 
 
 /***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var PIXI = __webpack_require__(0);
+var theSea_1 = __webpack_require__(5);
+var mainhud_1 = __webpack_require__(8);
+var Core = /** @class */function () {
+    function Core() {
+        var _this = this;
+        this.seaLoaded = false;
+        this.hudLoaded = false;
+        this.onLoaded = function () {
+            // hud is done and needs no further loading
+            _this.mainHUDLoaded();
+            // theSea needs to load its data files
+            _this._sea.setup();
+            // the sea will call seaLoadedCallback when its finally done so we can proceed
+        };
+        this.mainHUDLoaded = function () {
+            var c = _this._hud.getContainer();
+            c.x = 0;
+            c.y = 0;
+            _this.hudLoaded = true;
+            _this._hud.onAssetsLoaded();
+            _this.postLoad();
+        };
+        this.seaLoadedCallback = function () {
+            _this.seaLoaded = true;
+            _this.postLoad();
+        };
+        this.update = function () {
+            _this._sea.update();
+            _this._hud.update();
+            _this._renderer.render(_this._world);
+            requestAnimationFrame(_this.update);
+        };
+        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { backgroundColor: 0x7BA4DF });
+        this._world = new PIXI.Container();
+        document.body.appendChild(this._renderer.view);
+        // create a new sea object
+        this._sea = new theSea_1.default();
+        this._sea.init(this.seaLoadedCallback);
+        // create the main hud
+        this._hud = new mainhud_1.default();
+        this._hud.addLoaderAssets();
+        // load all the assets requested by theSea and Hud
+        PIXI.loader.load(this.onLoaded);
+        console.log("PotTW: build 0.0.13");
+    }
+    Core.prototype.postLoad = function () {
+        if (this.hudLoaded && this.seaLoaded) {
+            this._world.addChild(this._sea.getContainer());
+            this._world.addChild(this._hud.getContainer());
+            // center hud on window size
+            var c = this._hud.getContainer();
+            c.x = (window.innerWidth - c.width) / 2;
+            //mousewheel not part of Pixi so add the event to the DOM
+            document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
+            this.update();
+        }
+    };
+    return Core;
+}();
+exports.default = Core;
+var game = new Core();
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var PIXI = __webpack_require__(0);
+var gameobject_1 = __webpack_require__(1);
+var island_1 = __webpack_require__(6);
+var ship_1 = __webpack_require__(7);
+var theSea = /** @class */function () {
+    function theSea() {
+        var _this = this;
+        this.container = new PIXI.Container();
+        this.deltaX = 0;
+        this.deltaY = 0;
+        this.lastX = -1;
+        this.lastY = -1;
+        this.objectArray = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
+        this.wheelScale = 0.25;
+        this.mouseDown = false;
+        this.islandsLoaded = false;
+        this.boatsLoaded = false;
+        this.layerSeaTiles = new PIXI.Container();
+        this.layerObjects = new PIXI.Container();
+        //private layerUI:PIXI.Container = new PIXI.Container();
+        // javascript style mouse wheel handler, pixi does not support mouse wheel
+        this.mouseWheelHandler = function (e) {
+            //console.log(e);
+            if (e.wheelDelta > 0) {
+                _this.wheelScale += 0.05;
+                if (_this.wheelScale > 2.0) _this.wheelScale = 2.0;
+                //console.log("wheel in");
+            } else {
+                _this.wheelScale -= 0.05;
+                if (_this.wheelScale < 0.10) _this.wheelScale = 0.10;
+                //console.log("wheel out");
+            }
+            var pos = new PIXI.Point(e.clientX, e.clientY);
+            var preZoomWorld = _this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);  
+            //
+            // perform the scale to the container
+            //
+            _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
+            // console.log("scale: " + this.wheelScale.toFixed(2) + 
+            //             " pos: " + this.container.x.toFixed(2) + "," + this.container.y.toFixed(2) + " " + 
+            //             "w: " + this.container.width.toFixed(2) + 
+            //             " h: " + this.container.height.toFixed(2) +
+            //             " mouse: " + e.clientX + "," + e.clientY
+            //             );
+            //where is the zoom location now, after we changed the scale?
+            var postZoomWorld = _this.container.toLocal(pos); //this.screenToWorld(e.clientX, e.clientY);
+            //console.log("pre: " + preZoomWorld.x + "," + preZoomWorld.y + " post: " + postZoomWorld.x + "," + postZoomWorld.y);
+            var preZoomGlobal = _this.container.toGlobal(preZoomWorld);
+            var postZoomGlobal = _this.container.toGlobal(postZoomWorld);
+            //move the world so that the zoomed-location goes back to where it was on the screen before scaling        
+            _this.container.x += postZoomGlobal.x - preZoomGlobal.x;
+            _this.container.y += postZoomGlobal.y - preZoomGlobal.y;
+        };
+        this.mouseUpHandler = function (e) {
+            _this.mouseDown = false;
+        };
+        this.mouseDownHandler = function (e) {
+            if (e.target == _this.container) _this.mouseDown = true;
+        };
+        // pixi style event handler, not the same arguments as javascript mouse event
+        this.mouseMoveHandler = function (e) {
+            //document.getElementById("log").innerText = e.type;
+            //console.log("G: " +e.data.global.x + "," + e.data.global.y);
+            //console.log("mouseMoved");
+            // console.log(this);
+            // console.log("L: " + this.container.toLocal(e.data.global).x + ", " + this.container.toLocal(e.data.global).y);
+            if (e.target != _this.container) {
+                return;
+            }
+            if (e.data.buttons == 0) _this.mouseDown = false;
+            if (_this.mouseDown) {
+                //console.log("LeftDown");
+                var doDelta = true;
+                if (_this.lastX == -1) doDelta = false;
+                if (doDelta) {
+                    _this.deltaX = e.data.global.x - _this.lastX;
+                    _this.deltaY = e.data.global.y - _this.lastY;
+                    //console.log(this.deltaX + "," + this.deltaY);
+                }
+                //console.log(e);
+                //console.log(e.data.global.x + "," + e.data.global.y);
+                _this.lastX = e.data.global.x;
+                _this.lastY = e.data.global.y;
+            } else {
+                _this.deltaX = 0;
+                _this.deltaY = 0;
+                _this.lastX = -1;
+                _this.lastY = -1;
+            }
+            /*
+             *
+             * mousemove/mouseover functionality for islands - test with polyk, prolly better done with pixi handling
+             *
+            //take the mouse coords and convert to world coords
+            let pos = new PIXI.Point(e.data.global.x, e.data.global.y);
+            let mouseWorld:PIXI.Point = this.container.toLocal(pos);
+            // now convert this to cartesian coordinates
+            // x is fine as is
+            // y is inverted from bottom left of sea tiles 0,8192
+            mouseWorld.y = 8192 - mouseWorld.y;
+                  // walk the object array and perform a PolyK hittest against each island
+            for (let entry of this.objectArray) {
+                if (entry.getType() == ObjectType.ISLAND || entry.getType() == ObjectType.SHIP) {
+                    var retVal = entry.cartesianHitTest(mouseWorld);
+                    if (retVal == true) {
+                        //console.log("Hit over " + entry.getSprite().name);
+                    } else {
+                        //console.log("hitTest returns: " + retVal + " mouse: " + mouseWorld.x + "," + mouseWorld.y);
+                    }
+                }
+            }
+            */
+        };
+        // when done loading, arrange the sea tiles on theSea container
+        this.setup = function () {
+            var map1 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_002.png"].texture);
+            var map2 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_003.png"].texture);
+            var map3 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_004.png"].texture);
+            var map4 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_005.png"].texture);
+            var map5 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_006.png"].texture);
+            var map6 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_007.png"].texture);
+            var map7 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_008.png"].texture);
+            var map8 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_009.png"].texture);
+            var map9 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_010.png"].texture);
+            var map10 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_011.png"].texture);
+            var map11 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_012.png"].texture);
+            var map12 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_013.png"].texture);
+            var map13 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_014.png"].texture);
+            var map14 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_015.png"].texture);
+            // arranged left to right top to bottom
+            // however the upleft tile is empty as is the lower left tile.. only tiles 2-15 are not empty sea
+            map1.x = 2048;
+            map1.y = 0;
+            map2.x = 4096;
+            map2.y = 0;
+            map3.x = 6144;
+            map3.y = 0;
+            map4.x = 0;
+            map4.y = 2048;
+            map5.x = 2048;
+            map5.y = 2048;
+            map6.x = 4096;
+            map6.y = 2048;
+            map7.x = 6144;
+            map7.y = 2048;
+            map8.x = 0;
+            map8.y = 4096;
+            map9.x = 2048;
+            map9.y = 4096;
+            map10.x = 4096;
+            map10.y = 4096;
+            map11.x = 6144;
+            map11.y = 4096;
+            map12.x = 0;
+            map12.y = 6144;
+            map13.x = 2048;
+            map13.y = 6144;
+            map14.x = 4096;
+            map14.y = 6144;
+            _this.layerSeaTiles.addChild(map1);
+            _this.layerSeaTiles.addChild(map2);
+            _this.layerSeaTiles.addChild(map3);
+            _this.layerSeaTiles.addChild(map4);
+            _this.layerSeaTiles.addChild(map5);
+            _this.layerSeaTiles.addChild(map6);
+            _this.layerSeaTiles.addChild(map7);
+            _this.layerSeaTiles.addChild(map8);
+            _this.layerSeaTiles.addChild(map9);
+            _this.layerSeaTiles.addChild(map10);
+            _this.layerSeaTiles.addChild(map11);
+            _this.layerSeaTiles.addChild(map12);
+            _this.layerSeaTiles.addChild(map13);
+            _this.layerSeaTiles.addChild(map14);
+            _this.container.addChild(_this.layerSeaTiles); // sea tiles sort to bottom
+            _this.container.addChild(_this.layerObjects); // all other objects will sort above it
+            _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
+            _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
+        };
+        this.sailTrimHandler = function (event) {
+            // event.detail contains the data of percent 0->1 of of sail trim.. hadn this down to our boat
+            _this.selectedBoat.setSailTrim(event.detail);
+        };
+        this.keyDownHandler = function (event) {
+            console.log("Pressed key: " + event.keyCode);
+            if (event.keyCode === 38) {
+                _this.selectedBoat.increaseSail();
+            } else if (event.keyCode === 40) {
+                _this.selectedBoat.decreaseSail();
+            } else if (event.keyCode === 37) {
+                _this.selectedBoat.wheelLarboard();
+            } else if (event.keyCode === 39) {
+                _this.selectedBoat.wheelStarboard();
+            }
+        };
+        this.keyUpHandler = function () {};
+        this.onBoatsLoaded = function (responseText) {
+            var json_data = JSON.parse(responseText);
+            console.log(json_data);
+            // save the boat data to hand to boast as they are created
+            _this.boatData = json_data;
+            // run through all entries in the json
+            // for (var key in json_data) {
+            //     if (json_data.hasOwnProperty(key)) { // "corvette" is the only boat so far 
+            //         if (key == "corvette") // we good
+            //         {
+            //         } else {
+            //             console.log("Found unrecognized key: " + key);
+            //         }
+            //     }
+            // }
+            _this.boatsLoaded = true;
+            _this.checkFinishLoad();
+        };
+        this.onIslesLoaded = function (responseText) {
+            var json_data = JSON.parse(responseText);
+            console.log(json_data);
+            console.log(PIXI.loader.resources);
+            // run through all entries in the json
+            for (var key in json_data) {
+                if (json_data.hasOwnProperty(key)) {
+                    // create a sprite for each
+                    var isle = new island_1.default();
+                    var sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
+                    // position the sprite according to the data
+                    sprite.x = json_data[key].x;
+                    sprite.y = json_data[key].y;
+                    // tag each sprite with its name (the key)
+                    sprite.name = key;
+                    // add sprite to the isle, this container, and the tracked object array
+                    isle.setSprite(sprite);
+                    _this.layerObjects.addChild(sprite);
+                    _this.objectArray.push(isle);
+                    // save its polygonal data
+                    isle.setPolyData(json_data[key].polygonPts);
+                    console.log("Adding " + sprite.name + " to theSea");
+                }
+            }
+            _this.islandsLoaded = true;
+            _this.checkFinishLoad();
+        };
+    }
+    theSea.prototype.init = function (callback) {
+        // load our background sea tiles
+        PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
+        .add("images/ships/corvette2.json");
+        this.loadCallback = callback;
+        this.container.interactive = true;
+        this.container.on("mousemove", this.mouseMoveHandler);
+        this.container.on("mouseup", this.mouseUpHandler);
+        this.container.on("mousedown", this.mouseDownHandler);
+        //Attach event listeners
+        window.addEventListener("keydown", this.keyDownHandler, false);
+        window.addEventListener("keyup", this.keyUpHandler, false);
+        window.addEventListener("sailTrimEvent", this.sailTrimHandler, false);
+    };
+    theSea.prototype.loadRegion = function (regionName) {
+        // load the region1 background sea tiles
+        if (regionName === void 0) {
+            regionName = "region1";
+        }
+        // load the region1 islands
+        // load the island game data 
+        this.loadJSON("./data/region1isles.json", this.onIslesLoaded);
+        // load the boat data
+        this.loadJSON("./data/shipdata.json", this.onBoatsLoaded);
+    };
+    // make sure all asyncronous loads have completed
+    theSea.prototype.checkFinishLoad = function () {
+        if (this.boatsLoaded && this.islandsLoaded) {
+            // add a boat near guadelupe
+            var boat = new ship_1.default();
+            boat.init();
+            boat.setPosition(6200, 2600);
+            this.layerObjects.addChild(boat.getSprite());
+            this.objectArray.push(boat);
+            boat.setPolyData(this.boatData.corvette);
+            this.selectedBoat = boat;
+            // send a message that we have a new selected boat
+            var myEvent = new CustomEvent("boatSelected", {
+                'detail': this.selectedBoat
+            });
+            window.dispatchEvent(myEvent);
+            // final step in loading process.. can now call loadcallback
+            this.loadCallback();
+        }
+    };
+    theSea.prototype.loadJSON = function (jsonFile, callback) {
+        var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+        xobj.open('GET', jsonFile, true);
+        xobj.onreadystatechange = function () {
+            if (xobj.readyState == 4 && xobj.status == 200) {
+                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                callback(xobj.responseText);
+            }
+        };
+        xobj.send(null);
+    };
+    theSea.prototype.getContainer = function () {
+        return this.container;
+    };
+    //
+    // update function called per frame
+    //
+    theSea.prototype.update = function () {
+        this.container.x += this.deltaX;
+        this.container.y += this.deltaY;
+        if (this.container.x > 0) this.container.x = 0;
+        if (this.container.y > 0) this.container.y = 0;
+        if (this.container.x < -(this.container.width - window.innerWidth)) this.container.x = -(this.container.width - window.innerWidth);
+        if (this.container.y < -(this.container.height - window.innerHeight)) this.container.y = -(this.container.height - window.innerHeight);
+        this.deltaX = 0;
+        this.deltaY = 0; // clear the data, await next mousemove
+        // console.log(this.deltaX + "," + this.deltaY);
+        this.updateObjectArray();
+    };
+    theSea.prototype.updateObjectArray = function () {
+        // sort the children ascending as the renderer will render sprites in container ordrer
+        this.layerObjects.children.sort(this.objSort);
+        // loop through our object array and call each element's update function
+        for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
+            var gameObj = _a[_i];
+            gameObj.update();
+        }
+        // check for collisions against the playerboat
+        this.checkPlayerBoatCollision();
+    };
+    theSea.prototype.objSort = function (a, b) {
+        if (a.y < b.y) return -1;else if (a.y == b.y) return 0;else if (a.y > b.y) return 1;else return 0;
+    };
+    theSea.prototype.checkPlayerBoatCollision = function () {
+        // first do a simple box hit test against the player boat and all the islands
+        for (var _i = 0, _a = this.objectArray; _i < _a.length; _i++) {
+            var entry = _a[_i];
+            if (entry.getType() == gameobject_1.ObjectType.ISLAND) {
+                if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
+                    //console.log("boxHit!");
+                    // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
+                    if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true) {
+                        console.log("Boat has struck - " + entry.getSprite().name);
+                        this.selectedBoat.allStop();
+                        return;
+                    }
+                }
+            }
+        }
+        // if theres a hit, perform the polyk hittest for each poiint in the boats polykdata against the island polygon
+    };
+    theSea.prototype.boxHitTest = function (s1, s2) {
+        var x1 = s1.x;
+        var y1 = s1.y;
+        var w1 = s1.width;
+        var h1 = s1.height;
+        var x2 = s2.x;
+        var y2 = s2.y;
+        var w2 = s2.width;
+        var h2 = s2.height;
+        if (x1 + w1 > x2) if (x1 < x2 + w2) if (y1 + h1 > y2) if (y1 < y2 + h2) return true;
+        return false;
+    };
+    return theSea;
+}();
+exports.default = theSea;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var gameobject_1 = __webpack_require__(1);
+var gameobject_2 = __webpack_require__(1);
+var Island = /** @class */function (_super) {
+    __extends(Island, _super);
+    function Island() {
+        var _this = _super.call(this) || this;
+        _this.objType = gameobject_2.ObjectType.ISLAND;
+        return _this;
+    }
+    return Island;
+}(gameobject_1.default);
+exports.default = Island;
+
+/***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//
+// ship class to handle all things... boat!
+//
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var gameobject_1 = __webpack_require__(1);
+var gameobject_2 = __webpack_require__(1);
+var Victor = __webpack_require__(3);
+var compassrose_1 = __webpack_require__(2);
+var ShipType;
+(function (ShipType) {
+    ShipType[ShipType["SLOOP"] = 0] = "SLOOP";
+    ShipType[ShipType["SCHOONER"] = 1] = "SCHOONER";
+    ShipType[ShipType["XEBEC"] = 2] = "XEBEC";
+    ShipType[ShipType["BRIG"] = 3] = "BRIG";
+    ShipType[ShipType["CORVETTE"] = 4] = "CORVETTE";
+})(ShipType = exports.ShipType || (exports.ShipType = {}));
+var Ship = /** @class */function (_super) {
+    __extends(Ship, _super);
+    function Ship() {
+        var _this = _super.call(this) || this;
+        _this.toLarboard = false; // which direction to turn to targetHeading
+        _this.angularSpeed = 30; // boat characteristic in degrees/second
+        _this.polyNum = 0; // current heading corresponds to which index in the polyData array?
+        _this.cartPolyData8 = []; // an array of 8 arrays converted to cartesian
+        _this.cartKeelData = [];
+        _this.cartesianHitTest = function (p) {
+            //console.log(this.polyData);
+            if (_this.cartPolyData8[_this.polyNum]) {
+                // calculate the polygonal data for the ships position and its current sprite/heading
+                _this.convertPolyDataToCartesian();
+                // point assumed to be in cartesian coords... compare this to our polyData via PolyK library
+                return PolyK.ContainsPoint(_this.cartPolyData8[_this.polyNum], p.x, p.y);
+            } else {
+                console.log("polyData not yet defined");
+            }
+        };
+        _this.increaseSail = function () {
+            _this.sailState = 2; // no support for half sail as yet
+            _this.targetSpeed = 1; // ramp up to 60 pixels/sec speed is in pixels per frame
+            console.log("increasing sail Captain!");
+        };
+        _this.decreaseSail = function () {
+            _this.sailState = 0; // straight to no sails
+            _this.targetSpeed = 0; // ramp down to no velocity
+            console.log("Aye! Decreasing sail!");
+        };
+        _this.objType = gameobject_2.ObjectType.SHIP;
+        _this.shipType = ShipType.CORVETTE;
+        _this.sailState = 0; // down
+        _this.speed = 0;
+        _this.targetSpeed = 0;
+        _this.heading = new Victor(1, 0); // east
+        _this.degreeHeading = _this.heading.angleDeg();
+        _this.targetHeading = _this.degreeHeading;
+        _this.lastTime = 0;
+        for (var i = 0; i < 8; i++) {
+            _this.cartPolyData8.push(new Array());
+        }
+        return _this;
+    }
+    Ship.prototype.init = function () {
+        this.sprite = new PIXI.Sprite(); // an empty sprite
+        this.matchHeadingToSprite(); // initialize the texture its using
+        this.name = "Nutmeg of Consolation";
+    };
+    Ship.prototype.setPolyData = function (p) {
+        // p is the ship record from shipdata.json
+        this.jsonData = p;
+        this.sprite.name = this.jsonData["fileName"];
+    };
+    // ships move so they must convert their polyData each time it is referenced
+    Ship.prototype.convertPolyDataToCartesian = function () {
+        if (!this.jsonData) return;
+        var root = this.jsonData["fileName"]; // root filename for subsequent polyData keys
+        // extract the 8-way polydata arrays in each subobject in this data
+        var key = root + "000" + (this.polyNum + 1) + ".png"; // polynum is zero based, frames are 1 based
+        if (this.jsonData.hasOwnProperty(key)) {
+            for (var k = 0; k < this.jsonData[key].polygonPts.length; k++) {
+                if (k % 2 == 0) {
+                    // x axis is same direction as cartesian
+                    this.cartPolyData8[this.polyNum][k] = this.jsonData[key].polygonPts[k] + this.sprite.x; // world coord x
+                } else {
+                    // bottom left of our "world" is 0,8192
+                    var cartSpriteY = 8192 - this.sprite.y;
+                    this.cartPolyData8[this.polyNum][k] = cartSpriteY - this.jsonData[key].polygonPts[k];
+                }
+            }
+            this.cartKeelData = []; // clear the array
+            for (k = 0; k < this.jsonData[key].keelPts.length; k++) {
+                if (k % 2 == 0) {
+                    // x axis is same direction as cartesian
+                    this.cartKeelData[k] = this.jsonData[key].keelPts[k] + this.sprite.x; // world coord x
+                } else {
+                    // bottom left of our "world" is 0,8192
+                    var cartSpriteY = 8192 - this.sprite.y;
+                    this.cartKeelData[k] = cartSpriteY - this.jsonData[key].keelPts[k];
+                }
+            }
+        } else {
+            console.log("Failed to find key: " + key + " in ship data!");
+        }
+    };
+    Ship.prototype.hitTestByPolygon = function (polygonPts) {
+        // convert our polygonal data relative to our position
+        this.convertPolyDataToCartesian();
+        var x, y;
+        // console.log("Island polygon: " + polygonPts);
+        // console.log("Boat Pts: " + this.cartPolyData8[this.polyNum]);
+        for (var i = 0; i < this.cartPolyData8[this.polyNum].length; i += 2) {
+            x = this.cartPolyData8[this.polyNum][i];
+            y = this.cartPolyData8[this.polyNum][i + 1];
+            // for each point in our polygon, do a polyK hittest on the passed in polygon
+            if (PolyK.ContainsPoint(polygonPts, x, y)) {
+                console.log("hit!");
+                return true;
+            }
+        }
+        return false;
+    };
+    Ship.prototype.hitTestByKeel = function (polygonPts) {
+        // convert our polygonal data relative to our position
+        this.convertPolyDataToCartesian();
+        var x, y;
+        // console.log("Island polygon: " + polygonPts);
+        // console.log("Boat Pts: " + this.cartPolyData8[this.polyNum]);
+        for (var i = 0; i < this.cartKeelData.length; i += 2) {
+            x = this.cartKeelData[i];
+            y = this.cartKeelData[i + 1];
+            // for each point in our polygon, do a polyK hittest on the passed in polygon
+            if (PolyK.ContainsPoint(polygonPts, x, y)) {
+                console.log("hit!");
+                return true;
+            }
+        }
+        return false;
+    };
+    Ship.prototype.allStop = function () {
+        this.sailState = 0; // lower the sails!
+        this.speed = 0;
+    };
+    Ship.prototype.setPosition = function (x, y) {
+        this.sprite.x = x;
+        this.sprite.y = y;
+    };
+    Ship.prototype.matchHeadingToSprite = function () {
+        // pick the spirte that is closest to ships heading... 
+        // we have 8 directional sprites
+        var a = this.heading.angleDeg();
+        var s = this.getSprite();
+        var modFrame = 0;
+        var frameName = "";
+        if (this.sailState == 0) modFrame = 8;
+        if (this.shipType == ShipType.CORVETTE) frameName = "Corvette2";else frameName = "Corvette2"; // add other ship sprites here as they are added
+        var frameNum = 0;
+        if (a <= 22.5 && a > -22.5) {
+            frameNum = 3;
+            this.polyNum = frameNum - 1; // polynum 0 based, used later as index into polygonData8
+        } else if (a <= 67.5 && a > 22.5) {
+            frameNum = 2;
+            this.polyNum = frameNum - 1;
+        } else if (a <= 112.5 && a > 67.5) {
+            frameNum = 1;
+            this.polyNum = frameNum - 1;
+        } else if (a <= 157.5 && a > 112.5) {
+            frameNum = 8;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -157.5 || a > 157.5) {
+            frameNum = 7;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -112.5 && a > -157.5) {
+            frameNum = 6;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -67.5 && a > -112.5) {
+            frameNum = 5;
+            this.polyNum = frameNum - 1;
+        } else if (a <= -22.5 && a > -67.5) {
+            frameNum = 4;
+            this.polyNum = frameNum - 1;
+        } else console.log("Ship class has invalid angle, texture could not be set");
+        if (this.usingFrame != frameNum + modFrame) {
+            // replace our texture with the appropriate facing
+            s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
+            //console.log("replacing texture with frame: " + (frameNum + modFrame));
+            console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum);
+            this.usingFrame = frameNum + modFrame;
+        }
+    };
+    Ship.prototype.getFrameString = function (frameNum, mod) {
+        var n = frameNum;
+        if (mod != 0) n += mod;
+        return this.zeroPad(n, 4);
+    };
+    Ship.prototype.zeroPad = function (num, numZeros) {
+        var an = Math.abs(num);
+        var digitCount = 1 + Math.floor(Math.log(an) / Math.LN10);
+        if (digitCount >= numZeros) {
+            return num.toString();
+        }
+        var zeroString = Math.pow(10, numZeros - digitCount).toString().substr(1);
+        return num < 0 ? '-' + zeroString + an : zeroString + an;
+    };
+    Ship.prototype.setSailTrim = function (newTrim) {
+        // set our speed based off the sail trim... sail trim is 0->1
+        this.targetSpeed = newTrim * 1; // 1 is our max speed... max speed can be data driven per boat type
+        if (this.targetSpeed <= 0) {
+            this.targetSpeed = 0;
+            this.sailState = 0;
+        } else {
+            this.sailState = 2; // sails up
+        }
+        console.log("setting Sail Trim: " + newTrim.toFixed(2));
+    };
+    Ship.prototype.wheelStarboard = function () {
+        this.heading.rotateDeg(-15);
+        this.heading.normalize();
+        this.degreeHeading = this.heading.angleDeg();
+        console.log("Aye Starboard wheel! Heading to: " + this.degreeHeading.toFixed(0));
+    };
+    // Victor lib is broken... rotate does what rotateby docs say, rotateby is broken
+    Ship.prototype.wheelLarboard = function () {
+        this.heading.rotateDeg(15);
+        this.heading.normalize();
+        this.degreeHeading = this.heading.angleDeg();
+        console.log("Wheel a'Larboard Captain! Heading to: " + this.degreeHeading.toFixed(0) + " angDeg: " + this.heading.angleDeg().toFixed(0));
+    };
+    Ship.prototype.updatePosition = function () {
+        // modify x and y based off heading and speed
+        var s = this.getSprite();
+        s.x += this.speed * this.heading.x;
+        s.y += this.speed * -this.heading.y; // y is inverted... heading in cartesean, but our position coords origin is top,left
+    };
+    Ship.prototype.update = function () {
+        // update the sprite position by the speed + heading
+        if (this.targetSpeed != this.speed) {
+            if (this.targetSpeed > this.speed) {
+                this.speed += 0.01;
+                if (this.speed > this.targetSpeed) this.speed = this.targetSpeed;
+            } else {
+                this.speed -= 0.01;
+                if (this.speed < this.targetSpeed) this.speed = this.targetSpeed;
+            }
+        }
+        if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
+            var now = Date.now();
+            var deltaTime;
+            if (this.lastTime != 0) {
+                deltaTime = now - this.lastTime;
+                var deltaAngle = deltaTime * (this.angularSpeed / 1000);
+                // move to the target in the direction indicated by toLarboard
+                if (this.toLarboard) {
+                    this.degreeHeading += deltaAngle;
+                    if (this.degreeHeading > 180) this.degreeHeading -= 360;
+                } else {
+                    this.degreeHeading -= deltaAngle;
+                    if (this.degreeHeading < -180) this.degreeHeading += 360;
+                }
+                var xpart = Math.cos(compassrose_1.default.getRads(this.degreeHeading));
+                var ypart = Math.sin(compassrose_1.default.getRads(this.degreeHeading));
+                this.heading.x = xpart;
+                this.heading.y = ypart; // y is flipped in worldspace compared to cartesian values
+                this.heading.normalize(); // make sure its normalized
+                //console.log("target: " + this.targetHeading.toFixed(0) + " heading: " + this.degreeHeading.toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
+            }
+            this.lastTime = now;
+        }
+        this.updatePosition();
+        // update its sprite if necessary
+        this.matchHeadingToSprite();
+    };
+    Ship.prototype.getHeading = function () {
+        return this.degreeHeading;
+    };
+    Ship.prototype.changeHeading = function (newHeading) {
+        // change our heading to the newHeading
+        // we accomplish this over time dictated by the skill of our crew
+        // for now use the scale 3000->10000 for good->bad crew skill levels
+        // small heading changes take less time than large ones
+        // tacking through the wind adds a time penalty as the force decays then rises
+        var deltaDegrees = this.larOrStarboard(newHeading);
+        this.targetHeading = newHeading;
+        if (deltaDegrees < 0) this.toLarboard = false;else this.toLarboard = true;
+        // reset lastTime
+        this.lastTime = 0;
+        // caluclate degrees per second, multiply by 1000 to convert to milliseconds
+        var timeToTurn = Math.abs(deltaDegrees) / this.angularSpeed * 1000;
+        console.log("Changing heading of " + deltaDegrees + " in " + timeToTurn + " milliseconds");
+        return timeToTurn;
+    };
+    // returns -degrees for starboard (subtract from heading until there)
+    // return +degrees for larboard (add to heading until there)
+    Ship.prototype.larOrStarboard = function (newHeading) {
+        // convert to 360 paradigm (0 being along the positive x axis, sweeping anticlockwise)
+        var to;
+        var from;
+        var left;
+        var right;
+        if (this.degreeHeading < 0) from = this.degreeHeading + 360;else from = this.degreeHeading;
+        if (newHeading < 0) to = newHeading + 360;else to = newHeading;
+        if (from < to) {
+            left = to - from;
+            right = 360 - to + from;
+        } else {
+            left = 360 - from + to;
+            right = from - to;
+            //left = to - from;
+            //right = (360 - to) + from;
+        }
+        if (right < left) return -right; // go right, right also contains the degrees needed 
+        else return left; // go left, left contains the degrees needed
+    };
+    return Ship;
+}(gameobject_1.default);
+exports.default = Ship;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2243,11 +2465,33 @@ function degrees2radian (deg) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var sailtrim_1 = __webpack_require__(8);
-var compassrose_1 = __webpack_require__(9);
+var sailtrim_1 = __webpack_require__(9);
+var compassrose_1 = __webpack_require__(2);
+var watch_1 = __webpack_require__(10);
 var MainHUD = /** @class */function () {
     function MainHUD() {
+        var _this = this;
         this.container = new PIXI.Container();
+        this.changeHeadingHandler = function (event) {
+            console.log("changeHeadingHandler received!");
+            // ask the boat to change to new heading, it will return how much time this take
+            var newHeading = event.detail;
+            var headingTime = _this.trackShip.changeHeading(newHeading);
+            // display a watch over the compass set to countdown by this time (milliseconds)
+            _this.watch.visible = true;
+            _this.watch.countDown(headingTime);
+            _this.watch.start(_this.onCountDone);
+        };
+        this.onCountDone = function () {
+            _this.watch.visible = false;
+            console.log("onCountDone!");
+        };
+        this.boatSelectedHandler = function (event) {
+            // event.detail the reference to the tracked ship
+            var newShip = event.detail;
+            _this.compassRose.trackShip(newShip);
+            _this.trackShip = newShip;
+        };
     }
     // request the assets we need loaded
     MainHUD.prototype.addLoaderAssets = function () {
@@ -2283,25 +2527,34 @@ var MainHUD = /** @class */function () {
         this.leftCannonBattery.x = this.compassRose.x; // scaleX will be flipped which makes its anchor point top right
         this.leftCannonBattery.y = this.footer.y;
         this.leftCannonBattery.scale.x = -1; // flip the art so it points left
+        this.watch = new watch_1.default();
+        this.watch.init();
+        this.watch.x = this.compassRose.x + this.compassRose.width / 2 - this.watch.width / 2;
+        this.watch.y = this.compassRose.y - this.watch.height - 5;
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
         this.container.addChild(this.rightCannonBattery);
         this.container.addChild(this.leftCannonBattery);
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
+        this.container.addChild(this.watch);
+        this.watch.visible = false;
+        window.addEventListener("boatSelected", this.boatSelectedHandler, false);
+        window.addEventListener("changeHeading", this.changeHeadingHandler, false);
     };
     MainHUD.prototype.getContainer = function () {
         return this.container;
     };
     MainHUD.prototype.update = function () {
         this.compassRose.update();
+        this.watch.update();
     };
     return MainHUD;
 }();
 exports.default = MainHUD;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2417,16 +2670,13 @@ var sailTrim = /** @class */function (_super) {
 exports.default = sailTrim;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 //
-// CompassRose class widget 
-//  displays ship heading, cannon angle, and wind direction
-//  ship heading is interactive and allows the player to change the heading
-//  allows the player to adjust the cannon angle as well
+// Watch class to visually display a timer countdown for when widgets are unavailable/working
 //
 
 var __extends = this && this.__extends || function () {
@@ -2445,85 +2695,85 @@ var __extends = this && this.__extends || function () {
 }();
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var CompassRose = /** @class */function (_super) {
-    __extends(CompassRose, _super);
-    function CompassRose() {
+var compassrose_1 = __webpack_require__(2);
+var Watch = /** @class */function (_super) {
+    __extends(Watch, _super);
+    function Watch() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.animRot = 0;
-        _this.boatSelectedHandler = function (event) {
-            // event.detail the reference to the tracked ship
-            var newShip = event.detail;
-            _this.trackShip(newShip);
-        };
+        _this.percentDone = 0;
+        _this.lastTime = 0;
+        _this.totalTime = 0;
+        _this.timeElapsed = 0;
+        _this.started = false;
         return _this;
     }
-    // init assumes it has its sprite assets available
-    CompassRose.prototype.init = function () {
-        this.compassBase = new PIXI.Sprite(PIXI.Texture.fromFrame("compassBase.png"));
-        this.starCap = new PIXI.Sprite(PIXI.Texture.fromFrame("starRotate.png"));
-        this.starCap.x = (this.compassBase.width - this.starCap.width) / 2;
-        this.starCap.y = (this.compassBase.height - this.starCap.height) / 2; // centered
-        this.needleHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
-        // this.needleHeading.pivot.x = this.needleHeading.width / 2;
-        // this.needleHeading.pivot.y = this.needleHeading.height;  // bottom center of sprite
-        this.needleHeading.anchor.x = 0.5;
-        this.needleHeading.anchor.y = 1; // anchor at center bottom
-        this.needleHeading.x = 200;
-        this.needleHeading.y = 200;
-        this.needleHeading.rotation = this.getRads(15);
-        this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
-        // this.needleCannon.pivot.x = this.needleCannon.width / 2;
-        // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
-        this.needleCannon.anchor.x = 0.5;
-        this.needleCannon.anchor.y = 1; // anchor at center bottom
-        this.needleCannon.x = 200;
-        this.needleCannon.y = 200; // centered on compass base
-        this.needleCannon.rotation = this.getRads(105);
-        this.windDirection = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
-        // this.windDirection.pivot.x = 29;
-        // this.windDirection.pivot.y = 183;  // will rotate around this point against the compass base background
-        this.windDirection.anchor.x = 0.5;
-        this.windDirection.anchor.y = 2.5;
-        this.windDirection.x = 200; //this.compassBase.width / 2 - this.windDirection.width / 2;
-        this.windDirection.y = 200; //17; // magic number
-        this.addChild(this.compassBase); // z order will be in child order, back to front
-        this.addChild(this.windDirection);
-        this.addChild(this.needleHeading);
-        this.addChild(this.needleCannon);
-        this.addChild(this.starCap);
-        window.addEventListener("boatSelected", this.boatSelectedHandler, false);
+    Watch.prototype.timeToZero = function (seconds) {};
+    Watch.prototype.init = function () {
+        // assumes its aszets are loaded inot the cache
+        this.watchFace = new PIXI.Sprite(PIXI.Texture.fromFrame("Watch.png"));
+        this.counter = new PIXI.Sprite(PIXI.Texture.fromFrame("CounterProgress.png"));
+        this.addChild(this.watchFace);
+        this.counter.x = 6;
+        this.counter.y = 12;
+        this.counter.alpha = 0.73;
+        this.addChild(this.counter);
+        // test mask
+        this.percentDone = 0.25;
+        this.doMask();
     };
-    CompassRose.prototype.getRads = function (degrees) {
-        return degrees * Math.PI / 180;
+    Watch.prototype.start = function (callback) {
+        this.percentDone = 0;
+        this.timeElapsed = 0;
+        this.lastTime = 0;
+        this.finishedCallback = callback;
+        this.started = true;
+        console.log("watch started");
     };
-    CompassRose.convertCartToCompass = function (degrees) {
-        // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)
-        // and convert it to compass rotation (0 is along the y axis "up" and sweeps clockwise)
-        // cart will be from 0 -> 180 or 0 -> -180 for top or bottom hemisphere
-        // compass rotations are just 0 -> 360
-        var compassAngle = 0;
-        if (degrees < 0) {
-            compassAngle = 90 + Math.abs(degrees);
-        } else if (degrees > 90) {
-            compassAngle = 180 - degrees + 270;
-        } else {
-            compassAngle = 90 - degrees;
+    Watch.prototype.stop = function () {
+        this.started = false;
+    };
+    Watch.prototype.doMask = function () {
+        // make a circular arc based off percentDone  100 will be no mask.. reveals clockwise as percent increases
+        var degs = this.percentDone * 360;
+        var rads = compassrose_1.default.getRads(degs);
+        var arc = new PIXI.Graphics();
+        arc.beginFill(0xff0000);
+        arc.moveTo(this.counter.width / 2, this.counter.height / 2);
+        arc.arc(this.counter.width / 2, this.counter.height / 2, this.counter.width / 2, 0, rads, false); // cx, cy, radius, angle, endAngle, anticlockwise bool
+        arc.endFill();
+        arc.rotation = compassrose_1.default.getRads(-90);
+        arc.x = this.counter.x;
+        arc.y = this.counter.y + this.counter.width;
+        if (this.counterMask) {
+            this.removeChild(this.counterMask);
+            this.counterMask.destroy();
         }
-        return compassAngle;
+        this.counterMask = arc;
+        this.counter.mask = this.counterMask;
+        this.addChild(this.counterMask);
     };
-    // set the ship we should track for heading info
-    CompassRose.prototype.trackShip = function (ship) {
-        this.trackingShip = ship;
+    Watch.prototype.countDown = function (timeToCount) {
+        // all units in milliseconds
+        this.totalTime = timeToCount;
     };
-    CompassRose.prototype.update = function () {
-        if (this.trackingShip) this.needleHeading.rotation = this.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
-        // this.animRot += 0.1;
-        // this.needleHeading.rotation = this.getRads(this.animRot);
-        // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
+    Watch.prototype.update = function () {
+        if (this.started) {
+            var now = Date.now();
+            if (this.lastTime != 0) this.timeElapsed += now - this.lastTime;
+            this.lastTime = now;
+            this.percentDone = 1 - (this.totalTime - this.timeElapsed) / this.totalTime;
+            if (this.percentDone >= 1) this.percentDone = 1;
+            this.doMask();
+            if (this.percentDone == 1) {
+                this.stop();
+                // call our callback to indicate we are finished
+                if (this.finishedCallback) this.finishedCallback();
+            }
+        }
     };
-    return CompassRose;
+    return Watch;
 }(PIXI.Container);
-exports.default = CompassRose;
+exports.default = Watch;
 
 /***/ })
 /******/ ]);
