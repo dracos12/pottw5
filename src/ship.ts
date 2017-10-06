@@ -392,7 +392,7 @@ export default class Ship extends GameObject
 
         // caluclate degrees per second, multiply by 1000 to convert to milliseconds
         let timeToTurn = (Math.abs(deltaDegrees) / this.angularSpeed) * 1000;
-        console.log("Changing heading of " + deltaDegrees + " in " + timeToTurn + " milliseconds");
+        console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
         return timeToTurn;
     }
 
