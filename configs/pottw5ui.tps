@@ -290,6 +290,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/achtung.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>14,16,28,32</rect>
+                <key>scale9Paddings</key>
+                <rect>14,16,28,32</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/compassBase.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -384,6 +397,7 @@
             <filename>../../../Art/pottw5/ui/sliderThumb2.png</filename>
             <filename>../../../Art/pottw5/ui/CounterProgress.png</filename>
             <filename>../../../Art/pottw5/ui/Watch.png</filename>
+            <filename>../../../Art/pottw5/ui/achtung.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

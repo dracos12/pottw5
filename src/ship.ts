@@ -29,7 +29,7 @@ export default class Ship extends GameObject
     private speed:number;   // scalar for speed (why not use a velocity vector to combine heading and speed?)
     private targetSpeed:number;
 
-    private name:string;    // all boats must have a name! ;)
+    private shipName:string;    // all boats must have a name! ;)
     private sailState:number; // 0 = down, 1 = full sail, 2 = half sail
     private polyNum:number= 0; // current heading corresponds to which index in the polyData array?
 
@@ -43,6 +43,12 @@ export default class Ship extends GameObject
     // boat handling characteristics
     private angularSpeed:number = 30;   // turn rate in degrees/second
     private angleToWind:number = 60;    // closet angle to the wind this ship can sail upon
+
+    private aGround:boolean = false;    // are we aground? set by theSea main loop
+    private inIrons:boolean = false;    // are we inIrons? set by compassRose
+
+    private achtung:PIXI.Sprite;        // exclaimation sprite indicating error condition
+    private errorDisplayed:boolean = false;  // is achtung up?
 
     constructor()
     {
@@ -62,11 +68,14 @@ export default class Ship extends GameObject
         }
     }
 
-    public init()
+    public init(p:any)
     {
         this.sprite = new PIXI.Sprite(); // an empty sprite
+        this.setPolyData(p);
         this.matchHeadingToSprite(); // initialize the texture its using
-        this.name = "Nutmeg of Consolation"; 
+        this.shipName = "Nutmeg of Consolation"; 
+        this.achtung = new PIXI.Sprite(PIXI.Texture.fromFrame("achtung.png"));
+        // do not add achtung until needed 
     }
 
     public setPolyData(p:any) {
@@ -182,6 +191,21 @@ export default class Ship extends GameObject
     public allStop() {
         this.sailState = 0; // lower the sails!
         this.speed = 0;
+        this.targetSpeed = 0;
+    }
+
+    public isAground()
+    {
+        return this.aGround;
+    }
+    public setAground(aground:boolean)
+    {
+        this.aGround = aground;
+    }
+
+    public setInIrons(inIrons:boolean)
+    {
+        this.inIrons = inIrons;
     }
 
     public setPosition(x:number, y: number) 
@@ -241,7 +265,17 @@ export default class Ship extends GameObject
             //console.log("replacing texture with frame: " + (frameNum + modFrame));
             console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum)
             this.usingFrame = frameNum + modFrame;
+
+            // set pivot point from data
+            if (this.polyData)
+            {
+                var frameStr = frameName + this.getFrameString(frameNum, 0) + ".png";
+                this.sprite.pivot.x = this.polyData[frameStr].refPt[0];
+                this.sprite.pivot.y = this.polyData[frameStr].refPt[1];
+            }
         }
+
+
     }
 
     private getFrameString(frameNum:number, mod:number)
@@ -308,9 +342,8 @@ export default class Ship extends GameObject
 
     private updatePosition() {
         // modify x and y based off heading and speed
-        let s = this.getSprite();
-        s.x += this.speed * this.heading.x;
-        s.y += this.speed * -this.heading.y; // y is inverted... heading in cartesean, but our position coords origin is top,left
+        this.sprite.x += this.speed * this.heading.x;
+        this.sprite.y += this.speed * -this.heading.y; // y is inverted... heading in cartesean, but our position coords origin is top,left
     }
 
     update() {
@@ -368,6 +401,28 @@ export default class Ship extends GameObject
 
         // update its sprite if necessary
         this.matchHeadingToSprite();
+
+        // check if we need to display the error icon
+        if (this.aGround || this.inIrons)
+        {
+            if (!this.errorDisplayed)
+            {
+                // add it
+                this.achtung.x = this.sprite.x + this.sprite.width/2 - this.achtung.width/2;
+                this.achtung.y = this.sprite.y - this.sprite.height;
+                this.sprite.parent.addChild(this.achtung);
+                this.errorDisplayed = true;
+                console.log("adding Achtung");
+            }
+        }
+        else  // remove achtung if present
+        {
+            if (this.errorDisplayed){
+                this.sprite.parent.removeChild(this.achtung);
+                this.errorDisplayed = false;
+                console.log("removing Achtung");
+            }
+        }
 
     }
 

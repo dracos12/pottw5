@@ -23,6 +23,8 @@ export default class MainHUD
     private watch:Watch;
 
     private trackShip:Ship; // the ship the hud is currently tracking
+
+    private didGrounding:boolean = false;
     
 
     // request the assets we need loaded
@@ -120,5 +122,18 @@ export default class MainHUD
     {
         this.compassRose.update();
         this.watch.update();
+
+        if (this.trackShip.isAground())
+        {
+            if (!this.didGrounding) {
+                this._sailTrim.setSailTrimPercent(0);
+                this.didGrounding = true;
+            }
+        }
+        else
+        {
+            if (this.didGrounding)
+                this.didGrounding = false;
+        }
     }
 } 

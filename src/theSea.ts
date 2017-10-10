@@ -361,12 +361,11 @@ export default class theSea
 
             // add a boat near guadelupe
             let boat = new Ship();
-            boat.init();
+            boat.init(this.boatData.corvette);
             boat.setPosition(6200,2600);
             this.layerObjects.addChild(boat.getSprite());
             this.objectArray.push(boat);
-            boat.setPolyData(this.boatData.corvette);
-
+            
             this.selectedBoat = boat;
             // send a message that we have a new selected boat
             var myEvent = new CustomEvent("boatSelected",
@@ -457,6 +456,7 @@ export default class theSea
 
     private checkPlayerBoatCollision() {
         // first do a simple box hit test against the player boat and all the islands
+        var hit = false;
         for (let entry of this.objectArray) {
             if (entry.getType() == ObjectType.ISLAND) {
                 if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
@@ -466,11 +466,15 @@ export default class theSea
                     {
                         console.log("Boat has struck - " + entry.getSprite().name);
                         this.selectedBoat.allStop();
+                        this.selectedBoat.setAground(true);
+                        hit = true;
                         return;
                     }
                 }
             }
         }
+        if (!hit)
+            this.selectedBoat.setAground(false);
 
         // if theres a hit, perform the polyk hittest for each poiint in the boats polykdata against the island polygon
     }
