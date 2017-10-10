@@ -23,7 +23,7 @@ export default class Ship extends GameObject
     private degreeHeading:number; // heading expressed as degrees
     private targetHeading:number;
     private toLarboard:boolean = false; // which direction to turn to targetHeading
-    private angularSpeed:number = 30; // boat characteristic in degrees/second
+    
     private lastTime:number; // record last timestamp
 
     private speed:number;   // scalar for speed (why not use a velocity vector to combine heading and speed?)
@@ -39,6 +39,10 @@ export default class Ship extends GameObject
     private cartPolyData8:Array<Array<number>> = []; // an array of 8 arrays converted to cartesian
     private cartKeelData:Array<number> = [];
     private jsonData:any;      // object handed to us from the json loader
+
+    // boat handling characteristics
+    private angularSpeed:number = 30;   // turn rate in degrees/second
+    private angleToWind:number = 60;    // closet angle to the wind this ship can sail upon
 
     constructor()
     {
@@ -370,6 +374,11 @@ export default class Ship extends GameObject
     public getHeading()
     {
         return this.degreeHeading;
+    }
+
+    public getAngleToWind()
+    {
+        return this.angleToWind;
     }
 
     public changeHeading(newHeading:number)
