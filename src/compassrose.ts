@@ -98,17 +98,64 @@ export default class CompassRose extends PIXI.Container
             this.mouseDown = false;
 
             console.log("CompassRose: END ghost heading");
-            
-            var myEvent = new CustomEvent("changeHeading",
+
+            if (this.isValidHeading())
             {
-                'detail': this.trackedNewHeading
-            });
-    
-            window.dispatchEvent(myEvent);
+                var myEvent = new CustomEvent("changeHeading",
+                {
+                    'detail': this.trackedNewHeading
+                });
+        
+                window.dispatchEvent(myEvent);
+            } else {
+                console.log("Invalid heading!");
+                // display first mate message box
+                this.needleGhostHeading.visible = false;
+            }
 
             this.noGoArc.visible = false;
         }
         // else ignore - might be called as mouse moves without mousedown
+    }
+
+    private isValidHeading()
+    {
+        // heading is valid if it is not within angleToWind degrees of the current wind direction
+        var maxWind = this.windDirection + this.trackingShip.getAngleToWind();
+        var minWind = this.windDirection - this.trackingShip.getAngleToWind();
+        var tracked = CompassRose.convertCartToCompass(this.trackedNewHeading);
+        
+        // valid angles are 0 -> 360
+        if (maxWind > 0 && minWind > 0 && maxWind < 360)
+        {
+            console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            if (tracked > minWind && tracked < maxWind)
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            // one has crossed the zero degree threshold, convert and do some shenanigans
+            if (minWind < 0)
+                minWind = 360 + minWind; // ie -15 would become 345
+            if (maxWind > 360)
+                maxWind = maxWind - 360; // ie 375 would become 15
+
+            if (minWind > maxWind)
+            {
+                var temp = maxWind;
+                maxWind = minWind;
+                minWind = temp;
+            }
+
+            console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+
+            if (tracked > minWind && tracked < maxWind)
+                return true;
+            else
+                return false;  
+        }
     }
 
     mouseMoveHandler = (e:any) => {
@@ -214,6 +261,7 @@ export default class CompassRose extends PIXI.Container
     public trackShip(ship:Ship)
     {
         this.trackingShip = ship;
+        this.setNoGo(this.trackingShip.getAngleToWind());
     }
 
     public update()
