@@ -17,7 +17,11 @@ export default class CompassRose extends PIXI.Container
     private needleHeading:PIXI.Sprite; // ship heading needle
     private needleGhostHeading:PIXI.Sprite; // ghost needle for user to move to proposed new heading
     private needleCannon:PIXI.Sprite; // cannon needle
-    private windDirection:PIXI.Sprite;  // wind direction indicator
+    private windIndicator:PIXI.Sprite;  // wind direction indicator
+    private windDirection:number;       // direction wind is coming from (in degrees - 0 is due North)
+    private noGoArc:PIXI.Graphics;      // arc around wind direction for where boats cannot sail to
+    private lastWindChange:number;      // time stamp of last windchange
+    private periodWindChange:number;    // change the wind every priod (in milliseconds)
     private trackingShip:Ship;
     private animRot:number = 0;
     private mouseDown:boolean = false;
@@ -36,16 +40,16 @@ export default class CompassRose extends PIXI.Container
         // this.needleHeading.pivot.y = this.needleHeading.height;  // bottom center of sprite
         this.needleHeading.anchor.x = 0.5;
         this.needleHeading.anchor.y = 1;   // anchor at center bottom
-        this.needleHeading.x = 200;
-        this.needleHeading.y = 200;
+        this.needleHeading.x = 66;
+        this.needleHeading.y = 66;
         this.needleHeading.rotation = CompassRose.getRads(15);
 
         // the ghost heading needle
         this.needleGhostHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
         this.needleGhostHeading.anchor.x = 0.5;
         this.needleGhostHeading.anchor.y = 1;   // anchor at center bottom
-        this.needleGhostHeading.x = 200;
-        this.needleGhostHeading.y = 200;
+        this.needleGhostHeading.x = 66;
+        this.needleGhostHeading.y = 66;
         this.needleGhostHeading.rotation = CompassRose.getRads(15);
         this.needleGhostHeading.visible = false;
         this.needleGhostHeading.alpha = 0.67;
@@ -55,20 +59,25 @@ export default class CompassRose extends PIXI.Container
         // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
         this.needleCannon.anchor.x = 0.5;
         this.needleCannon.anchor.y = 1;   // anchor at center bottom
-        this.needleCannon.x = 200;
-        this.needleCannon.y = 200; // centered on compass base
+        this.needleCannon.x = 66;
+        this.needleCannon.y = 66; // centered on compass base
         this.needleCannon.rotation = CompassRose.getRads(105);
 
-        this.windDirection = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
+        this.windIndicator = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
         // this.windDirection.pivot.x = 29;
         // this.windDirection.pivot.y = 183;  // will rotate around this point against the compass base background
-        this.windDirection.anchor.x = 0.5;
-        this.windDirection.anchor.y = 2.5;
-        this.windDirection.x = 200; //this.compassBase.width / 2 - this.windDirection.width / 2;
-        this.windDirection.y = 200; //17; // magic number
+        this.windIndicator.anchor.x = 0.5;
+        this.windIndicator.anchor.y = 2.5;
+        this.windIndicator.x = 66; //this.compassBase.width / 2 - this.windDirection.width / 2;
+        this.windIndicator.y = 66; //17; // magic number
+
+        this.windDirection = 0; // due north
+
+
 
         this.addChild(this.compassBase);    // z order will be in child order, back to front
-        this.addChild(this.windDirection);
+        this.setNoGo(60);
+        this.addChild(this.windIndicator);
         this.addChild(this.needleHeading);
         this.addChild(this.needleGhostHeading);
         this.addChild(this.needleCannon);
@@ -79,6 +88,9 @@ export default class CompassRose extends PIXI.Container
 
         this.needleHeading.on("mousemove", this.mouseMoveHandler);
         this.needleHeading.on("mouseup", this.mouseUpHandler);
+
+        this.pivot.x = this.compassBase.x  + this.compassBase.width/2;
+        this.pivot.y = this.compassBase.y  + this.compassBase.height/2;
     }
 
     private endSetHeading() {
@@ -93,6 +105,8 @@ export default class CompassRose extends PIXI.Container
             });
     
             window.dispatchEvent(myEvent);
+
+            this.noGoArc.visible = false;
         }
         // else ignore - might be called as mouse moves without mousedown
     }
@@ -105,6 +119,7 @@ export default class CompassRose extends PIXI.Container
         // mouse has moved, find the angle relative to the center of the compass and rotate the ghost image there
         if (this.mouseDown) {
             this.needleGhostHeading.visible = true;
+            this.noGoArc.visible = true;
             // get local coords from mouse coords
             let locPt = this.toLocal(new PIXI.Point(e.data.global.x,e.data.global.y));
             // get a vector from these coords
@@ -129,6 +144,39 @@ export default class CompassRose extends PIXI.Container
     mouseUpHandler = (e:any) => {
         // release mouse no matter what the e.target was
         this.endSetHeading();
+    }
+
+    // creates the nogo arc
+    // degrees is closest point to wind (total arc will be degrees*2)
+    private setNoGo(degrees:number)
+    {
+        // make a circular arc based off percentDone  100 will be no mask.. reveals clockwise as percent increases
+        let degs = degrees * 2;
+        let rads = CompassRose.getRads(degs);
+
+        if (this.noGoArc)
+        {
+            this.removeChild(this.noGoArc);
+            this.noGoArc.destroy();
+        }
+
+        var arc = new PIXI.Graphics();
+        arc.beginFill(0xff0000);
+        arc.moveTo(this.compassBase.width/2, this.compassBase.height/2);
+        arc.arc(this.compassBase.width/2, this.compassBase.height/2, this.compassBase.width/2, 0, rads, false); // cx, cy, radius, angle, endAngle, anticlockwise bool
+        arc.endFill();
+        arc.pivot.x = this.compassBase.width/2;
+        arc.pivot.y = this.compassBase.height/2;
+        arc.x = this.compassBase.width/2;
+        arc.y = this.compassBase.height/2;
+        // rotate arc to straddle the wind direction
+        arc.rotation = CompassRose.getRads(this.windDirection - 90 - degrees);
+        
+        
+        this.noGoArc = arc;
+        this.noGoArc.alpha = 0.33;
+        this.addChildAt(this.noGoArc,1); //1 is just above 0, the compassBase
+        this.noGoArc.visible = false;
     }
 
     public static getRads(degrees:number)

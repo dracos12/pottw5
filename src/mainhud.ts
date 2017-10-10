@@ -59,21 +59,20 @@ export default class MainHUD
 
         this.compassRose = new CompassRose();
         this.compassRose.init();
-        this.compassRose.scale.x = 0.33;
-        this.compassRose.scale.y = 0.33;
-        this.compassRose.x = this._sailTrim.x - this.compassRose.width;
-        this.compassRose.y = window.innerHeight - this.compassRose.height;
+        // pivot set by compassrose to be center of itself
+        this.compassRose.x = this._sailTrim.x - this.compassRose.width/2;
+        this.compassRose.y = window.innerHeight - this.compassRose.height/2;
 
         this.leftCannonBattery = new PIXI.Sprite(PIXI.Texture.fromFrame("CannonArray.png"));
-        this.leftCannonBattery.x = this.compassRose.x; // scaleX will be flipped which makes its anchor point top right
+        this.leftCannonBattery.x = this.compassRose.x - this.compassRose.width/2; // scaleX will be flipped which makes its anchor point top right
         this.leftCannonBattery.y = this.footer.y;
         this.leftCannonBattery.scale.x = -1; // flip the art so it points left
 
         this.watch = new Watch();
         this.watch.init();
 
-        this.watch.x = this.compassRose.x + this.compassRose.width/2 - this.watch.width/2;
-        this.watch.y = this.compassRose.y - this.watch.height - 5;
+        this.watch.x = this.compassRose.x - this.watch.width/2;
+        this.watch.y = this.compassRose.y - this.compassRose.height/2 - this.watch.height - 5;
 
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
