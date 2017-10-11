@@ -225,6 +225,45 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/LongBoat.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,3,20,5</rect>
+                <key>scale9Paddings</key>
+                <rect>10,3,20,5</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/LongBoatButton.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,7,21,15</rect>
+                <key>scale9Paddings</key>
+                <rect>10,7,21,15</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/PointRed.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>5,5,10,10</rect>
+                <key>scale9Paddings</key>
+                <rect>5,5,10,10</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/Sail_Yscale.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -300,6 +339,20 @@
                 <rect>14,16,28,32</rect>
                 <key>scale9Paddings</key>
                 <rect>14,16,28,32</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/btn_ZoomMinus.png</key>
+            <key type="filename">../../../Art/pottw5/ui/btn_zoomPlus.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,7,21,13</rect>
+                <key>scale9Paddings</key>
+                <rect>10,7,21,13</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -398,6 +451,11 @@
             <filename>../../../Art/pottw5/ui/CounterProgress.png</filename>
             <filename>../../../Art/pottw5/ui/Watch.png</filename>
             <filename>../../../Art/pottw5/ui/achtung.png</filename>
+            <filename>../../../Art/pottw5/ui/PointRed.png</filename>
+            <filename>../../../Art/pottw5/ui/btn_zoomPlus.png</filename>
+            <filename>../../../Art/pottw5/ui/LongBoat.png</filename>
+            <filename>../../../Art/pottw5/ui/btn_ZoomMinus.png</filename>
+            <filename>../../../Art/pottw5/ui/LongBoatButton.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
