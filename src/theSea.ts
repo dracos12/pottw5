@@ -18,8 +18,8 @@ export default class theSea
 
     private loadCallback:Function;
 
-    private objectArray: Array<GameObject> = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
-
+    private islandArray: Array<GameObject> = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
+    private shipArray: Array<Ship> = [];
     private wheelScale = 0.25;
     private mouseDown:boolean = false;
 
@@ -30,9 +30,12 @@ export default class theSea
 
     private boatData:any;   // save the json data to pass to boats as they are created
 
+    // layers so sea tiles always sorted beneath ships/islands
     private layerSeaTiles:PIXI.Container = new PIXI.Container();
     private layerObjects:PIXI.Container = new PIXI.Container();
     //private layerUI:PIXI.Container = new PIXI.Container();
+
+    private numPorts:number=0;  // number of islands in the island array that are ports
 
     // javascript style mouse wheel handler, pixi does not support mouse wheel
     mouseWheelHandler = (e:any) => {
@@ -260,7 +263,7 @@ export default class theSea
     }
 
     keyDownHandler = (event:any) => {
-        console.log("Pressed key: " + event.keyCode);
+        //console.log("Pressed key: " + event.keyCode);
         if (event.keyCode === 38) { // up
             this.selectedBoat.increaseSail();
         }
@@ -295,7 +298,7 @@ export default class theSea
     private onBoatsLoaded = (responseText:string) => 
     {
         var json_data = JSON.parse(responseText);
-        console.log(json_data);
+        //console.log(json_data);
 
         // save the boat data to hand to boast as they are created
         this.boatData = json_data;
@@ -320,8 +323,8 @@ export default class theSea
     private onIslesLoaded = (responseText:string) => 
     {
         var json_data = JSON.parse(responseText);
-        console.log(json_data);
-        console.log(PIXI.loader.resources);
+        //console.log(json_data);
+        //console.log(PIXI.loader.resources);
 
         // run through all entries in the json
         for (var key in json_data) {
@@ -341,10 +344,13 @@ export default class theSea
                 // add sprite to the isle, this container, and the tracked object array
                 isle.setSprite(sprite);
                 this.layerObjects.addChild(sprite);
-                this.objectArray.push(isle);
+                this.islandArray.push(isle);
 
                 // save its polygonal data
                 isle.setPolyData(json_data[key].polygonPts);
+                isle.setData(json_data[key]); // save out the entire entry for isle's later use
+                if (isle.isPort())
+                    this.numPorts++;
 
                 console.log("Adding " + sprite.name + " to theSea");
             }
@@ -361,10 +367,10 @@ export default class theSea
 
             // add a boat near guadelupe
             let boat = new Ship();
-            boat.init(this.boatData.corvette);
+            boat.init(this.boatData.corvette, this.islandArray);
             boat.setPosition(6200,2600);
             this.layerObjects.addChild(boat.getSprite());
-            this.objectArray.push(boat);
+            this.shipArray.push(boat);
             
             this.selectedBoat = boat;
             // send a message that we have a new selected boat
@@ -374,6 +380,13 @@ export default class theSea
             });
     
             window.dispatchEvent(myEvent);
+
+            // load one AI boat - heading 600 pixels due north
+            let boat2 = new Ship();
+            let portPt = this.getRandomPortDest();
+            boat2.init(this.boatData.corvette, this.islandArray, true, new PIXI.Point(6400, 2600), portPt);
+            this.layerObjects.addChild(boat2.getSprite());
+            this.shipArray.push(boat2);
 
             // final step in loading process.. can now call loadcallback
             this.loadCallback();
@@ -394,6 +407,36 @@ export default class theSea
         xobj.send(null);  
     }
 
+    private getRandomPortDest()
+    {
+        // return a random port destination
+        var desiredPort = theSea.getRandomIntInclusive(1,this.numPorts);
+        var portCount = 0;
+        var isle;
+
+        console.log("DesiredPort: " + desiredPort +  " numPorts: " + this.numPorts);
+
+        // loop through the island array
+        for (let gameObj of this.islandArray)
+        {
+            if (<Island>gameObj && (<Island>gameObj).isPort())
+            {
+                portCount++;
+                if (portCount == desiredPort)
+                {
+                    console.log("RandomPort: " + (<Island>gameObj).getName());
+                    return (<Island>gameObj).getPortDest();
+                }
+            }
+        }
+    }
+
+    public static getRandomIntInclusive(min:number, max:number) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+    }
+
     public getContainer()
     {
         return this.container;
@@ -404,23 +447,26 @@ export default class theSea
     //
     public update()
     {
-        this.container.x += this.deltaX;
-        this.container.y += this.deltaY;
+        if (this.deltaX != 0 || this.deltaY != 0)
+        {
+            this.container.x += this.deltaX;
+            this.container.y += this.deltaY;
 
-        if (this.container.x > 0)
-            this.container.x = 0;
-        
-        if (this.container.y > 0)
-            this.container.y = 0;
+            if (this.container.x > 0)
+                this.container.x = 0;
+            
+            if (this.container.y > 0)
+                this.container.y = 0;
 
-        if (this.container.x < -(this.container.width - window.innerWidth))
-            this.container.x = -(this.container.width - window.innerWidth);
+            if (this.container.x < -(this.container.width - window.innerWidth))
+                this.container.x = -(this.container.width - window.innerWidth);
 
-        if (this.container.y < -(this.container.height - window.innerHeight))
-            this.container.y = -(this.container.height - window.innerHeight);
+            if (this.container.y < -(this.container.height - window.innerHeight))
+                this.container.y = -(this.container.height - window.innerHeight);
 
-        this.deltaX = 0;
-        this.deltaY = 0; // clear the data, await next mousemove
+            this.deltaX = 0;
+            this.deltaY = 0; // clear the data, await next mousemove
+        }
 
         // console.log(this.deltaX + "," + this.deltaY);
 
@@ -433,7 +479,11 @@ export default class theSea
         this.layerObjects.children.sort(this.objSort);
 
         // loop through our object array and call each element's update function
-        for (let gameObj of this.objectArray)
+        for (let gameObj of this.islandArray)
+        {
+            gameObj.update();
+        }
+        for (let gameObj of this.shipArray)
         {
             gameObj.update();
         }
@@ -444,20 +494,28 @@ export default class theSea
 
     private objSort(a:PIXI.DisplayObject, b:PIXI.DisplayObject)
     {
-        if (a.y < b.y)
+        var aY = a.y + (<PIXI.Sprite>a).height/2;
+        var bY = b.y + (<PIXI.Sprite>b).height/2;
+
+        if (aY < bY)
             return -1;
-        else if (a.y == b.y)
+        else if (aY == bY)
             return 0;
-        else if (a.y > b.y)
+        else if (aY > bY)
             return 1;
         else 
             return 0;
     }
 
+    public getIslandList()
+    {
+        return this.islandArray;
+    }
+
     private checkPlayerBoatCollision() {
         // first do a simple box hit test against the player boat and all the islands
         var hit = false;
-        for (let entry of this.objectArray) {
+        for (let entry of this.islandArray) {
             if (entry.getType() == ObjectType.ISLAND) {
                 if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
                     //console.log("boxHit!");
@@ -476,7 +534,7 @@ export default class theSea
         if (!hit)
             this.selectedBoat.setAground(false);
 
-        // if theres a hit, perform the polyk hittest for each poiint in the boats polykdata against the island polygon
+        // if theres a hit, perform the polyk hittest for each point in the boats polykdata against the island polygon
     }
 
     private boxHitTest(s1:PIXI.Sprite, s2:PIXI.Sprite)

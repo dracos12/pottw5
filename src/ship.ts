@@ -50,6 +50,18 @@ export default class Ship extends GameObject
     private achtung:PIXI.Sprite;        // exclaimation sprite indicating error condition
     private errorDisplayed:boolean = false;  // is achtung up?
 
+    private isles:Array<GameObject>;    // reference to theSea island array
+
+    private isAI:boolean = false;       // is this boat running AI?
+    private aiTarget:PIXI.Point;        // the x,y coord of where this AI boat is trying to go
+    private aiArrived:boolean = false;  // flag used to determine if ai has arrived at its target destination
+
+    private aiTargetSprite:PIXI.Sprite;
+    private aiBoatPos:PIXI.Sprite;
+    private showTarget:boolean = false;
+
+    private refPt:PIXI.Point;
+
     constructor()
     {
         super();
@@ -62,26 +74,82 @@ export default class Ship extends GameObject
         this.degreeHeading = this.heading.angleDeg(); 
         this.targetHeading = this.degreeHeading;
         this.lastTime = 0;
+        this.refPt = new PIXI.Point();
 
         for (var i=0; i<8; i++) {
             this.cartPolyData8.push(new Array<number>());
         }
     }
 
-    public init(p:any)
+    // args:
+    // p - polygonal data of type any for collisions with PolyK library
+    // ai - flag if this boat is ai
+    public init(p:any, isles:Array<GameObject>, isAI:boolean=false, pos?:PIXI.Point, aiTarget?:PIXI.Point)
     {
         this.sprite = new PIXI.Sprite(); // an empty sprite
         this.setPolyData(p);
         this.matchHeadingToSprite(); // initialize the texture its using
         this.shipName = "Nutmeg of Consolation"; 
         this.achtung = new PIXI.Sprite(PIXI.Texture.fromFrame("achtung.png"));
-        // do not add achtung until needed 
+        // do not add achtung until needed
+        this.aiTargetSprite = new PIXI.Sprite(PIXI.Texture.fromFrame("PointRed.png"));
+        this.aiTargetSprite.anchor.x = this.aiTargetSprite.anchor.y = 0.5;
+        this.aiBoatPos = new PIXI.Sprite(PIXI.Texture.fromFrame("PointRed.png"));
+        this.aiBoatPos.anchor.x = this.aiBoatPos.anchor.y = 0.5;
+        
+        // set position if given
+        if (pos) {
+            this.sprite.x = pos.x;
+            this.sprite.y = pos.y;
+        }
+
+        this.isles = isles; // set the island array for AI use
+        this.isAI = isAI; 
+        if (isAI) // set the destination for this AI boat
+        {
+            if (aiTarget)
+                this.aiTarget = new PIXI.Point(aiTarget.x, aiTarget.y);
+            else
+                this.aiTarget = new PIXI.Point(6200,2600); // water north of guadalupe
+
+            this.aiSetHeading();
+
+            // set sail! all ahead half!
+            this.setSailTrim(0.5);
+        }
+
+    }
+
+    private aiSetHeading()
+    {
+        // find a heading directly at our target destination
+        // and that is not heading directly into the wind
+        // convert world space to cartesian space coords
+        let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
+        let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
+        let v = new Victor( diffX, diffY );
+
+        v.normalize();
+
+        let newHeading = v.horizontalAngleDeg();
+        this.heading = new Victor(v.x, v.y);
+        this.degreeHeading = newHeading; // horizontal angle of heading
+        this.targetHeading = newHeading;
+
+        console.log("aiSetHeading to: " + this.degreeHeading.toFixed(2));
+
+        this.matchHeadingToSprite(); 
     }
 
     public setPolyData(p:any) {
         // p is the ship record from shipdata.json
         this.jsonData = p;
         this.sprite.name = this.jsonData["fileName"];
+    }
+
+    public setIslandArray(islands:Array<GameObject>)
+    {
+        this.isles = islands;
     }
 
     // ships move so they must convert their polyData each time it is referenced
@@ -263,19 +331,21 @@ export default class Ship extends GameObject
             // replace our texture with the appropriate facing
             s.texture = PIXI.Texture.fromFrame(frameName + this.getFrameString(frameNum, modFrame) + ".png");
             //console.log("replacing texture with frame: " + (frameNum + modFrame));
-            console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum)
+            //console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum)
             this.usingFrame = frameNum + modFrame;
 
             // set pivot point from data
-            if (this.polyData)
+            if (this.jsonData)
             {
                 var frameStr = frameName + this.getFrameString(frameNum, 0) + ".png";
-                this.sprite.pivot.x = this.polyData[frameStr].refPt[0];
-                this.sprite.pivot.y = this.polyData[frameStr].refPt[1];
+                // this.sprite.pivot.x = this.jsonData[frameStr].refPt[0];
+                // this.sprite.pivot.y = this.jsonData[frameStr].refPt[1];
+                // this.sprite.anchor.x = this.jsonData[frameStr].refPt[0] / this.sprite.width;
+                // this.sprite.anchor.y = this.jsonData[frameStr].refPt[1] / this.sprite.height;
+                this.refPt.x = this.jsonData[frameStr].refPt[0];
+                this.refPt.y = this.jsonData[frameStr].refPt[1];
             }
         }
-
-
     }
 
     private getFrameString(frameNum:number, mod:number)
@@ -387,7 +457,7 @@ export default class Ship extends GameObject
                 var ypart = Math.sin(CompassRose.getRads(this.degreeHeading));
                 
                 this.heading.x = xpart; 
-                this.heading.y = ypart; // y is flipped in worldspace compared to cartesian values
+                this.heading.y = ypart; // y is flipped when applying to sprite in setposition
                 this.heading.normalize(); // make sure its normalized
 
                 //console.log("target: " + this.targetHeading.toFixed(0) + " heading: " + this.degreeHeading.toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
@@ -402,28 +472,83 @@ export default class Ship extends GameObject
         // update its sprite if necessary
         this.matchHeadingToSprite();
 
-        // check if we need to display the error icon
-        if (this.aGround || this.inIrons)
+        // ai boat handling
+        if (this.isAI)
         {
-            if (!this.errorDisplayed)
+            if (!this.aiArrived)
             {
-                // add it
-                this.achtung.x = this.sprite.x + this.sprite.width/2 - this.achtung.width/2;
-                this.achtung.y = this.sprite.y - this.sprite.height;
-                this.sprite.parent.addChild(this.achtung);
-                this.errorDisplayed = true;
-                console.log("adding Achtung");
+                // if we are within the radius of our destination, come to a halt
+                var vec1 = new Victor(this.sprite.x + this.refPt.x, this.sprite.y + this.refPt.y);
+                var vec2 = new Victor(this.aiTarget.x, this.aiTarget.y);
+                var dist = Math.abs(vec1.distance(vec2));
+                if (dist < 50) {
+                    this.showAchtung();
+                    this.setSailTrim(0);
+                    this.aiArrived = true;
+                }
             }
-        }
-        else  // remove achtung if present
+
+            if (!this.showTarget)
+                this.showAITarget();
+
+            this.updateAITarget();
+        } else 
         {
-            if (this.errorDisplayed){
-                this.sprite.parent.removeChild(this.achtung);
-                this.errorDisplayed = false;
-                console.log("removing Achtung");
+            // check if we need to display the error icon
+            if (this.aGround || this.inIrons)
+            {
+                this.showAchtung();
+            }
+            else  // remove achtung if present
+            {
+                this.hideAchtung();
             }
         }
 
+    }
+
+    private showAITarget()
+    {
+        if (!this.showTarget)
+        {
+            // put the aiTarget on the parent
+            this.aiTargetSprite.x = this.aiTarget.x;
+            this.aiTargetSprite.y = this.aiTarget.y;
+            this.sprite.parent.addChild(this.aiTargetSprite);
+            this.showTarget = true;
+
+            this.aiBoatPos.x = this.sprite.x;
+            this.aiBoatPos.y = this.sprite.y;
+            this.sprite.parent.addChild(this.aiBoatPos);
+        }
+    }
+
+    private updateAITarget()
+    {
+        this.aiBoatPos.x = this.sprite.x + this.refPt.x;
+        this.aiBoatPos.y = this.sprite.y + this.refPt.y;
+    }
+
+    private showAchtung()
+    {
+        if (!this.errorDisplayed)
+        {
+            // add it
+            this.achtung.x = this.sprite.x + this.sprite.width/2 - this.achtung.width/2;
+            this.achtung.y = this.sprite.y - this.sprite.height;
+            this.sprite.parent.addChild(this.achtung);
+            this.errorDisplayed = true;
+            console.log("adding Achtung");
+        }
+    }
+
+    private hideAchtung()
+    {
+        if (this.errorDisplayed) {
+            this.sprite.parent.removeChild(this.achtung);
+            this.errorDisplayed = false;
+            console.log("removing Achtung");
+        }
     }
 
     public getHeading()
@@ -456,7 +581,7 @@ export default class Ship extends GameObject
 
         // caluclate degrees per second, multiply by 1000 to convert to milliseconds
         let timeToTurn = (Math.abs(deltaDegrees) / this.angularSpeed) * 1000;
-        console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
+        //console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
         return timeToTurn;
     }
 

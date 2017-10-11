@@ -49,7 +49,7 @@ export default class Watch extends PIXI.Container
         this.lastTime = 0;
         this.finishedCallback = callback;
         this.started = true;
-        console.log("watch started");
+        //console.log("watch started");
     }
 
     public stop()

@@ -96,7 +96,7 @@ export default class MainHUD
     }
 
     changeHeadingHandler = (event:any) => {
-        console.log("changeHeadingHandler received!");
+        //console.log("changeHeadingHandler received!");
         // ask the boat to change to new heading, it will return how much time this take
         var newHeading = event.detail;
         let headingTime = this.trackShip.changeHeading(newHeading);
@@ -108,7 +108,7 @@ export default class MainHUD
 
     onCountDone = () => {
         this.watch.visible = false;
-        console.log("onCountDone!");
+        //console.log("onCountDone!");
     }
 
     boatSelectedHandler = (event:any) => {

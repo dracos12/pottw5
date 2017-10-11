@@ -97,7 +97,7 @@ export default class CompassRose extends PIXI.Container
         if (this.mouseDown == true) {
             this.mouseDown = false;
 
-            console.log("CompassRose: END ghost heading");
+            //console.log("CompassRose: END ghost heading");
 
             if (this.isValidHeading())
             {
@@ -183,7 +183,7 @@ export default class CompassRose extends PIXI.Container
         if (e.target == this.needleHeading)
         {
             this.mouseDown = true;
-            console.log("CompassRose: START ghost heading");
+            //console.log("CompassRose: START ghost heading");
         }
         
     }
