@@ -81,13 +81,13 @@ export default class sailTrim extends PIXI.Container
 
     }
 
-    private showLuff()
+    public showLuff()
     {
         this.sailContainer.filters = [this.displacementFilter];
         this._showLuff = true;
     }
 
-    private hideLuff()
+    public hideLuff()
     {
         this.sailContainer.filters = [];
         this._showLuff = false;

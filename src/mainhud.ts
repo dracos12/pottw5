@@ -106,6 +106,14 @@ export default class MainHUD
         this.watch.visible = true;
         this.watch.countDown(headingTime);
         this.watch.start(this.onCountDone);
+
+        if (!this.compassRose.isValidHeading())
+        {
+            this._sailTrim.showLuff();
+        }
+        else {
+            this._sailTrim.hideLuff();
+        }
     }
 
     onCountDone = () => {

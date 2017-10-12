@@ -109,7 +109,7 @@ export default class CompassRose extends PIXI.Container
         // else ignore - might be called as mouse moves without mousedown
     }
 
-    private isValidHeading()
+    public isValidHeading()
     {
         // heading is valid if it is not within angleToWind degrees of the current wind direction
         var maxWind = this.windDirection + this.trackingShip.getAngleToWind();
