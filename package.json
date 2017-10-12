@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/dracos12/pottw5#readme",
   "dependencies": {
+    "@types/gsap": "^1.19.1",
     "@types/pixi.js": "^4.5.4",
     "pixi-display": "^1.1.1",
     "pixi.js": "^4.5.5",

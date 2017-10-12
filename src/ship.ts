@@ -6,6 +6,7 @@ import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
 import Victor = require('victor');
 import CompassRose from './compassrose';
+import { TweenLite, Linear, Power2 } from 'gsap';
 
 export const enum ShipType {
     SLOOP,
@@ -16,6 +17,7 @@ export const enum ShipType {
 }
 
 declare var PolyK: any;
+//declare var TweenLite: any; // Greensock Tweenlite used outside of typescript
 
 export default class Ship extends GameObject
 {
@@ -26,8 +28,9 @@ export default class Ship extends GameObject
     
     private lastTime:number; // record last timestamp
 
-    private speed:number;   // scalar for speed (why not use a velocity vector to combine heading and speed?)
-    private targetSpeed:number;
+    private speed:number;       // scalar for speed, expressed as pixels/second
+    private targetSpeed:number; // target speed also in pixels per second
+    private maxSpeed:number;    // ship characteristic read from data, in pixels/second
 
     private shipName:string;    // all boats must have a name! ;)
     private sailState:number; // 0 = down, 1 = full sail, 2 = half sail
@@ -62,6 +65,8 @@ export default class Ship extends GameObject
 
     private refPt:PIXI.Point;
 
+    private tweenVars:any;
+
     constructor()
     {
         super();
@@ -75,6 +80,7 @@ export default class Ship extends GameObject
         this.targetHeading = this.degreeHeading;
         this.lastTime = 0;
         this.refPt = new PIXI.Point();
+        this.tweenVars = { speed: 0 };
 
         for (var i=0; i<8; i++) {
             this.cartPolyData8.push(new Array<number>());
@@ -145,6 +151,7 @@ export default class Ship extends GameObject
         // p is the ship record from shipdata.json
         this.jsonData = p;
         this.sprite.name = this.jsonData["fileName"];
+        this.maxSpeed = this.jsonData["maxHullSpeed"];
     }
 
     public setIslandArray(islands:Array<GameObject>)
@@ -260,6 +267,8 @@ export default class Ship extends GameObject
         this.sailState = 0; // lower the sails!
         this.speed = 0;
         this.targetSpeed = 0;
+        this.tweenVars.speed = 0;
+        TweenLite.killTweensOf(this.tweenVars);
     }
 
     public isAground()
@@ -382,7 +391,7 @@ export default class Ship extends GameObject
 
     public setSailTrim(newTrim:number) {
         // set our speed based off the sail trim... sail trim is 0->1
-        this.targetSpeed = newTrim * 1; // 1 is our max speed... max speed can be data driven per boat type
+        this.targetSpeed = newTrim * this.maxSpeed; // data driven per boat type
         if (this.targetSpeed <= 0)
         {
             this.targetSpeed = 0;
@@ -391,7 +400,9 @@ export default class Ship extends GameObject
             this.sailState = 2; // sails up
         }
         console.log("setting Sail Trim: " + newTrim.toFixed(2));
-        
+
+        if (!this.aGround && !this.inIrons)
+            TweenLite.to(this.tweenVars, 2.5, { speed:this.targetSpeed, ease: Power2.easeInOut });
     }
 
     public wheelStarboard() {
@@ -418,26 +429,17 @@ export default class Ship extends GameObject
 
     update() {
         // update the sprite position by the speed + heading
-        if (this.targetSpeed != this.speed)
-        {
-            if (this.targetSpeed > this.speed) {
-                this.speed += 0.01;
-                if (this.speed > this.targetSpeed)
-                    this.speed = this.targetSpeed
-            }
-            else {
-                this.speed -= 0.01;
-                if (this.speed < this.targetSpeed)
-                    this.speed = this.targetSpeed;
-            }
+        var deltaTime = 0;        
+        var now = Date.now();
+
+        if (this.lastTime != 0) {
+            deltaTime = now - this.lastTime;
+            this.speed = this.tweenVars.speed / deltaTime; // speed in pixels per second, convert to pixels in deltatime
         }
 
         if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
-            var now = Date.now();
-            var deltaTime;
             if (this.lastTime != 0)
             {
-                deltaTime = now - this.lastTime;
                 var deltaAngle = deltaTime * (this.angularSpeed/1000);
                 // move to the target in the direction indicated by toLarboard
                 if (this.toLarboard) // move to target by adding to degree angle
@@ -464,13 +466,18 @@ export default class Ship extends GameObject
 
             }
 
-            this.lastTime = now; 
+            
         }
+
+        // update lastTime
+        this.lastTime = now; 
 
         this.updatePosition();
 
         // update its sprite if necessary
         this.matchHeadingToSprite();
+
+        this.updateAchtung();
 
         // ai boat handling
         if (this.isAI)
@@ -539,6 +546,15 @@ export default class Ship extends GameObject
             this.sprite.parent.addChild(this.achtung);
             this.errorDisplayed = true;
             console.log("adding Achtung");
+        }
+    }
+
+    private updateAchtung()
+    {
+        if (this.errorDisplayed)
+        {
+            this.achtung.x = this.sprite.x + this.sprite.width/2 - this.achtung.width/2;
+            this.achtung.y = this.sprite.y - this.sprite.height;       
         }
     }
 
