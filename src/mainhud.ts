@@ -31,6 +31,8 @@ export default class MainHUD
     public addLoaderAssets()
     {
         PIXI.loader.add("./images/ui/pottw5ui.json");
+        PIXI.loader.add("images/2yYayZk.png");
+        PIXI.loader.add("images/F8HIZMZFF22CHDE.MEDIUM.jpg");
     }
 
     // assets are loaded, initialize sprites etc
@@ -122,6 +124,7 @@ export default class MainHUD
     {
         this.compassRose.update();
         this.watch.update();
+        this._sailTrim.update();
 
         if (this.trackShip.isAground())
         {

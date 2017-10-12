@@ -98,22 +98,13 @@ export default class CompassRose extends PIXI.Container
             this.mouseDown = false;
 
             //console.log("CompassRose: END ghost heading");
-
-            if (this.isValidHeading())
+            var myEvent = new CustomEvent("changeHeading",
             {
-                var myEvent = new CustomEvent("changeHeading",
-                {
-                    'detail': this.trackedNewHeading
-                });
-        
-                window.dispatchEvent(myEvent);
-            } else {
-                console.log("Invalid heading!");
-                // display first mate message box
-                this.needleGhostHeading.visible = false;
-            }
+                'detail': this.trackedNewHeading
+            });
+    
+            window.dispatchEvent(myEvent);
 
-            this.noGoArc.visible = false;
         }
         // else ignore - might be called as mouse moves without mousedown
     }
@@ -128,7 +119,7 @@ export default class CompassRose extends PIXI.Container
         // valid angles are 0 -> 360
         if (maxWind > 0 && minWind > 0 && maxWind < 360)
         {
-            console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
             if (tracked > minWind && tracked < maxWind)
                 return true;
             else
@@ -149,7 +140,7 @@ export default class CompassRose extends PIXI.Container
                 minWind = temp;
             }
 
-            console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
 
             if (tracked > minWind && tracked < maxWind)
                 return true;
@@ -175,6 +166,10 @@ export default class CompassRose extends PIXI.Container
             this.needleGhostHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(angDeg));
             //console.log("Mouse Degrees: " + vic.angleDeg());
             this.trackedNewHeading = angDeg;
+            if (this.isValidHeading())
+                this.noGoArc.visible = false;
+            else
+                this.noGoArc.visible = true;
         }
 
     }

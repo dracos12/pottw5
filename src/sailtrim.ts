@@ -10,6 +10,12 @@ export default class sailTrim extends PIXI.Container
     private mainLineMask:PIXI.Graphics;     // mask for the mainLine - both become children of thumbSlider
     private trimMast:PIXI.Sprite;
     private sail:PIXI.Sprite;
+    private sailContainer:PIXI.Container;   // container for the sail and its displacement texture
+    private displacementFilter:PIXI.filters.DisplacementFilter;
+    private displacementSprite:PIXI.Sprite;
+    private displacementTexture:PIXI.Texture;
+    private _showLuff:boolean = false;
+    private luffDir:number = 1;
 
     private mouseDown:boolean = false;
     private lastY:number = -1;
@@ -39,9 +45,25 @@ export default class sailTrim extends PIXI.Container
         this.mainLine.mask = this.mainLineMask;
 
         this.sail = new PIXI.Sprite(PIXI.Texture.fromFrame("Sail_Yscale.png"));
-        this.sail.x = -7;
-        this.sail.y = 56;
-        this.addChild(this.sail);
+        // this.sail.x = -7;
+        // this.sail.y = 56;
+        //this.addChild(this.sail);
+
+        this.displacementTexture = PIXI.loader.resources["images/2yYayZk.png"].texture;
+        this.displacementTexture.baseTexture.wrapMode = PIXI.WRAP_MODES.REPEAT;
+        this.displacementSprite = new PIXI.Sprite(this.displacementTexture);
+        // this.displacementSprite.width = this.sail.width; // resize to same dimensions as the sail
+        // this.displacementSprite.height = this.sail.height;
+        // this.displacementSprite.scale.x = 4;
+        this.displacementFilter = new PIXI.filters.DisplacementFilter(this.displacementSprite);
+        
+
+        this.sailContainer = new PIXI.Container();
+        this.sailContainer.addChild(this.sail);
+        this.sailContainer.x = -7;
+        this.sailContainer.y = 56;
+        this.sailContainer.addChild(this.displacementSprite);
+        this.addChild(this.sailContainer);
 
         this.trimMast = new PIXI.Sprite(PIXI.Texture.fromFrame("sliderBack.png"));
         this.addChild(this.trimMast); // 0,0
@@ -56,6 +78,19 @@ export default class sailTrim extends PIXI.Container
         this.mainLine.on("mouseup", this.mouseUpHandler);
 
         this.setSailTrimPercent(0); // default to all stop
+
+    }
+
+    private showLuff()
+    {
+        this.sailContainer.filters = [this.displacementFilter];
+        this._showLuff = true;
+    }
+
+    private hideLuff()
+    {
+        this.sailContainer.filters = [];
+        this._showLuff = false;
     }
 
     public getSailTrimPercent()
@@ -72,7 +107,7 @@ export default class sailTrim extends PIXI.Container
         this.mainLine.y = -100 + 210 * percent; // -100 is the zero position in y for the main sheet block
                         
         // sail scale goes from 0 - > 1.33 -- capped for visual appeal
-        this.sail.scale.y = this.sailTrimPercent * 1.33;
+        this.sailContainer.scale.y = this.sailTrimPercent * 1.33;
     }
 
     mouseMoveHandler = (e:any) => {
@@ -101,7 +136,7 @@ export default class sailTrim extends PIXI.Container
                 this.sailTrimPercent = (this.mainLine.y + 100) / 210;
 
                 // sail scale goes from 0 - > 1.33 -- capped for visual appeal
-                this.sail.scale.y = this.sailTrimPercent * 1.33;
+                this.sailContainer.scale.y = this.sailTrimPercent * 1.33;
             }
 
             this.lastY = e.data.global.y;
@@ -132,5 +167,19 @@ export default class sailTrim extends PIXI.Container
         });
 
         window.dispatchEvent(myEvent);
+    }
+
+    public update()
+    {
+        if (this._showLuff)
+        {
+            // if (this.displacementSprite.x >= this.sail.width)
+            //     this.luffDir = -1;
+            // if (this.displacementSprite.x < 0)
+            //     this.luffDir = 1;
+            this.displacementSprite.x += 3; // * this.luffDir;
+            this.displacementSprite.y += 3;
+            //this.displacementSprite.y += 2;
+        }   
     }
 }
