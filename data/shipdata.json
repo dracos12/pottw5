@@ -1,7 +1,7 @@
 {
     "corvette": {
         "fileName": "Corvette2",
-        "maxHullSpeed": 20,
+        "maxHullSpeed": 45,
         "rudderAngularRate": 5,
         "Corvette20001.png": { 
             "polygonPts": [ 90,68, 78,77, 76,95, 82,115, 90,125, 98,115, 103,95, 102,77 ],

@@ -83,14 +83,18 @@ export default class sailTrim extends PIXI.Container
 
     public showLuff()
     {
-        this.sailContainer.filters = [this.displacementFilter];
-        this._showLuff = true;
+        if (this._showLuff == false) {
+            this.sailContainer.filters = [this.displacementFilter];
+            this._showLuff = true;
+        }
     }
 
     public hideLuff()
     {
-        this.sailContainer.filters = [];
-        this._showLuff = false;
+        if (this._showLuff == true) {
+            this.sailContainer.filters = [];
+            this._showLuff = false;
+        }
     }
 
     public getSailTrimPercent()

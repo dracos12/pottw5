@@ -7,6 +7,7 @@ import { ObjectType } from './gameobject';
 import Victor = require('victor');
 import CompassRose from './compassrose';
 import { TweenLite, Linear, Power2 } from 'gsap';
+import Island from './island';
 
 export const enum ShipType {
     SLOOP,
@@ -22,7 +23,7 @@ declare var PolyK: any;
 export default class Ship extends GameObject
 {
     private heading:Victor; // normalized ship direction
-    private degreeHeading:number; // heading expressed as degrees
+    private degreeHeading:number; // heading expressed as Cartesian degrees
     private targetHeading:number;
     private toLarboard:boolean = false; // which direction to turn to targetHeading
     
@@ -58,11 +59,13 @@ export default class Ship extends GameObject
     private isAI:boolean = false;       // is this boat running AI?
     private aiTarget:PIXI.Point;        // the x,y coord of where this AI boat is trying to go
     private aiArrived:boolean = false;  // flag used to determine if ai has arrived at its target destination
-
+    private aiStarted:boolean = false;  // flag for first time update
     private aiTargetSprite:PIXI.Sprite;
     private aiBoatPos:PIXI.Sprite;
     private showTarget:boolean = false;
-
+    private aiLastHeading:number = 0;   // time of last call to aiSetHeading
+    private aiRayCastArray:Array<PIXI.Sprite> = []; // 32 dots to display potentially 32 ray casts during aiSetHeading
+    private aiNextPlot:number = -1;     // init to -1 to signal initialization on first call
     private refPt:PIXI.Point;
 
     private tweenVars:any;
@@ -100,6 +103,11 @@ export default class Ship extends GameObject
         // do not add achtung until needed
         this.aiTargetSprite = new PIXI.Sprite(PIXI.Texture.fromFrame("PointRed.png"));
         this.aiTargetSprite.anchor.x = this.aiTargetSprite.anchor.y = 0.5;
+
+        // create AI ray cast visuals
+        for (var i=0; i<32; i++)
+            this.aiRayCastArray.push(new PIXI.Sprite(PIXI.Texture.fromFrame("PointRed.png")));
+
         this.aiBoatPos = new PIXI.Sprite(PIXI.Texture.fromFrame("PointRed.png"));
         this.aiBoatPos.anchor.x = this.aiBoatPos.anchor.y = 0.5;
         
@@ -117,13 +125,218 @@ export default class Ship extends GameObject
                 this.aiTarget = new PIXI.Point(aiTarget.x, aiTarget.y);
             else
                 this.aiTarget = new PIXI.Point(6200,2600); // water north of guadalupe
-
-            this.aiSetHeading();
-
-            // set sail! all ahead half!
-            this.setSailTrim(0.5);
         }
 
+    }
+
+    private plotPoint(x:number, y:number)
+    {
+        this.aiRayCastArray[this.aiNextPlot].x = x;
+        this.aiRayCastArray[this.aiNextPlot].y = y;
+        this.aiRayCastArray[this.aiNextPlot].visible = true;
+        this.aiNextPlot++;
+        //console.log("plotPont: " + x.toFixed(0) + "," + y.toFixed(0));
+    }
+
+    private resetPlots()
+    {
+        if (this.aiNextPlot = -1) // first time in reset, add all sprites to parent
+        {
+            for (var k=0;k<32;k++) {
+                this.sprite.parent.addChild(this.aiRayCastArray[k]);
+                this.aiRayCastArray[k].anchor.x = this.aiRayCastArray[k].anchor.y = 0.5;
+            }
+        }
+        this.aiNextPlot = 0;
+        for (var i=0; i<32; i++)
+            this.aiRayCastArray[i].visible = false;
+    }
+
+    // returns 1 if baseHeading + offset is good
+    // returns -1 if baseHeading - offset is good
+    // returns 0 if neither is good
+    // returns 2 if both +/- offset are good
+    // offset in degrees
+    // baseheading is a cartesian angle
+    private checkNewHeading(baseHeading:Victor, offset:number)
+    {
+        // rotate the vector by +offset
+        
+        var plusVec:Victor = baseHeading.clone(); 
+        var minusVec:Victor = baseHeading.clone(); 
+
+        plusVec.rotate(CompassRose.getRads(offset));
+        minusVec.rotate(CompassRose.getRads(-offset));
+
+        plusVec.normalize();
+        minusVec.normalize();
+
+        //console.log ("checkNewHeading: offset: " + offset + " plusVec: " + plusVec);
+        
+        var plusGood:boolean = true;
+        var minusGood:boolean = true;
+        var x,y,dx,dy;
+        var minDistHit;
+        var plusDeg, minusDeg;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+
+        plusDeg = CompassRose.convertCartToCompass(plusVec.horizontalAngleDeg());
+        minusDeg = CompassRose.convertCartToCompass(minusVec.horizontalAngleDeg());
+        //console.log("Trying headings: " + plusDeg.toFixed(2) + " " + minusDeg.toFixed(2));
+        //console.log("Trying headings: " + plusVec.horizontalAngleDeg().toFixed(2) + " " + minusVec.horizontalAngleDeg().toFixed(2));
+        var plusResult = "OK";
+        var minusResult = "OK";
+
+        // check plus vec first
+        if (CompassRose.isValidHeading(this.angleToWind, plusVec.horizontalAngleDeg()))
+        {
+            // not into the wind, now ray cast against all islands
+            x = this.sprite.x + this.refPt.x;
+            y = this.sprite.y + this.refPt.y;
+            dx = x + plusVec.x * 200;
+            dy = y + plusVec.y * 200;
+            // before converting to Cartesian, plot a point
+            this.plotPoint(dx, dy);
+            // convert y and dy to cartesian
+            y = 8192 - y;
+            dy = 8192 - dy;
+            for (let isle of this.isles)
+            {
+                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y))
+                {
+                    console.log("Origin Point is INSIDE " + (<Island>isle).getName() );
+                }
+                let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
+                if (!retObj) {
+                    //console.log("missed");
+                    iscc.dist = 10000;
+                }
+                if (iscc.dist < 200)
+                {
+                    plusGood = false;
+                    //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " Raycast hit island!");
+                    //plusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
+                    plusResult = "x,y: " + x.toFixed(1) + "," + y.toFixed(1) + " dx,dy: " + dx.toFixed(1) + "," + dy.toFixed(1);
+
+                    break; // cancel the loop, we found an isle in our path!
+                }
+            }
+        }
+        else {
+            //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " into the wind!");
+            plusResult = "Wind";
+            plusGood = false; // into the wind
+        }
+
+        // check minus vec
+        if (CompassRose.isValidHeading(this.angleToWind, minusVec.horizontalAngleDeg()))
+        {
+            // not into the wind, now ray cast against all islands
+            x = this.sprite.x + this.refPt.x;
+            y = this.sprite.y + this.refPt.y;
+            dx = x + minusVec.x * 200;
+            dy = y + minusVec.y * 200;
+            // before converting to Cartesian, plot a point
+            this.plotPoint(dx, dy);
+            // convert y and dy to cartesian
+            y = 8192 - y;
+            dy = 8192 - dy;
+            for (let isle of this.isles)
+            {
+                if (!PolyK.IsSimple(isle.getCartPolyData()))
+                    console.log("Polygon not simple: " + (<Island>isle).getName() );
+                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y))
+                {
+                    console.log("Origin Point is INSIDE " + (<Island>isle).getName() );
+                }
+                let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
+                if (!retObj) {
+                    //console.log("missed");
+                    iscc.dist = 10000;
+                }
+                if (iscc.dist < 200)
+                {
+                    minusGood = false;
+                    minusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
+                    break; // cancel the loop, we found an isle in our path!
+                }
+            }
+        }
+        else{
+            minusResult = "Wind";
+            minusGood = false; // into the wind
+        }
+
+        console.log(plusResult + " " + minusResult);
+        // return results
+        if (!minusGood && !plusGood)
+            return 0; // neither good
+        if (minusGood && !plusGood)
+            return -1;
+        if (!minusGood && plusGood)
+            return 1;
+            
+        return 2; // both are good
+    }
+
+    private saveCode()
+    {
+        /*
+        // check our current heading for validity
+        if (this.checkNewHeading(directHeading, 0) == 0)
+        {
+            // find a good heading by looping from our current heading out 180 degrees both lar and starboard
+            console.log("aiSetHeading: bad heading: " + CompassRose.convertCartToCompass(newHeadingAng));
+            console.log("Searching for good heading...");
+
+            tryOffset = 0;
+            var ptCount = 0;
+
+            while (goodHeadingFound == 0)
+            {
+                tryOffset += 11.25;
+                ptCount++;
+                if (tryOffset > 180)
+                {
+                    console.log("aiSetHeading: exhausted all headings! Stuck! Tried Pts: " + (ptCount-1));
+                    this.showAchtung();
+                    this.allStop();
+                    this.aiArrived = true;
+                    return; // there is no point in continuing ;)
+                }
+                goodHeadingFound = this.checkNewHeading(directHeading, tryOffset);
+            }
+
+            // if we are here we have found a good heading
+            if (goodHeadingFound == 1 || goodHeadingFound == 2) 
+            {
+                newHeading = directHeading.clone();
+                newHeading.rotate(CompassRose.getRads(tryOffset));
+                newHeadingAng = newHeading.horizontalAngleDeg();
+            } else if (goodHeadingFound == -1)
+            {
+                newHeading = directHeading.clone();
+                newHeading.rotate(CompassRose.getRads(-tryOffset));
+                newHeadingAng = newHeading.horizontalAngleDeg();
+            }
+            else // shouldnt be able to get here
+            {
+                newHeading = directHeading.clone();
+                console.log("shoudnt get here!");
+            }
+
+            this.heading.x = newHeading.x;
+            this.heading.y = newHeading.y;
+            
+            console.log("aiSetHeading: Found good heading. Tried compass points: " + ptCount);
+        }
+        else // heading valid, use it
+        {
+            this.heading.x = directHeading.x;
+            this.heading.y = directHeading.y;       
+            newHeadingAng = this.heading.horizontalAngleDeg();
+        }
+        */
     }
 
     private aiSetHeading()
@@ -133,16 +346,21 @@ export default class Ship extends GameObject
         // convert world space to cartesian space coords
         let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
         let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
-        let v = new Victor( diffX, diffY );
+        let directHeading = new Victor( diffX, diffY );
+        directHeading.normalize();
 
-        v.normalize();
+        let newHeadingAng = directHeading.horizontalAngleDeg();
+        var goodHeadingFound = 0;
+        var tryOffset = 0;
 
-        let newHeading = v.horizontalAngleDeg();
-        this.heading = new Victor(v.x, v.y);
-        this.degreeHeading = newHeading; // horizontal angle of heading
-        this.targetHeading = newHeading;
+        let newHeading:Victor;
 
-        console.log("aiSetHeading to: " + this.degreeHeading.toFixed(2));
+
+
+        //this.degreeHeading = newHeadingAng; // horizontal angle of heading
+        //this.targetHeading = newHeadingAng;
+        this.changeHeading(newHeadingAng);
+        console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
 
         this.matchHeadingToSprite(); 
     }
@@ -399,10 +617,10 @@ export default class Ship extends GameObject
         } else {
             this.sailState = 2; // sails up
         }
-        console.log("setting Sail Trim: " + newTrim.toFixed(2));
+        console.log("setting Sail Trim: " + newTrim.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
 
-        if (!this.aGround && !this.inIrons)
-            TweenLite.to(this.tweenVars, 2.5, { speed:this.targetSpeed, ease: Power2.easeInOut });
+        // if (!this.aGround && !this.inIrons)
+        //     TweenLite.to(this.tweenVars, 2.5, { speed:this.targetSpeed, ease: Power2.easeInOut });
     }
 
     public wheelStarboard() {
@@ -431,10 +649,62 @@ export default class Ship extends GameObject
         // update the sprite position by the speed + heading
         var deltaTime = 0;        
         var now = Date.now();
+        var acc = this.maxSpeed / 2.5; // takes 2.5 seconds to accelerate to max speed
+        var accMS = acc / 1000;
+        var dampMS = accMS/4; // dampening force is half of acceleration force
 
         if (this.lastTime != 0) {
             deltaTime = now - this.lastTime;
-            this.speed = this.tweenVars.speed / deltaTime; // speed in pixels per second, convert to pixels in deltatime
+        
+            if (!CompassRose.isValidHeading(this.angleToWind, this.degreeHeading)) 
+            {
+                var deltaDamp = dampMS * deltaTime;
+
+                this.speed -= deltaDamp; // 0.1;
+                
+                if (this.speed < 0)
+                    this.speed = 0;
+                
+                console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
+            } 
+            else if (this.speed != this.targetSpeed)
+            {
+                var deltaAcc = accMS * deltaTime;
+
+                if (this.speed < this.targetSpeed) {
+                    this.speed += deltaAcc; //0.1;
+                    if (this.speed >= this.targetSpeed)
+                        this.speed = this.targetSpeed;
+                } else {
+                    this.speed -= deltaAcc; //0.1;
+                    if (this.speed < 0)
+                        this.speed = 0;
+                }
+
+                    // if (this.targetSpeed > this.speed)
+                    //     this.speed += accMS * deltaTime;
+
+                    // if (this.targetSpeed < this.speed)
+                    // {
+                    //     console.log("TargetSpeed: " + this.targetSpeed.toFixed(2) + " Speed: " + this.speed.toFixed(2));
+                    //     console.log("Target speed lower: subtracting: " + (accMS * deltaTime).toFixed(2));
+                    //     this.speed = this.speed - accMS * deltaTime;
+                    // }
+
+                
+                console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
+            }
+
+            var speedMS = this.speed/1000;
+            var speedDelta = speedMS * deltaTime;
+
+            this.sprite.x += speedDelta * this.heading.x;
+            this.sprite.y += speedDelta * -this.heading.y;
+        
+            
+            // speed is pix/sec, to convert to pix/millisecond divide by 1000
+            // var speedMS = this.tweenVars.speed / 1000;
+            // this.speed = speedMS * deltaTime; // speed in pixels per second, convert to pixels in deltatime
         }
 
         if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
@@ -472,8 +742,6 @@ export default class Ship extends GameObject
         // update lastTime
         this.lastTime = now; 
 
-        this.updatePosition();
-
         // update its sprite if necessary
         this.matchHeadingToSprite();
 
@@ -482,8 +750,24 @@ export default class Ship extends GameObject
         // ai boat handling
         if (this.isAI)
         {
+            if (!this.aiStarted)
+            {
+                this.resetPlots(); // init the ai plots
+                this.aiStarted = true;
+                // set sail! all ahead half!
+                this.setSailTrim(0.5);
+                this.aiSetHeading();
+                this.aiLastHeading = now;
+            }
+
             if (!this.aiArrived)
             {
+                if (now - this.aiLastHeading > 5000) // check our heading!
+                {
+                    this.aiSetHeading();
+                    this.aiLastHeading = now;
+                }
+
                 // if we are within the radius of our destination, come to a halt
                 var vec1 = new Victor(this.sprite.x + this.refPt.x, this.sprite.y + this.refPt.y);
                 var vec2 = new Victor(this.aiTarget.x, this.aiTarget.y);
@@ -577,6 +861,7 @@ export default class Ship extends GameObject
         return this.angleToWind;
     }
 
+    // newHeading is a cartesian angle
     public changeHeading(newHeading:number)
     {
         // change our heading to the newHeading
@@ -595,7 +880,7 @@ export default class Ship extends GameObject
         // reset lastTime
         this.lastTime = 0;
 
-        // caluclate degrees per second, multiply by 1000 to convert to milliseconds
+        // calculate degrees per second, multiply by 1000 to convert to milliseconds
         let timeToTurn = (Math.abs(deltaDegrees) / this.angularSpeed) * 1000;
         //console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
         return timeToTurn;

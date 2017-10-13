@@ -106,14 +106,6 @@ export default class MainHUD
         this.watch.visible = true;
         this.watch.countDown(headingTime);
         this.watch.start(this.onCountDone);
-
-        if (!this.compassRose.isValidHeading())
-        {
-            this._sailTrim.showLuff();
-        }
-        else {
-            this._sailTrim.hideLuff();
-        }
     }
 
     onCountDone = () => {
@@ -145,6 +137,14 @@ export default class MainHUD
         {
             if (this.didGrounding)
                 this.didGrounding = false;
+        }
+
+        if (!CompassRose.isValidHeading(this.trackShip.getAngleToWind(),this.trackShip.getHeading()))
+        {
+            this._sailTrim.showLuff();
+        }
+        else {
+            this._sailTrim.hideLuff();
         }
     }
 } 

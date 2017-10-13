@@ -18,7 +18,7 @@ export default class CompassRose extends PIXI.Container
     private needleGhostHeading:PIXI.Sprite; // ghost needle for user to move to proposed new heading
     private needleCannon:PIXI.Sprite; // cannon needle
     private windIndicator:PIXI.Sprite;  // wind direction indicator
-    private windDirection:number;       // direction wind is coming from (in degrees - 0 is due North)
+    private static windDirection:number = 0;;       // direction wind is coming from (in degrees - 0 is due North)
     private noGoArc:PIXI.Graphics;      // arc around wind direction for where boats cannot sail to
     private lastWindChange:number;      // time stamp of last windchange
     private periodWindChange:number;    // change the wind every priod (in milliseconds)
@@ -26,6 +26,11 @@ export default class CompassRose extends PIXI.Container
     private animRot:number = 0;
     private mouseDown:boolean = false;
     private trackedNewHeading:number = 0;
+
+    public static getWindDirection()
+    {
+        return CompassRose.windDirection;
+    }
 
     // init assumes it has its sprite assets available
     public init()
@@ -71,7 +76,7 @@ export default class CompassRose extends PIXI.Container
         this.windIndicator.x = 66; //this.compassBase.width / 2 - this.windDirection.width / 2;
         this.windIndicator.y = 66; //17; // magic number
 
-        this.windDirection = 0; // due north
+        CompassRose.windDirection = 0; // due north
 
 
 
@@ -109,12 +114,16 @@ export default class CompassRose extends PIXI.Container
         // else ignore - might be called as mouse moves without mousedown
     }
 
-    public isValidHeading()
+    //
+    // angleToWind: in degrees - specifies angle off the wind a ship can point at maximum
+    // trackedHeading: in degrees (Cartesian) to check for validity
+    // 
+    public static isValidHeading(angleToWind:number, trackedHeading:number)
     {
         // heading is valid if it is not within angleToWind degrees of the current wind direction
-        var maxWind = this.windDirection + this.trackingShip.getAngleToWind();
-        var minWind = this.windDirection - this.trackingShip.getAngleToWind();
-        var tracked = CompassRose.convertCartToCompass(this.trackedNewHeading);
+        var maxWind = CompassRose.windDirection + angleToWind;
+        var minWind = CompassRose.windDirection - angleToWind;
+        var tracked = CompassRose.convertCartToCompass(trackedHeading);
         
         // valid angles are 0 -> 360
         if (maxWind > 0 && minWind > 0 && maxWind < 360)
@@ -166,7 +175,7 @@ export default class CompassRose extends PIXI.Container
             this.needleGhostHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(angDeg));
             //console.log("Mouse Degrees: " + vic.angleDeg());
             this.trackedNewHeading = angDeg;
-            if (this.isValidHeading())
+            if (CompassRose.isValidHeading(this.trackingShip.getAngleToWind(), this.trackedNewHeading))
                 this.noGoArc.visible = false;
             else
                 this.noGoArc.visible = true;
@@ -212,7 +221,7 @@ export default class CompassRose extends PIXI.Container
         arc.x = this.compassBase.width/2;
         arc.y = this.compassBase.height/2;
         // rotate arc to straddle the wind direction
-        arc.rotation = CompassRose.getRads(this.windDirection - 90 - degrees);
+        arc.rotation = CompassRose.getRads(CompassRose.windDirection - 90 - degrees);
         
         
         this.noGoArc = arc;
