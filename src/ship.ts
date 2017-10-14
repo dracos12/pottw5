@@ -176,7 +176,6 @@ export default class Ship extends GameObject
         var plusGood:boolean = true;
         var minusGood:boolean = true;
         var x,y,dx,dy;
-        var minDistHit;
         var plusDeg, minusDeg;
         let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
 
@@ -339,6 +338,56 @@ export default class Ship extends GameObject
         */
     }
 
+    private checkHeading(newHeading:Victor)
+    {
+
+        var newHeadingDeg = newHeading.angleDeg();
+        var newHeadingCompassDeg = CompassRose.convertCartToCompass(newHeadingDeg);
+
+        if (!CompassRose.isValidHeading(this.angleToWind, newHeadingDeg))
+        {
+            console.log("checkHeading: " + newHeadingCompassDeg.toFixed(2) + " is into the wind.");
+            return false; // into the wind
+        }
+
+        // not into the wind, so hit check against the islands
+        var x,y,dx,dy,px,py;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        dx = x + newHeading.x * 200;
+        dy = y + newHeading.y * 200;
+        px += newHeading.x * 200;
+        py += -newHeading.y * 200;
+        this.plotPoint(px,py);
+
+        // loop thru the isles... see if we hit
+        for (let isle of this.isles)
+        {
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, newHeading.x, newHeading.y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < 300) {   
+            //if (PolyK.ContainsPoint(isle.getCartPolyData(),dx,dy)) { // we've hit an isle!
+                console.log("Hit " + (<Island>isle).getName() + " along heading: " + newHeadingCompassDeg.toFixed(2) + " at dist: " + iscc.dist.toFixed(2));
+                return false;
+            }
+        }  
+
+        return true;
+    }
+
+    private calcNewHeading(original:Victor, offset:number)
+    {
+        var newVic:Victor = original.clone();
+        newVic.rotate(CompassRose.getRads(offset));
+        newVic.normalize();
+        return newVic;
+    }
+
     private aiSetHeading()
     {
         // find a heading directly at our target destination
@@ -353,12 +402,41 @@ export default class Ship extends GameObject
         var goodHeadingFound = 0;
         var tryOffset = 0;
 
-        let newHeading:Victor;
+        var newHeading:Victor = directHeading;
 
+        this.resetPlots();
 
+        if (!this.checkHeading(directHeading))
+        {
+            // sweep in 11.25 degree increments in each direction until good heading found
+            while (goodHeadingFound == 0)
+            {
+                tryOffset += 11.25;
+                if (tryOffset > 180)
+                {
+                    console.log("Cant find good heading");
+                    this.showAchtung();
+                    this.allStop();
+                    return;
+                }
 
-        //this.degreeHeading = newHeadingAng; // horizontal angle of heading
-        //this.targetHeading = newHeadingAng;
+                newHeading = this.calcNewHeading(directHeading, tryOffset);
+                if (!this.checkHeading(newHeading))
+                {
+                    newHeading = this.calcNewHeading(directHeading, -tryOffset);
+                    if (!this.checkHeading(newHeading))
+                        continue;
+                    else
+                        goodHeadingFound = 1;
+                }
+                else
+                    goodHeadingFound = 1;
+
+            }
+
+            newHeadingAng = newHeading.angleDeg();
+        }
+
         this.changeHeading(newHeadingAng);
         console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
 
@@ -665,7 +743,7 @@ export default class Ship extends GameObject
                 if (this.speed < 0)
                     this.speed = 0;
                 
-                console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
+                //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
             } 
             else if (this.speed != this.targetSpeed)
             {
@@ -680,31 +758,15 @@ export default class Ship extends GameObject
                     if (this.speed < 0)
                         this.speed = 0;
                 }
-
-                    // if (this.targetSpeed > this.speed)
-                    //     this.speed += accMS * deltaTime;
-
-                    // if (this.targetSpeed < this.speed)
-                    // {
-                    //     console.log("TargetSpeed: " + this.targetSpeed.toFixed(2) + " Speed: " + this.speed.toFixed(2));
-                    //     console.log("Target speed lower: subtracting: " + (accMS * deltaTime).toFixed(2));
-                    //     this.speed = this.speed - accMS * deltaTime;
-                    // }
-
-                
-                console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
+    
+                //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
             }
 
             var speedMS = this.speed/1000;
             var speedDelta = speedMS * deltaTime;
 
             this.sprite.x += speedDelta * this.heading.x;
-            this.sprite.y += speedDelta * -this.heading.y;
-        
-            
-            // speed is pix/sec, to convert to pix/millisecond divide by 1000
-            // var speedMS = this.tweenVars.speed / 1000;
-            // this.speed = speedMS * deltaTime; // speed in pixels per second, convert to pixels in deltatime
+            this.sprite.y += speedDelta * -this.heading.y;            
         }
 
         if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
@@ -762,7 +824,7 @@ export default class Ship extends GameObject
 
             if (!this.aiArrived)
             {
-                if (now - this.aiLastHeading > 5000) // check our heading!
+                if (now - this.aiLastHeading > 7500) // check our heading!
                 {
                     this.aiSetHeading();
                     this.aiLastHeading = now;
@@ -829,7 +891,7 @@ export default class Ship extends GameObject
             this.achtung.y = this.sprite.y - this.sprite.height;
             this.sprite.parent.addChild(this.achtung);
             this.errorDisplayed = true;
-            console.log("adding Achtung");
+            //console.log("adding Achtung");
         }
     }
 
@@ -847,7 +909,7 @@ export default class Ship extends GameObject
         if (this.errorDisplayed) {
             this.sprite.parent.removeChild(this.achtung);
             this.errorDisplayed = false;
-            console.log("removing Achtung");
+            //console.log("removing Achtung");
         }
     }
 
