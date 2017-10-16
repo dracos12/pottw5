@@ -381,15 +381,28 @@ export default class theSea
     
             window.dispatchEvent(myEvent);
 
-            // load one AI boat - heading 600 pixels due north
-            let boat2 = new Ship();
-            let portPt = this.getRandomPortDest();
-            boat2.init(this.boatData.corvette, this.islandArray, true, new PIXI.Point(6400, 2600), portPt);
-            this.layerObjects.addChild(boat2.getSprite());
-            this.shipArray.push(boat2);
+            // spawn some AI boats to sail about
+            this.spawnAIBoats();
 
             // final step in loading process.. can now call loadcallback
             this.loadCallback();
+        }
+    }
+
+    private spawnAIBoats()
+    {
+        // load one AI boat - heading 600 pixels due north
+        for (var i=0;i<20;i++)
+        {
+            let boat = new Ship();
+            let portPt = this.getRandomPortDest();
+            let edgePt = this.getRandomEdgeDest();
+            if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination
+                boat.init(this.boatData.corvette, this.islandArray, true, edgePt, portPt);
+            else
+                boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
+            this.layerObjects.addChild(boat.getSprite());
+            this.shipArray.push(boat);
         }
     }
 
@@ -405,6 +418,27 @@ export default class theSea
             }
         };
         xobj.send(null);  
+    }
+
+    private getRandomEdgeDest()
+    {
+        // return a point along the edge of the map
+        var randx = theSea.getRandomIntInclusive(0,8192);
+        var randy = theSea.getRandomIntInclusive(0,8192);
+        if (theSea.getRandomIntInclusive(0,1) == 1)
+        {
+            if (theSea.getRandomIntInclusive(0,1) == 1)
+                return new PIXI.Point(0,randy); // left edge
+            else
+                return new PIXI.Point(8192, randy); // right edge
+        }
+        else
+        {
+            if (theSea.getRandomIntInclusive(0,1) == 1)
+                return new PIXI.Point(randx,0); // top edge
+            else    
+                return new PIXI.Point(randx, 8192); // bottom edge
+        }
     }
 
     private getRandomPortDest()
@@ -424,7 +458,7 @@ export default class theSea
                 portCount++;
                 if (portCount == desiredPort)
                 {
-                    console.log("RandomPort: " + (<Island>gameObj).getName());
+                    //console.log("RandomPort: " + (<Island>gameObj).getName());
                     return (<Island>gameObj).getPortDest();
                 }
             }
@@ -455,14 +489,14 @@ export default class theSea
             if (this.container.x > 0)
                 this.container.x = 0;
             
-            if (this.container.y > 0)
-                this.container.y = 0;
+            if (this.container.y > 0 + 40)
+                this.container.y = 0 + 40;  // adjust for top hud
 
             if (this.container.x < -(this.container.width - window.innerWidth))
                 this.container.x = -(this.container.width - window.innerWidth);
 
-            if (this.container.y < -(this.container.height - window.innerHeight))
-                this.container.y = -(this.container.height - window.innerHeight);
+            if (this.container.y < -(this.container.height - window.innerHeight + 100)) // adjust for bottom hud
+                this.container.y = -(this.container.height - window.innerHeight + 100);
 
             this.deltaX = 0;
             this.deltaY = 0; // clear the data, await next mousemove

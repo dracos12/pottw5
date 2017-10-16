@@ -129,7 +129,7 @@ export default class CompassRose extends PIXI.Container
         if (maxWind > 0 && minWind > 0 && maxWind < 360)
         {
             //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
-            if (tracked > minWind && tracked < maxWind)
+            if (tracked >= minWind && tracked <= maxWind)
                 return true;
             else
                 return false;
@@ -151,7 +151,7 @@ export default class CompassRose extends PIXI.Container
 
             //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
 
-            if (tracked > minWind && tracked < maxWind)
+            if (tracked >= minWind && tracked <= maxWind)
                 return true;
             else
                 return false;  

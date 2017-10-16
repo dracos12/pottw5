@@ -8,6 +8,7 @@ import Victor = require('victor');
 import CompassRose from './compassrose';
 import { TweenLite, Linear, Power2 } from 'gsap';
 import Island from './island';
+import theSea from './theSea';
 
 export const enum ShipType {
     SLOOP,
@@ -113,8 +114,8 @@ export default class Ship extends GameObject
         
         // set position if given
         if (pos) {
-            this.sprite.x = pos.x;
-            this.sprite.y = pos.y;
+            this.sprite.x = pos.x - this.refPt.x;
+            this.sprite.y = pos.y - this.refPt.y;
         }
 
         this.isles = isles; // set the island array for AI use
@@ -126,7 +127,6 @@ export default class Ship extends GameObject
             else
                 this.aiTarget = new PIXI.Point(6200,2600); // water north of guadalupe
         }
-
     }
 
     private plotPoint(x:number, y:number)
@@ -346,7 +346,7 @@ export default class Ship extends GameObject
 
         if (!CompassRose.isValidHeading(this.angleToWind, newHeadingDeg))
         {
-            console.log("checkHeading: " + newHeadingCompassDeg.toFixed(2) + " is into the wind.");
+            //console.log("checkHeading: " + newHeadingCompassDeg.toFixed(2) + " is into the wind.");
             return false; // into the wind
         }
 
@@ -372,7 +372,7 @@ export default class Ship extends GameObject
             if (!retObj) iscc.dist = 10000;
             if (iscc.dist < 300) {   
             //if (PolyK.ContainsPoint(isle.getCartPolyData(),dx,dy)) { // we've hit an isle!
-                console.log("Hit " + (<Island>isle).getName() + " along heading: " + newHeadingCompassDeg.toFixed(2) + " at dist: " + iscc.dist.toFixed(2));
+                //console.log("Hit " + (<Island>isle).getName() + " along heading: " + newHeadingCompassDeg.toFixed(2) + " at dist: " + iscc.dist.toFixed(2));
                 return false;
             }
         }  
@@ -438,7 +438,7 @@ export default class Ship extends GameObject
         }
 
         this.changeHeading(newHeadingAng);
-        console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
+        //console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
 
         this.matchHeadingToSprite(); 
     }
@@ -588,7 +588,7 @@ export default class Ship extends GameObject
     }
 
     private matchHeadingToSprite() {
-        // pick the spirte that is closest to ships heading... 
+        // pick the sprite that is closest to ships heading... 
         // we have 8 directional sprites
         let a = this.heading.angleDeg();
         let s = this.getSprite();
