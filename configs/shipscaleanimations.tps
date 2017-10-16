@@ -460,6 +460,42 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/animations/spout0001.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0002.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0003.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0004.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0005.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0006.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0007.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0008.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0009.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0010.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0011.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0012.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0013.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0014.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0015.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0016.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0017.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0018.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0019.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0020.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0021.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0022.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0023.png</key>
+            <key type="filename">../../../Art/pottw5/animations/spout0024.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>11,26,22,52</rect>
+                <key>scale9Paddings</key>
+                <rect>11,26,22,52</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
         </map>
         <key>fileList</key>
         <array>
@@ -688,6 +724,30 @@
             <filename>../../../Art/pottw5/animations/fiery_explosion0026.png</filename>
             <filename>../../../Art/pottw5/animations/fiery_explosion0027.png</filename>
             <filename>../../../Art/pottw5/animations/fiery_explosion0028.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0001.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0002.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0003.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0004.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0005.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0006.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0007.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0008.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0009.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0010.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0011.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0012.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0013.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0014.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0015.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0016.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0017.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0018.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0019.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0020.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0021.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0022.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0023.png</filename>
+            <filename>../../../Art/pottw5/animations/spout0024.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
