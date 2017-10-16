@@ -227,6 +227,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/corvette test/CorvetteBodyWreck.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>47,15,95,30</rect>
+                <key>scale9Paddings</key>
+                <rect>47,15,95,30</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
         </map>
         <key>fileList</key>
         <array>
@@ -246,6 +259,7 @@
             <filename>../../../Art/pottw5/corvette test/Corvette20014.png</filename>
             <filename>../../../Art/pottw5/corvette test/Corvette20015.png</filename>
             <filename>../../../Art/pottw5/corvette test/Corvette20016.png</filename>
+            <filename>../../../Art/pottw5/corvette test/CorvetteBodyWreck.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

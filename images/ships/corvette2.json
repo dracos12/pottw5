@@ -2,7 +2,7 @@
 
 "Corvette20001.png":
 {
-	"frame": {"x":106,"y":671,"w":60,"h":126},
+	"frame": {"x":1,"y":1,"w":60,"h":126},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":60,"y":2,"w":60,"h":126},
@@ -10,7 +10,7 @@
 },
 "Corvette20002.png":
 {
-	"frame": {"x":125,"y":433,"w":103,"h":117},
+	"frame": {"x":63,"y":1,"w":103,"h":117},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":53,"y":3,"w":103,"h":117},
@@ -18,7 +18,7 @@
 },
 "Corvette20003.png":
 {
-	"frame": {"x":1,"y":1,"w":135,"h":92},
+	"frame": {"x":679,"y":1,"w":135,"h":92},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":45,"y":13,"w":135,"h":92},
@@ -26,7 +26,7 @@
 },
 "Corvette20004.png":
 {
-	"frame": {"x":138,"y":1,"w":102,"h":106},
+	"frame": {"x":335,"y":1,"w":102,"h":106},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":52,"y":14,"w":102,"h":106},
@@ -34,7 +34,7 @@
 },
 "Corvette20005.png":
 {
-	"frame": {"x":1,"y":379,"w":60,"h":111},
+	"frame": {"x":273,"y":1,"w":60,"h":111},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":60,"y":21,"w":60,"h":111},
@@ -42,7 +42,7 @@
 },
 "Corvette20006.png":
 {
-	"frame": {"x":138,"y":109,"w":101,"h":106},
+	"frame": {"x":439,"y":1,"w":101,"h":106},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":27,"y":17,"w":101,"h":106},
@@ -50,7 +50,7 @@
 },
 "Corvette20007.png":
 {
-	"frame": {"x":1,"y":189,"w":135,"h":93},
+	"frame": {"x":542,"y":1,"w":135,"h":93},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":15,"w":135,"h":93},
@@ -58,7 +58,7 @@
 },
 "Corvette20008.png":
 {
-	"frame": {"x":1,"y":492,"w":103,"h":117},
+	"frame": {"x":63,"y":120,"w":103,"h":117},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":24,"y":8,"w":103,"h":117},
@@ -66,7 +66,7 @@
 },
 "Corvette20009.png":
 {
-	"frame": {"x":168,"y":671,"w":60,"h":126},
+	"frame": {"x":1,"y":129,"w":60,"h":126},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":60,"y":2,"w":60,"h":126},
@@ -74,7 +74,7 @@
 },
 "Corvette20010.png":
 {
-	"frame": {"x":106,"y":552,"w":103,"h":117},
+	"frame": {"x":168,"y":1,"w":103,"h":117},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":53,"y":3,"w":103,"h":117},
@@ -82,7 +82,7 @@
 },
 "Corvette20011.png":
 {
-	"frame": {"x":1,"y":95,"w":135,"h":92},
+	"frame": {"x":679,"y":95,"w":135,"h":92},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":45,"y":13,"w":135,"h":92},
@@ -90,7 +90,7 @@
 },
 "Corvette20012.png":
 {
-	"frame": {"x":138,"y":217,"w":102,"h":106},
+	"frame": {"x":335,"y":109,"w":102,"h":106},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":52,"y":14,"w":102,"h":106},
@@ -98,7 +98,7 @@
 },
 "Corvette20013.png":
 {
-	"frame": {"x":63,"y":379,"w":60,"h":111},
+	"frame": {"x":273,"y":114,"w":60,"h":111},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":60,"y":21,"w":60,"h":111},
@@ -106,7 +106,7 @@
 },
 "Corvette20014.png":
 {
-	"frame": {"x":138,"y":325,"w":101,"h":106},
+	"frame": {"x":439,"y":109,"w":101,"h":106},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":27,"y":17,"w":101,"h":106},
@@ -114,7 +114,7 @@
 },
 "Corvette20015.png":
 {
-	"frame": {"x":1,"y":284,"w":135,"h":93},
+	"frame": {"x":542,"y":96,"w":135,"h":93},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":15,"w":135,"h":93},
@@ -122,19 +122,27 @@
 },
 "Corvette20016.png":
 {
-	"frame": {"x":1,"y":611,"w":103,"h":117},
+	"frame": {"x":168,"y":120,"w":103,"h":117},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":24,"y":8,"w":103,"h":117},
 	"sourceSize": {"w":180,"h":132}
+},
+"CorvetteBodyWreck.png":
+{
+	"frame": {"x":542,"y":191,"w":189,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":189,"h":60},
+	"sourceSize": {"w":189,"h":60}
 }},
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "corvette2.png",
 	"format": "RGBA8888",
-	"size": {"w":241,"h":798},
+	"size": {"w":815,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:3c078f289b43bda7beac0f1af7a7ee33:b37200b770a71a702b45432dd22c5803:0dc7c8f73d8a1c344a26c1e9574ab657$"
+	"smartupdate": "$TexturePacker:SmartUpdate:6b324512cb36d86dc6ab32c8b30e381b:42da4fe84940d84a7add04056b77cb02:0dc7c8f73d8a1c344a26c1e9574ab657$"
 }
 }
