@@ -9,6 +9,7 @@ import CompassRose from './compassrose';
 import { TweenLite, Linear, Power2 } from 'gsap';
 import Island from './island';
 import theSea from './theSea';
+import FXManager from './fxmanager';
 
 export const enum ShipType {
     SLOOP,
@@ -74,6 +75,8 @@ export default class Ship extends GameObject
 
     private tweenVars:any;
 
+    private fxManager:FXManager;
+
     constructor()
     {
         super();
@@ -93,6 +96,11 @@ export default class Ship extends GameObject
         for (var i=0; i<8; i++) {
             this.cartPolyData8.push(new Array<number>());
         }
+    }
+
+    public setFXManager(fxman:FXManager)
+    {
+        this.fxManager = fxman;
     }
 
     // args:

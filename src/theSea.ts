@@ -4,6 +4,7 @@ import GameObject  from './gameobject';
 import { ObjectType } from './gameobject';
 import Island from './island';
 import Ship from './ship';
+import FXManager from './fxmanager';
 
 declare var PolyK: any;
 
@@ -36,6 +37,8 @@ export default class theSea
     //private layerUI:PIXI.Container = new PIXI.Container();
 
     private numPorts:number=0;  // number of islands in the island array that are ports
+
+    private fxManager:FXManager; // manager class to manage cannon balls, fire, smoke, and other effects
 
     // javascript style mouse wheel handler, pixi does not support mouse wheel
     mouseWheelHandler = (e:any) => {
@@ -215,6 +218,8 @@ export default class theSea
         this.container.scale.x = this.container.scale.y = this.wheelScale; 
 
         this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
+
+        this.fxManager.onAssetsLoaded(); // fxManager can now initialize with its assets
     
     }
 
@@ -240,6 +245,9 @@ export default class theSea
             .add("images/ships/corvette2.json")
 
         this.loadCallback = callback;
+
+        this.fxManager = new FXManager();
+        this.fxManager.addLoaderAssets(); // have fxManager request its assets
 
         this.container.interactive = true;
         this.container.on("mousemove", this.mouseMoveHandler);
