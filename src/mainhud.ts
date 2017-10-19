@@ -38,7 +38,7 @@ export default class MainHUD
     // assets are loaded, initialize sprites etc
     public onAssetsLoaded()
     {
-        console.log(PIXI.loader.resources);
+        //console.log(PIXI.loader.resources);
 
         // create and place the header
         this.header = new PIXI.Sprite(PIXI.Texture.fromFrame("UI_Header.png"));
