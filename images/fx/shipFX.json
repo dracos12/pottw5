@@ -1991,6 +1991,14 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":14,"y":89,"w":11,"h":5},
 	"sourceSize": {"w":44,"h":103}
+},
+"theBall.png":
+{
+	"frame": {"x":239,"y":192,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
 }},
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
@@ -1999,6 +2007,6 @@
 	"format": "RGBA8888",
 	"size": {"w":252,"h":1235},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:0c6a87b15634a62ff4466f0e595607b5:4d744b9c2a0851aa39ca4282358b77b9:631c27bafee1c2d276b8b28d21f04a04$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8a279289c06747a52e0b57d22c67d63b:8101de4cacb6543bb5b520a2f306413e:631c27bafee1c2d276b8b28d21f04a04$"
 }
 }
