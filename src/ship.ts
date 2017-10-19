@@ -929,7 +929,8 @@ export default class Ship extends GameObject
             // add it
             this.achtung.x = this.sprite.x + this.sprite.width/2 - this.achtung.width/2;
             this.achtung.y = this.sprite.y - this.sprite.height;
-            this.sprite.parent.addChild(this.achtung);
+            var numChildren = this.sprite.parent.children.length;
+            this.sprite.parent.addChildAt(this.achtung, numChildren-1);
             this.errorDisplayed = true;
             //console.log("adding Achtung");
         }
