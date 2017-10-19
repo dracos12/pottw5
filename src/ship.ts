@@ -56,6 +56,9 @@ export default class Ship extends GameObject
     private errorDisplayed:boolean = false;  // is achtung up?
 
     private isles:Array<GameObject>;    // reference to theSea island array
+    private aiCurrentObstacle:GameObject; // an isle this ship is currently avoiding
+    private aiAvoidToLarboard:boolean;    // preferred direction around said obstacle
+    private aiDirectObstacles:Array<GameObject>; // list of isles directHeading intersects
 
     private isAI:boolean = false;       // is this boat running AI?
     private aiTarget:PIXI.Point;        // the x,y coord of where this AI boat is trying to go
@@ -85,6 +88,7 @@ export default class Ship extends GameObject
         this.lastTime = 0;
         this.refPt = new PIXI.Point();
         this.tweenVars = { speed: 0 };
+        this.aiDirectObstacles = []; // empty array
 
         for (var i=0; i<8; i++) {
             this.cartPolyData8.push(new Array<number>());
@@ -131,6 +135,12 @@ export default class Ship extends GameObject
 
     private plotPoint(x:number, y:number)
     {
+        if (this.aiNextPlot >= 32)
+        {
+            console.log("out of Plot Points!");
+            return;
+        }
+
         this.aiRayCastArray[this.aiNextPlot].x = x;
         this.aiRayCastArray[this.aiNextPlot].y = y;
         this.aiRayCastArray[this.aiNextPlot].visible = true;
@@ -152,234 +162,6 @@ export default class Ship extends GameObject
             this.aiRayCastArray[i].visible = false;
     }
 
-    // returns 1 if baseHeading + offset is good
-    // returns -1 if baseHeading - offset is good
-    // returns 0 if neither is good
-    // returns 2 if both +/- offset are good
-    // offset in degrees
-    // baseheading is a cartesian angle
-    private checkNewHeading(baseHeading:Victor, offset:number)
-    {
-        // rotate the vector by +offset
-        
-        var plusVec:Victor = baseHeading.clone(); 
-        var minusVec:Victor = baseHeading.clone(); 
-
-        plusVec.rotate(CompassRose.getRads(offset));
-        minusVec.rotate(CompassRose.getRads(-offset));
-
-        plusVec.normalize();
-        minusVec.normalize();
-
-        //console.log ("checkNewHeading: offset: " + offset + " plusVec: " + plusVec);
-        
-        var plusGood:boolean = true;
-        var minusGood:boolean = true;
-        var x,y,dx,dy;
-        var plusDeg, minusDeg;
-        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
-
-        plusDeg = CompassRose.convertCartToCompass(plusVec.horizontalAngleDeg());
-        minusDeg = CompassRose.convertCartToCompass(minusVec.horizontalAngleDeg());
-        //console.log("Trying headings: " + plusDeg.toFixed(2) + " " + minusDeg.toFixed(2));
-        //console.log("Trying headings: " + plusVec.horizontalAngleDeg().toFixed(2) + " " + minusVec.horizontalAngleDeg().toFixed(2));
-        var plusResult = "OK";
-        var minusResult = "OK";
-
-        // check plus vec first
-        if (CompassRose.isValidHeading(this.angleToWind, plusVec.horizontalAngleDeg()))
-        {
-            // not into the wind, now ray cast against all islands
-            x = this.sprite.x + this.refPt.x;
-            y = this.sprite.y + this.refPt.y;
-            dx = x + plusVec.x * 200;
-            dy = y + plusVec.y * 200;
-            // before converting to Cartesian, plot a point
-            this.plotPoint(dx, dy);
-            // convert y and dy to cartesian
-            y = 8192 - y;
-            dy = 8192 - dy;
-            for (let isle of this.isles)
-            {
-                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y))
-                {
-                    console.log("Origin Point is INSIDE " + (<Island>isle).getName() );
-                }
-                let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
-                if (!retObj) {
-                    //console.log("missed");
-                    iscc.dist = 10000;
-                }
-                if (iscc.dist < 200)
-                {
-                    plusGood = false;
-                    //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " Raycast hit island!");
-                    //plusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
-                    plusResult = "x,y: " + x.toFixed(1) + "," + y.toFixed(1) + " dx,dy: " + dx.toFixed(1) + "," + dy.toFixed(1);
-
-                    break; // cancel the loop, we found an isle in our path!
-                }
-            }
-        }
-        else {
-            //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " into the wind!");
-            plusResult = "Wind";
-            plusGood = false; // into the wind
-        }
-
-        // check minus vec
-        if (CompassRose.isValidHeading(this.angleToWind, minusVec.horizontalAngleDeg()))
-        {
-            // not into the wind, now ray cast against all islands
-            x = this.sprite.x + this.refPt.x;
-            y = this.sprite.y + this.refPt.y;
-            dx = x + minusVec.x * 200;
-            dy = y + minusVec.y * 200;
-            // before converting to Cartesian, plot a point
-            this.plotPoint(dx, dy);
-            // convert y and dy to cartesian
-            y = 8192 - y;
-            dy = 8192 - dy;
-            for (let isle of this.isles)
-            {
-                if (!PolyK.IsSimple(isle.getCartPolyData()))
-                    console.log("Polygon not simple: " + (<Island>isle).getName() );
-                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y))
-                {
-                    console.log("Origin Point is INSIDE " + (<Island>isle).getName() );
-                }
-                let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
-                if (!retObj) {
-                    //console.log("missed");
-                    iscc.dist = 10000;
-                }
-                if (iscc.dist < 200)
-                {
-                    minusGood = false;
-                    minusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
-                    break; // cancel the loop, we found an isle in our path!
-                }
-            }
-        }
-        else{
-            minusResult = "Wind";
-            minusGood = false; // into the wind
-        }
-
-        console.log(plusResult + " " + minusResult);
-        // return results
-        if (!minusGood && !plusGood)
-            return 0; // neither good
-        if (minusGood && !plusGood)
-            return -1;
-        if (!minusGood && plusGood)
-            return 1;
-            
-        return 2; // both are good
-    }
-
-    private saveCode()
-    {
-        /*
-        // check our current heading for validity
-        if (this.checkNewHeading(directHeading, 0) == 0)
-        {
-            // find a good heading by looping from our current heading out 180 degrees both lar and starboard
-            console.log("aiSetHeading: bad heading: " + CompassRose.convertCartToCompass(newHeadingAng));
-            console.log("Searching for good heading...");
-
-            tryOffset = 0;
-            var ptCount = 0;
-
-            while (goodHeadingFound == 0)
-            {
-                tryOffset += 11.25;
-                ptCount++;
-                if (tryOffset > 180)
-                {
-                    console.log("aiSetHeading: exhausted all headings! Stuck! Tried Pts: " + (ptCount-1));
-                    this.showAchtung();
-                    this.allStop();
-                    this.aiArrived = true;
-                    return; // there is no point in continuing ;)
-                }
-                goodHeadingFound = this.checkNewHeading(directHeading, tryOffset);
-            }
-
-            // if we are here we have found a good heading
-            if (goodHeadingFound == 1 || goodHeadingFound == 2) 
-            {
-                newHeading = directHeading.clone();
-                newHeading.rotate(CompassRose.getRads(tryOffset));
-                newHeadingAng = newHeading.horizontalAngleDeg();
-            } else if (goodHeadingFound == -1)
-            {
-                newHeading = directHeading.clone();
-                newHeading.rotate(CompassRose.getRads(-tryOffset));
-                newHeadingAng = newHeading.horizontalAngleDeg();
-            }
-            else // shouldnt be able to get here
-            {
-                newHeading = directHeading.clone();
-                console.log("shoudnt get here!");
-            }
-
-            this.heading.x = newHeading.x;
-            this.heading.y = newHeading.y;
-            
-            console.log("aiSetHeading: Found good heading. Tried compass points: " + ptCount);
-        }
-        else // heading valid, use it
-        {
-            this.heading.x = directHeading.x;
-            this.heading.y = directHeading.y;       
-            newHeadingAng = this.heading.horizontalAngleDeg();
-        }
-        */
-    }
-
-    private checkHeading(newHeading:Victor)
-    {
-
-        var newHeadingDeg = newHeading.angleDeg();
-        var newHeadingCompassDeg = CompassRose.convertCartToCompass(newHeadingDeg);
-
-        if (!CompassRose.isValidHeading(this.angleToWind, newHeadingDeg))
-        {
-            //console.log("checkHeading: " + newHeadingCompassDeg.toFixed(2) + " is into the wind.");
-            return false; // into the wind
-        }
-
-        // not into the wind, so hit check against the islands
-        var x,y,dx,dy,px,py;
-        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
-        x = this.sprite.x + this.refPt.x;
-        y = this.sprite.y + this.refPt.y;
-        px = x;
-        py = y;
-        y = 8192 - y;
-        dx = x + newHeading.x * 200;
-        dy = y + newHeading.y * 200;
-        px += newHeading.x * 200;
-        py += -newHeading.y * 200;
-        this.plotPoint(px,py);
-
-        // loop thru the isles... see if we hit
-        for (let isle of this.isles)
-        {
-            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
-            let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, newHeading.x, newHeading.y, iscc);
-            if (!retObj) iscc.dist = 10000;
-            if (iscc.dist < 300) {   
-            //if (PolyK.ContainsPoint(isle.getCartPolyData(),dx,dy)) { // we've hit an isle!
-                //console.log("Hit " + (<Island>isle).getName() + " along heading: " + newHeadingCompassDeg.toFixed(2) + " at dist: " + iscc.dist.toFixed(2));
-                return false;
-            }
-        }  
-
-        return true;
-    }
-
     private calcNewHeading(original:Victor, offset:number)
     {
         var newVic:Victor = original.clone();
@@ -388,59 +170,317 @@ export default class Ship extends GameObject
         return newVic;
     }
 
-    private aiSetHeading()
+    private getVectorAngleDegs(p1:Victor, p2:Victor)
     {
-        // find a heading directly at our target destination
-        // and that is not heading directly into the wind
-        // convert world space to cartesian space coords
+        // angle in degrees
+        var angleDeg = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+        return angleDeg;
+    }
+
+    private getVectorAngle(p1:Victor, p2:Victor)
+    {
+        var angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        return angleRadians;   
+    }
+
+    private getSignedAngle(source:Victor, compare:Victor)
+    {
+        var a2 = Math.atan2(source.y, source.x);
+        var a1 = Math.atan2(compare.y, compare.x);
+        var sign = a1 > a2 ? 1 : -1;
+        var angle = a1 - a2;
+        var K = -sign * Math.PI * 2;  // adjusts for crossing the 2PI threashold
+        var angle = (Math.abs(K + angle) < Math.abs(angle))? K + angle : angle;
+
+        // still in radians at this point
+        return angle;
+    }
+
+    // get new heading around passed in heading that avoids our current obstacle by minAngle degrees at minimum
+    private aiGetHeadingAroundThreat(heading:Victor, minAngle:number)
+    {
+        let newHeading:Victor = new Victor(0,0);
+        var goodHeadings:Array<Victor> = [];
+        var dropPt = false;
+
+        // cast rays from heading in chosen direction in one degree increments 
+        // save all successfull rays into an array
+        // use the minAngle-th ray as our heading 
+        for(var i=0; i<180; i++){
+            newHeading = this.calcNewHeading(heading, i); 
+            if (i%6==0) dropPt = true;
+            else dropPt = false;
+            if (this.checkHeadingVSObstacle(newHeading, dropPt, false) && 
+                CompassRose.isValidHeading(this.angleToWind, newHeading.angleDeg())) {
+                goodHeadings.push(newHeading);
+            }
+        }
+
+        if (goodHeadings.length == 0)
+        {
+            return null;
+        } else {
+            // return the minAngle-th element
+            if (minAngle > goodHeadings.length)
+                return goodHeadings[goodHeadings.length-1]; // the last element is the best we can do
+            else
+                return goodHeadings[minAngle];
+        }
+    }
+
+    private checkHeadingVSObstacle(heading:Victor, dropPoint:boolean=false, useMinDist:boolean=true)
+    {
+        var x,y,px,py;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        var DIST = 300;
+
+        let retObj = PolyK.Raycast(this.aiCurrentObstacle.getCartPolyData(), x, y, heading.x, heading.y, iscc);
+        if (!retObj) iscc.dist = 10000;
+        if (useMinDist == true && iscc.dist < DIST) {   
+            if (dropPoint == true) {
+                px += heading.x * iscc.dist;
+                py += -heading.y * iscc.dist;
+                this.plotPoint(px,py);
+            }
+
+            return false;
+        }
+
+        if (useMinDist == false) { // return hit at any distance less than 10000
+            if (iscc.dist < 10000)
+            {
+                if (dropPoint == true) {
+                    px += heading.x * iscc.dist;
+                    py += -heading.y * iscc.dist;
+                    this.plotPoint(px,py);
+                }
+                return false;
+            }
+        }
+
+        // no hit
+        if (dropPoint == true)
+        {
+            this.plotPoint(px,py);        
+            px += this.heading.x * DIST;
+            py += -this.heading.y * DIST;
+        }
+
+        return true;        
+    }
+
+    private checkCurrentHeading(directDist:number, dropPoint:boolean=false)
+    {
+        var x,y,px,py;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        var DIST = 300;
+
+        // loop thru the isles... see if we hit
+        for (let isle of this.isles)
+        {
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, this.heading.x, this.heading.y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < DIST && iscc.dist < directDist) { // if our direct route is shorter, not a problem   
+                // set this isle as our current threat
+                this.aiCurrentObstacle = isle;
+                
+                if (dropPoint == true) {
+                    px += this.heading.x * iscc.dist;
+                    py += -this.heading.y * iscc.dist;
+                    this.plotPoint(px,py);
+                }
+
+                return false;
+            }
+        }  
+
+        // no hit
+        if (dropPoint == true)
+        {
+            this.plotPoint(px,py);        
+            px += this.heading.x * DIST;
+            py += -this.heading.y * DIST;
+        }
+
+        return true;
+    }
+
+    // populate list of isles that intersect our direct heading
+    private checkDirectHeading(dropPoint:boolean=false)
+    {
+        // step 0 - calculate our direct heading to aiTarget
         let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
         let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
         let directHeading = new Victor( diffX, diffY );
+        let directDist = directHeading.magnitude();
         directHeading.normalize();
 
-        let newHeadingAng = directHeading.horizontalAngleDeg();
-        var goodHeadingFound = 0;
-        var tryOffset = 0;
+        var x,y,px,py;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
 
-        var newHeading:Victor = directHeading;
+        // clear our stored array
+        delete this.aiDirectObstacles;
+        this.aiDirectObstacles = [];
+
+        // loop thru the isles... see if we hit
+        for (let isle of this.isles)
+        {
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, directHeading.x, directHeading.y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < 10000) {   
+                // set this isle as our current threat
+
+                // if distance to our target is less than distance to obstruction, then we have hit an island behind our targt, dont add
+                if (iscc.dist < directDist)
+                    this.aiDirectObstacles.push(isle);
+
+                if (dropPoint == true) {
+                    px += this.heading.x * iscc.dist;
+                    py += -this.heading.y * iscc.dist;
+                    this.plotPoint(px,py);
+                }
+            }
+        } 
+    }
+
+    private aiSetHeading ()
+    {
+        // step 0 - calculate our direct heading to aiTarget
+        let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
+        let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
+        let directHeading = new Victor( diffX, diffY );
+        let directDist = directHeading.magnitude();
+        directHeading.normalize();
+        var newHeading;
+        var newHeadingAng;
+        var up:Victor = new Victor(0,1);
+        var angleOffDirect = this.getSignedAngle(up, directHeading);
+
+        //console.log("Beging aiSetHeading");
+
+        if (angleOffDirect >= 0)
+            this.aiAvoidToLarboard = true;
+        else
+            this.aiAvoidToLarboard = false;
 
         this.resetPlots();
 
-        if (!this.checkHeading(directHeading))
+        // step 1
+        // raycast our current heading
+        // if obstacle within minDistance, make this obstacle our current threat
+        if (this.checkCurrentHeading(directDist) == false)
         {
-            // sweep in 11.25 degree increments in each direction until good heading found
-            while (goodHeadingFound == 0)
+            // our direct heading has struck an island, aiCurrentObstacle has been set
+
+            // find heading around this obstacle in given direction around our current heading
+            // with a minimum of 5 degrees of clearance
+            newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
+            //console.log("Current heading hit obstacle, avoiding!");
+        } else {
+            //console.log("Current heading fine, trying direct heading...");
+            // step 2
+            // raycast our direct heading and determine if anything blocks our course
+            this.checkDirectHeading();
+            if (this.aiDirectObstacles.length == 0)
             {
-                tryOffset += 11.25;
-                if (tryOffset > 180)
+                // set directHeading
+                newHeading = directHeading;
+                //console.log("direct heading clear, setting directHeading");
+            } else { // we have isles in the obstacle list
+                // if yes, see if our aiObstacle is in the list
+                var islefound = false;
+                for(var i=0; i<this.aiDirectObstacles.length; i++)
+                    if (this.aiDirectObstacles[i] == this.aiCurrentObstacle){
+                        islefound=true;
+                        break;
+                    }
+                // if no, set directHeading
+                if (islefound)
                 {
-                    console.log("Cant find good heading");
-                    this.showAchtung();
-                    this.allStop();
-                    return;
+                    //console.log("aiObstacle still between us and target, continue to avoid");
+                    // our aiobstacle is still between us and our target, continue to avoid it
+                    newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
                 }
-
-                newHeading = this.calcNewHeading(directHeading, tryOffset);
-                if (!this.checkHeading(newHeading))
+                else // it is no longer in our way set direct heading
                 {
-                    newHeading = this.calcNewHeading(directHeading, -tryOffset);
-                    if (!this.checkHeading(newHeading))
-                        continue;
-                    else
-                        goodHeadingFound = 1;
+                    //console.log("aiObstacle cleared, setting directHeading");
+                    newHeading = directHeading;
+                    this.aiCurrentObstacle = null;
                 }
-                else
-                    goodHeadingFound = 1;
-
             }
-
-            newHeadingAng = newHeading.angleDeg();
         }
 
-        this.changeHeading(newHeadingAng);
-        //console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
+        if (newHeading == null){
+            // coudlnt find heading.. put up achtung
+            console.log("Could not find good heading, stopping!");
+            this.showAchtung();
+            this.allStop();
+            this.aiArrived = true;
+        } else {
+            newHeadingAng = newHeading.angleDeg();
+            if (!CompassRose.isValidHeading(this.angleToWind, newHeadingAng))
+            {
+                //console.log("newHeading into Wind! Laying to off wind angle!");
+                newHeading = this.getSmallestHeadingOffwind(newHeading);
+                newHeadingAng = newHeading.angleDeg();
+                this.changeHeading(newHeadingAng);
+            }
+            else {
+                this.changeHeading(newHeadingAng); // changes targetHeading inside function
+            }
+            //console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
+            this.matchHeadingToSprite(); 
+        }
+    }
 
-        this.matchHeadingToSprite(); 
+    private getSmallestHeadingOffwind(heading:Victor)
+    {
+        // heading is into the wind, return the smallest vector laying off the wind
+        var rVector = new Victor(0,0);
+        var lVector = new Victor(0,0);
+        var angle = 90; // ask compass rose for a cartesian wind angle
+        var rAngle, lAngle, hAngle;
+
+        // get angle of wind to starboard
+        angle = 90 - this.angleToWind - 1;
+        rVector.x=Math.cos(CompassRose.getRads(angle));
+        rVector.y=Math.sin(CompassRose.getRads(angle));
+        rAngle = this.getVectorAngleDegs(rVector,heading);
+
+        // get angle of wind to larboard
+        angle = 90 + this.angleToWind + 1;
+        lVector.x=Math.cos(CompassRose.getRads(angle));
+        lVector.y=Math.sin(CompassRose.getRads(angle));
+        lAngle = this.getVectorAngleDegs(lVector,heading);
+
+        hAngle = CompassRose.convertCartToCompass(heading.angleDeg());
+        var rA, lA;
+        rA = CompassRose.convertCartToCompass(rVector.angleDeg());
+        lA = CompassRose.convertCartToCompass(lVector.angleDeg());
+
+        //console.log("smallestAngOffWind: heading: " + hAngle.toFixed(2) + " rAngle: " + rVector.angleDeg().toFixed(2) + " lAngle: " + lA.toFixed(2) + "rDiff: " + rAngle.toFixed(2) + " lDiff: " + lAngle.toFixed(2));
+        if (Math.abs(rAngle) < Math.abs(lAngle))
+            return rVector;
+        else
+            return lVector;
+
     }
 
     public setPolyData(p:any) {
@@ -733,72 +773,72 @@ export default class Ship extends GameObject
 
         if (this.lastTime != 0) {
             deltaTime = now - this.lastTime;
+        }
         
-            if (!CompassRose.isValidHeading(this.angleToWind, this.degreeHeading)) 
-            {
-                var deltaDamp = dampMS * deltaTime;
+        if (!CompassRose.isValidHeading(this.angleToWind, this.degreeHeading)) 
+        {
+            var deltaDamp = dampMS * deltaTime;
 
-                this.speed -= deltaDamp; // 0.1;
-                
+            this.speed -= deltaDamp; // 0.1;
+            
+            if (this.speed < 0)
+                this.speed = 0;
+            
+            // if (this.targetHeading != this.degreeHeading)
+                // console.log("Heading: " + CompassRose.convertCartToCompass(this.degreeHeading).toFixed(2) + " Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
+        } 
+        else if (this.speed != this.targetSpeed)
+        {
+            var deltaAcc = accMS * deltaTime;
+
+            if (this.speed < this.targetSpeed) {
+                this.speed += deltaAcc; //0.1;
+                if (this.speed >= this.targetSpeed)
+                    this.speed = this.targetSpeed;
+            } else {
+                this.speed -= deltaAcc; //0.1;
                 if (this.speed < 0)
                     this.speed = 0;
-                
-                //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
-            } 
-            else if (this.speed != this.targetSpeed)
-            {
-                var deltaAcc = accMS * deltaTime;
-
-                if (this.speed < this.targetSpeed) {
-                    this.speed += deltaAcc; //0.1;
-                    if (this.speed >= this.targetSpeed)
-                        this.speed = this.targetSpeed;
-                } else {
-                    this.speed -= deltaAcc; //0.1;
-                    if (this.speed < 0)
-                        this.speed = 0;
-                }
-    
-                //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
             }
 
-            var speedMS = this.speed/1000;
-            var speedDelta = speedMS * deltaTime;
-
-            this.sprite.x += speedDelta * this.heading.x;
-            this.sprite.y += speedDelta * -this.heading.y;            
+            //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
         }
 
-        if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
-            if (this.lastTime != 0)
+        var speedMS = this.speed/1000;
+        var speedDelta = speedMS * deltaTime;
+
+        this.sprite.x += speedDelta * this.heading.x;
+        this.sprite.y += speedDelta * -this.heading.y;            
+        
+
+        if (this.targetHeading != this.degreeHeading) {
+            var deltaAngle = deltaTime * (this.angularSpeed/1000);
+            // move to the target in the direction indicated by toLarboard
+            if (this.toLarboard) // move to target by adding to degree angle
             {
-                var deltaAngle = deltaTime * (this.angularSpeed/1000);
-                // move to the target in the direction indicated by toLarboard
-                if (this.toLarboard) // move to target by adding to degree angle
-                {
-                    this.degreeHeading += deltaAngle;
-                    if (this.degreeHeading > 180)
-                        this.degreeHeading -= 360;
-                }
-                else // move to target by subtracting to degree angle
-                {
-                    this.degreeHeading -= deltaAngle;
-                    if (this.degreeHeading < -180)
-                        this.degreeHeading += 360;
-                }
-                
-                var xpart = Math.cos(CompassRose.getRads(this.degreeHeading));
-                var ypart = Math.sin(CompassRose.getRads(this.degreeHeading));
-                
-                this.heading.x = xpart; 
-                this.heading.y = ypart; // y is flipped when applying to sprite in setposition
-                this.heading.normalize(); // make sure its normalized
-
-                //console.log("target: " + this.targetHeading.toFixed(0) + " heading: " + this.degreeHeading.toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
-
+                this.degreeHeading += deltaAngle;
+                if (this.degreeHeading > 180)
+                    this.degreeHeading -= 360;
+                if (this.degreeHeading > this.targetHeading)
+                    this.degreeHeading = this.targetHeading; // we are done
             }
-
+            else // move to target by subtracting to degree angle
+            {
+                this.degreeHeading -= deltaAngle;
+                if (this.degreeHeading < -180)
+                    this.degreeHeading += 360;
+                if (this.degreeHeading < this.targetHeading)
+                    this.degreeHeading = this.targetHeading; // we are done
+            }
             
+            var xpart = Math.cos(CompassRose.getRads(this.degreeHeading));
+            var ypart = Math.sin(CompassRose.getRads(this.degreeHeading));
+            
+            this.heading.x = xpart; 
+            this.heading.y = ypart; // y is flipped when applying to sprite in setposition
+            this.heading.normalize(); // make sure its normalized
+
+            // console.log("target: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(0) + " heading: " + CompassRose.convertCartToCompass(this.degreeHeading).toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
         }
 
         // update lastTime
@@ -824,7 +864,7 @@ export default class Ship extends GameObject
 
             if (!this.aiArrived)
             {
-                if (now - this.aiLastHeading > 7500) // check our heading!
+                if (now - this.aiLastHeading > 1000) // check our heading!
                 {
                     this.aiSetHeading();
                     this.aiLastHeading = now;

@@ -392,15 +392,24 @@ export default class theSea
     private spawnAIBoats()
     {
         // load one AI boat - heading 600 pixels due north
-        for (var i=0;i<20;i++)
+        var NUMBOATS = 20;
+        for (var i=0;i<NUMBOATS;i++)
         {
             let boat = new Ship();
             let portPt = this.getRandomPortDest();
             let edgePt = this.getRandomEdgeDest();
-            if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination
-                boat.init(this.boatData.corvette, this.islandArray, true, edgePt, portPt);
+            if (NUMBOATS == 1)
+            {
+                let pos = new PIXI.Point(6200,2600);
+                boat.init(this.boatData.corvette, this.islandArray, true, pos, portPt);
+            }
             else
-                boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
+            {
+                if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination
+                    boat.init(this.boatData.corvette, this.islandArray, true, edgePt, portPt);
+                else
+                    boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
+            }
             this.layerObjects.addChild(boat.getSprite());
             this.shipArray.push(boat);
         }

@@ -235,6 +235,11 @@ export default class CompassRose extends PIXI.Container
         return degrees * Math.PI / 180;
     }
 
+    public static getDegs(rads:number)
+    {
+        return rads * (180 / Math.PI);     
+    }
+
     public static convertCartToCompass(degrees:number)
     {
         // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)

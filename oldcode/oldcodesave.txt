@@ -1,0 +1,409 @@
+
+    private aiSetHeadingNewOLD()
+    {
+        let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
+        let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
+        let directHeading = new Victor( diffX, diffY );
+        directHeading.normalize();
+
+        // determine angle between our current heading and the direct heading
+        let angle = this.getSignedAngle(this.heading, directHeading);
+        console.log("aiSetHead: angle to directHeading: " + angle.toFixed(2) + " in radians");
+        // if directheading no good.. walk angles from our current heading to direct heading til we find a good one
+
+        // if no angles between our heading and direct heading are valid, keep searching in angle direction til one is found
+        var goodHeadingFound = 0;
+        var tryOffset = 0;
+        var newHeading:Victor = this.heading;
+        let newHeadingAng = this.heading.horizontalAngleDeg();
+
+        this.resetPlots();
+
+        var ret = this.checkHeading(directHeading, true);
+        var tryRet;
+        var dropPt;
+        var tries = 1;
+
+        // direct heading invalid, find a good one from our current heading
+        if (ret.hit == true || ret.intoWind == true)
+        {
+            while (goodHeadingFound == 0)
+            {
+                if (angle >= 0)
+                    tryOffset++; // go in one degree increments
+                else
+                    tryOffset--;
+
+                if (tryOffset > 180 || tryOffset < -180)
+                {
+                    console.log("Cant find good heading in hemisphere: " + tries);
+                    tries++;
+                    if (tries > 2) {
+                        this.showAchtung();
+                        this.allStop();
+                        return;
+                    } else {
+                        // reverse angle
+                        angle = -angle;
+                        tryOffset = 0;
+                        this.resetPlots();
+                        continue;
+                    }
+                }
+
+                if (tryOffset % 5 == 0)
+                    dropPt = true;
+                else 
+                    dropPt = false;
+
+                newHeading = this.calcNewHeading(this.heading, tryOffset); 
+                tryRet = this.checkHeading(newHeading, dropPt);
+                if (tryRet.hit == true || tryRet.intoWind == true) {
+                    //console.log("offset: " + tryOffset + " hit: " + tryRet.hit + " wind: " + tryRet.intoWind + " dropPt: " + dropPt);
+                    continue;
+                }
+                else
+                    goodHeadingFound = 1;
+            }
+
+            newHeadingAng = newHeading.angleDeg();
+        }
+        else { // direct heading is fine
+            newHeading = directHeading;
+            newHeadingAng = newHeading.angleDeg();
+        }
+
+        this.changeHeading(newHeadingAng);
+        console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
+        this.matchHeadingToSprite(); 
+    }
+    
+    private aiSetHeadingOLD()
+    {
+        // find a heading directly at our target destination
+        // and that is not heading directly into the wind
+        // convert world space to cartesian space coords
+        let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
+        let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
+        let directHeading = new Victor( diffX, diffY );
+        directHeading.normalize();
+
+        let newHeadingAng = directHeading.horizontalAngleDeg();
+        var goodHeadingFound = 0;
+        var tryOffset = 0;
+
+        var newHeading:Victor = directHeading;
+
+        this.resetPlots();
+        var ret = this.checkHeading(directHeading);
+        var tryRet;
+
+        if (ret.intoWind == true || ret.hit == true)
+        {
+            // determine from the target normal
+            if (ret.hit)
+            {
+                // search only in direction of angle of returned normal
+                console.log("Direct heading hit. Searchin in angle: " + ret.normAngle.toFixed(2));
+                // if (ret.normAngle > 0 )
+                while (goodHeadingFound == 0)
+                {
+                    tryOffset += 11.25;
+                    if (tryOffset > 180)
+                    {
+                        console.log("Cant find good heading");
+                        this.showAchtung();
+                        this.allStop();
+                        return;
+                    }
+                    if (ret.normAngle > 0)
+                        newHeading = this.calcNewHeading(directHeading, tryOffset);
+                    else
+                        newHeading = this.calcNewHeading(directHeading, -tryOffset);
+                    
+                    tryRet = this.checkHeading(newHeading);
+
+                    if (tryRet.hit == true || tryRet.intoWind == true)
+                        continue;
+                    else
+                        goodHeadingFound = 1;
+                    
+                }
+            }
+
+            if (ret.intoWind)
+            {
+                // search in both directions
+            
+                // sweep in 11.25 degree increments in each direction until good heading found
+                while (goodHeadingFound == 0)
+                {
+                    tryOffset += 11.25;
+                    if (tryOffset > 180)
+                    {
+                        console.log("Cant find good heading");
+                        this.showAchtung();
+                        this.allStop();
+                        return;
+                    }
+
+                    newHeading = this.calcNewHeading(directHeading, tryOffset);
+
+                    tryRet = this.checkHeading(newHeading);
+                    
+                    if (tryRet.hit == true || tryRet.intoWind == true)
+                    {
+                        newHeading = this.calcNewHeading(directHeading, -tryOffset);
+                        tryRet = this.checkHeading(newHeading);
+                        if (tryRet.hit == true || tryRet.intoWind == true)
+                            continue;
+                        else
+                            goodHeadingFound = 1;
+                    }
+                    else
+                        goodHeadingFound = 1;
+
+                }
+            }   
+
+            newHeadingAng = newHeading.angleDeg();
+        }
+
+        this.changeHeading(newHeadingAng);
+        console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(newHeadingAng).toFixed(2));
+
+        this.matchHeadingToSprite(); 
+    }
+
+    private checkHeading(newHeading:Victor, dropPoint:boolean=false)
+    {
+        var newHeadingDeg = newHeading.angleDeg();
+        var newHeadingCompassDeg = CompassRose.convertCartToCompass(newHeadingDeg);
+        var ret = {intoWind: false, normAngle: 0, hit: false};
+
+        if (!CompassRose.isValidHeading(this.angleToWind, newHeadingDeg))
+        {
+            //console.log("checkHeading: " + newHeadingCompassDeg.toFixed(2) + " is into the wind.");
+            ret.intoWind  = true;
+            return ret; // into the wind
+        }
+
+        // not into the wind, so hit check against the islands
+        var x,y,dx,dy,px,py;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        dx = x + newHeading.x * 200;
+        dy = y + newHeading.y * 200;
+        px += newHeading.x * 200;
+        py += -newHeading.y * 200;
+        if (dropPoint == true)
+            this.plotPoint(px,py);
+
+        var isc = {dist:10000, edge:0, point:{x:0, y:0}, norm:{x:0, y:0}};
+
+        // loop thru the isles... see if we hit
+        for (let isle of this.isles)
+        {
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, newHeading.x, newHeading.y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < 500) {   
+                // return the angle made with the normal of the impact
+                var norm = new Victor(iscc.norm.x, iscc.norm.y);
+                ret.normAngle = this.getSignedAngle(newHeading, norm);
+                ret.hit = true;
+                return ret;
+            }
+        }  
+
+        ret.hit = false;
+        return ret;
+    }
+
+    private saveCode()
+    {
+        /*
+        // check our current heading for validity
+        if (this.checkNewHeading(directHeading, 0) == 0)
+        {
+            // find a good heading by looping from our current heading out 180 degrees both lar and starboard
+            console.log("aiSetHeading: bad heading: " + CompassRose.convertCartToCompass(newHeadingAng));
+            console.log("Searching for good heading...");
+
+            tryOffset = 0;
+            var ptCount = 0;
+
+            while (goodHeadingFound == 0)
+            {
+                tryOffset += 11.25;
+                ptCount++;
+                if (tryOffset > 180)
+                {
+                    console.log("aiSetHeading: exhausted all headings! Stuck! Tried Pts: " + (ptCount-1));
+                    this.showAchtung();
+                    this.allStop();
+                    this.aiArrived = true;
+                    return; // there is no point in continuing ;)
+                }
+                goodHeadingFound = this.checkNewHeading(directHeading, tryOffset);
+            }
+
+            // if we are here we have found a good heading
+            if (goodHeadingFound == 1 || goodHeadingFound == 2) 
+            {
+                newHeading = directHeading.clone();
+                newHeading.rotate(CompassRose.getRads(tryOffset));
+                newHeadingAng = newHeading.horizontalAngleDeg();
+            } else if (goodHeadingFound == -1)
+            {
+                newHeading = directHeading.clone();
+                newHeading.rotate(CompassRose.getRads(-tryOffset));
+                newHeadingAng = newHeading.horizontalAngleDeg();
+            }
+            else // shouldnt be able to get here
+            {
+                newHeading = directHeading.clone();
+                console.log("shoudnt get here!");
+            }
+
+            this.heading.x = newHeading.x;
+            this.heading.y = newHeading.y;
+            
+            console.log("aiSetHeading: Found good heading. Tried compass points: " + ptCount);
+        }
+        else // heading valid, use it
+        {
+            this.heading.x = directHeading.x;
+            this.heading.y = directHeading.y;       
+            newHeadingAng = this.heading.horizontalAngleDeg();
+        }
+        */
+    }
+
+        // returns 1 if baseHeading + offset is good
+    // returns -1 if baseHeading - offset is good
+    // returns 0 if neither is good
+    // returns 2 if both +/- offset are good
+    // offset in degrees
+    // baseheading is a cartesian angle
+    private checkNewHeading(baseHeading:Victor, offset:number)
+    {
+        // rotate the vector by +offset
+        
+        var plusVec:Victor = baseHeading.clone(); 
+        var minusVec:Victor = baseHeading.clone(); 
+
+        plusVec.rotate(CompassRose.getRads(offset));
+        minusVec.rotate(CompassRose.getRads(-offset));
+
+        plusVec.normalize();
+        minusVec.normalize();
+
+        //console.log ("checkNewHeading: offset: " + offset + " plusVec: " + plusVec);
+        
+        var plusGood:boolean = true;
+        var minusGood:boolean = true;
+        var x,y,dx,dy;
+        var plusDeg, minusDeg;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, refl:{x:0, y:0}};
+
+        plusDeg = CompassRose.convertCartToCompass(plusVec.horizontalAngleDeg());
+        minusDeg = CompassRose.convertCartToCompass(minusVec.horizontalAngleDeg());
+        //console.log("Trying headings: " + plusDeg.toFixed(2) + " " + minusDeg.toFixed(2));
+        //console.log("Trying headings: " + plusVec.horizontalAngleDeg().toFixed(2) + " " + minusVec.horizontalAngleDeg().toFixed(2));
+        var plusResult = "OK";
+        var minusResult = "OK";
+
+        // check plus vec first
+        if (CompassRose.isValidHeading(this.angleToWind, plusVec.horizontalAngleDeg()))
+        {
+            // not into the wind, now ray cast against all islands
+            x = this.sprite.x + this.refPt.x;
+            y = this.sprite.y + this.refPt.y;
+            dx = x + plusVec.x * 200;
+            dy = y + plusVec.y * 200;
+            // before converting to Cartesian, plot a point
+            this.plotPoint(dx, dy);
+            // convert y and dy to cartesian
+            y = 8192 - y;
+            dy = 8192 - dy;
+            for (let isle of this.isles)
+            {
+                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y))
+                {
+                    console.log("Origin Point is INSIDE " + (<Island>isle).getName() );
+                }
+                let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
+                if (!retObj) {
+                    //console.log("missed");
+                    iscc.dist = 10000;
+                }
+                if (iscc.dist < 200)
+                {
+                    plusGood = false;
+                    //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " Raycast hit island!");
+                    //plusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
+                    plusResult = "x,y: " + x.toFixed(1) + "," + y.toFixed(1) + " dx,dy: " + dx.toFixed(1) + "," + dy.toFixed(1);
+
+                    break; // cancel the loop, we found an isle in our path!
+                }
+            }
+        }
+        else {
+            //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " into the wind!");
+            plusResult = "Wind";
+            plusGood = false; // into the wind
+        }
+
+        // check minus vec
+        if (CompassRose.isValidHeading(this.angleToWind, minusVec.horizontalAngleDeg()))
+        {
+            // not into the wind, now ray cast against all islands
+            x = this.sprite.x + this.refPt.x;
+            y = this.sprite.y + this.refPt.y;
+            dx = x + minusVec.x * 200;
+            dy = y + minusVec.y * 200;
+            // before converting to Cartesian, plot a point
+            this.plotPoint(dx, dy);
+            // convert y and dy to cartesian
+            y = 8192 - y;
+            dy = 8192 - dy;
+            for (let isle of this.isles)
+            {
+                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y))
+                {
+                    console.log("Origin Point is INSIDE " + (<Island>isle).getName() );
+                }
+                let retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
+                if (!retObj) {
+                    //console.log("missed");
+                    iscc.dist = 10000;
+                }
+                if (iscc.dist < 300)
+                {
+                    minusGood = false;
+                    minusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
+                    break; // cancel the loop, we found an isle in our path!
+                }
+            }
+        }
+        else{
+            minusResult = "Wind";
+            minusGood = false; // into the wind
+        }
+
+        console.log(plusResult + " " + minusResult);
+        // return results
+        if (!minusGood && !plusGood)
+            return 0; // neither good
+        if (minusGood && !plusGood)
+            return -1;
+        if (!minusGood && plusGood)
+            return 1;
+            
+        return 2; // both are good
+    }
