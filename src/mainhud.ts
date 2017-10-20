@@ -53,6 +53,8 @@ export default class MainHUD
         this.rightCannonBattery = new PIXI.Sprite(PIXI.Texture.fromFrame("CannonArray.png"));
         this.rightCannonBattery.x = this.footer.width - this.rightCannonBattery.width + 40;
         this.rightCannonBattery.y = this.footer.y;
+        this.rightCannonBattery.interactive = true;
+        this.rightCannonBattery.on("click", this.fireRight);
 
         // sail trim nbext to guns
         this._sailTrim = new sailTrim();
@@ -71,6 +73,8 @@ export default class MainHUD
         this.leftCannonBattery.x = this.compassRose.x - this.compassRose.width/2; // scaleX will be flipped which makes its anchor point top right
         this.leftCannonBattery.y = this.footer.y;
         this.leftCannonBattery.scale.x = -1; // flip the art so it points left
+        this.leftCannonBattery.interactive = true;
+        this.leftCannonBattery.on("click", this.fireLeft);
 
         this.watch = new Watch();
         this.watch.init();
@@ -95,6 +99,14 @@ export default class MainHUD
     public getContainer()
     {
         return this.container;
+    }
+
+    fireRight = (event:any) => {
+        this.trackShip.fireCannons(true);
+    }
+
+    fireLeft = (event:any) => {
+        this.trackShip.fireCannons(false);
     }
 
     changeHeadingHandler = (event:any) => {

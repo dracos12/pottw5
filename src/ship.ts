@@ -10,6 +10,8 @@ import { TweenLite, Linear, Power2 } from 'gsap';
 import Island from './island';
 import theSea from './theSea';
 import FXManager from './fxmanager';
+import CannonBall from './cannonball';
+import { BallType } from './cannonball';
 
 export const enum ShipType {
     SLOOP,
@@ -1037,5 +1039,37 @@ export default class Ship extends GameObject
         else
             return left; // go left, left contains the degrees needed
 
+    }
+
+    // fire battery and return the milliseconds it will take to reload
+    public fireCannons(rightBattery:boolean=true)
+    {
+
+        console.log("FIRE!!");
+
+        // velocity calculations
+        var v:Victor = new Victor(0,0);
+        v.x = this.heading.x;
+        v.y = -this.heading.y;
+        
+        // get direction
+        if (rightBattery)
+            v.rotate(CompassRose.getRads(90));
+        else
+            v.rotate(CompassRose.getRads(-90));
+
+        v.normalize();
+
+        // add speed data - speed expressed as pixels/millisecond
+        // var speed = 250 / 1000;
+        // v.multiplyScalar(speed);
+
+        // request a cannonball and give it a velocity
+        var ball = this.fxManager.getCannonBall();
+        ball.fire(this.sprite.x + this.refPt.x, this.sprite.y + this.refPt.y,
+                  v, 4, BallType.BALL);
+
+        // return the reload speed based off crew ability
+        return 2500;
     }
 }

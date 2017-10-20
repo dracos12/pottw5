@@ -248,6 +248,7 @@ export default class theSea
 
         this.fxManager = new FXManager();
         this.fxManager.addLoaderAssets(); // have fxManager request its assets
+        this.fxManager.setFXContainer(this.layerObjects); // give the fxManager its layer to add fx to
 
         this.container.interactive = true;
         this.container.on("mousemove", this.mouseMoveHandler);
@@ -377,6 +378,7 @@ export default class theSea
             let boat = new Ship();
             boat.init(this.boatData.corvette, this.islandArray);
             boat.setPosition(6200,2600);
+            boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!
             this.layerObjects.addChild(boat.getSprite());
             this.shipArray.push(boat);
             
@@ -418,6 +420,9 @@ export default class theSea
                 else
                     boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
             }
+
+            boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!
+
             this.layerObjects.addChild(boat.getSprite());
             this.shipArray.push(boat);
         }
@@ -522,6 +527,8 @@ export default class theSea
         // console.log(this.deltaX + "," + this.deltaY);
 
         this.updateObjectArray();
+
+        this.fxManager.update();
     }
 
     private updateObjectArray()
