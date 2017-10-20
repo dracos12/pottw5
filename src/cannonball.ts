@@ -46,10 +46,19 @@ export default class CannonBall extends PIXI.Sprite
         this.v.y = velocity.y;
         this.weight = weight;
         this.type = type;
+        this.spent = false;
         if(maxDist)
             this.maxDist = maxDist;
         else
             this.maxDist = 350;
+        
+    }
+
+    public reset()
+    {
+        this.spent = false;
+        this.inUse = false;
+        this.lastTime = 0;
     }
 
     public update()
@@ -63,7 +72,7 @@ export default class CannonBall extends PIXI.Sprite
 
         this.lastTime = now;
 
-        var speed = 250 / 1000;
+        var speed = 300 / 1000;
 
         this.x += this.v.x * speed * deltaTime;
         this.y += this.v.y * speed * deltaTime;
@@ -72,8 +81,10 @@ export default class CannonBall extends PIXI.Sprite
 
         // if we have travelled our maxDist set the spent signal
         var dist = this.pos.distance(this.origin);
-        //console.log("ball dist: " + dist + " pos: " + this.pos.x + "," + this.pos.y);
         if (dist > this.maxDist)
+        {
             this.spent = true;
+            //console.log("ball dist: " + dist + " pos: " + this.pos.x + "," + this.pos.y);
+        }
     }
 }

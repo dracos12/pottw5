@@ -103,10 +103,9 @@ export default class FXManager
                 if (this.ballList[i].spent)
                 {
                     // put miss FX at its spot and remove it from contention
-                    this.ballList[i].spent = false;
-                    this.ballList[i].inUse = false;
+                    this.ballList[i].reset();
                     this.container.removeChild(this.ballList[i]);
-                    console.log("ball spent... SPLASH");
+                    console.log("ball " + i + " spent... SPLASH");
                     continue;
                 }
 
