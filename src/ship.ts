@@ -710,10 +710,10 @@ export default class Ship extends GameObject
         if (mod != 0)
             n += mod;
 
-        return this.zeroPad(n, 4);
+        return Ship.zeroPad(n, 4);
     }
 
-    private zeroPad (num:number, numZeros:number) {
+    public static zeroPad (num:number, numZeros:number) {
         var an = Math.abs (num);
         var digitCount = 1 + Math.floor (Math.log (an) / Math.LN10);
         if (digitCount >= numZeros) {
