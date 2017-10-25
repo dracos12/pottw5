@@ -262,6 +262,10 @@
             <key type="filename">../../../Art/pottw5/animations/fiery_explosion0061.png</key>
             <key type="filename">../../../Art/pottw5/animations/fiery_explosion0062.png</key>
             <key type="filename">../../../Art/pottw5/animations/fiery_explosion0063.png</key>
+            <key type="filename">../../../Art/pottw5/animations/fiery_explosion0064.png</key>
+            <key type="filename">../../../Art/pottw5/animations/fiery_explosion0065.png</key>
+            <key type="filename">../../../Art/pottw5/animations/fiery_explosion0066.png</key>
+            <key type="filename">../../../Art/pottw5/animations/fiery_explosion0067.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -762,6 +766,10 @@
             <filename>../../../Art/pottw5/animations/spout0023.png</filename>
             <filename>../../../Art/pottw5/animations/spout0024.png</filename>
             <filename>../../../Art/pottw5/animations/theBall.png</filename>
+            <filename>../../../Art/pottw5/animations/fiery_explosion0064.png</filename>
+            <filename>../../../Art/pottw5/animations/fiery_explosion0065.png</filename>
+            <filename>../../../Art/pottw5/animations/fiery_explosion0066.png</filename>
+            <filename>../../../Art/pottw5/animations/fiery_explosion0067.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
