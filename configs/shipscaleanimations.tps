@@ -150,7 +150,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../../../Art/pottw5/animations/shipFX.json</filename>
+                <filename>../../../Art/pottw5/animations/shipfx.json</filename>
             </struct>
         </map>
         <key>multiPack</key>
