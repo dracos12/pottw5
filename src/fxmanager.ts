@@ -6,6 +6,9 @@ import CannonBall from './cannonball';
 import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
 import Ship from './ship';
+import theSea from './theSea';
+
+declare var PolyK: any;
 
 export default class FXManager
 {
@@ -13,10 +16,12 @@ export default class FXManager
     private ballList:Array<CannonBall> = []; // the pool of cannon balls
     private lastBall:number=0;  // last ball we handed out - this will also index into the splash/explosion/smoke arrays
     private splashList:Array<PIXI.extras.AnimatedSprite> = [];
+    private explosionList:Array<PIXI.extras.AnimatedSprite> = [];
     private isles:Array<GameObject>;    // reference to theSea's island array
     private ships:Array<GameObject>;    // reference to theSea's ship array
     private container:PIXI.Container;   // the container to add effects to
     private splash:Array<PIXI.Texture> = [];  // array of textures for the splash fx
+    private explosion:Array<PIXI.Texture> = []; // array for explosion textures
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -42,6 +47,14 @@ export default class FXManager
             this.splash.push(PIXI.Texture.fromFrame(s));
         }
         this.initSplashPool();
+
+        
+        for (i=1; i<68; i++)
+        {
+            s = "fiery_explosion" + Ship.zeroPad(i, 4) + ".png";
+            this.explosion.push(PIXI.Texture.fromFrame(s));
+        }
+        this.initExplosionPool();
     }
 
     private initSplashPool()
@@ -56,6 +69,21 @@ export default class FXManager
             anim.anchor.y = 1;  // anchor/origin is the middle bottom of the sprite
             anim.loop = false;
             this.splashList.push(anim);
+        }
+    }
+
+    private initExplosionPool()
+    {
+        var i;
+        var anim;
+
+        for (i=0; i<100; i++)
+        {
+            anim = new PIXI.extras.AnimatedSprite(this.explosion);
+            anim.anchor.x = 0.54;
+            anim.anchor.y = 0.68;  // anchor/origin is at 27,42 on a frame 50,62
+            anim.loop = false;
+            this.explosionList.push(anim);
         }
     }
 
@@ -115,8 +143,42 @@ export default class FXManager
     private hit(ball:CannonBall)
     {
         var hitObj:GameObject = null;
+        var i=0;
+        var x,y;
 
         // collision code here
+        // islands first
+        for (let entry of this.isles) {
+            // first do rectangular hit test
+            if (theSea.boxHitTest(entry.getSprite(), ball)) {
+                //console.log("ball inside island rect! checking PolyK");
+                // sprites overlap, now do a PolyK contains point
+                x = ball.x;
+                y = 8192 - ball.y; // convert to cartesian
+                if (PolyK.ContainsPoint(entry.getCartPolyData(), x, y)) {
+                    console.log("hit " + entry.getSprite().name + "!");
+                    hitObj = entry;
+                    break; // short circuit the loop
+                }
+            }
+        }
+        // now check boats
+        for (let entry of this.ships) {
+            // ignore the firer of this ball
+            if (ball.firer == entry)
+                continue;
+            // first do rectangular hit test
+            if (theSea.boxHitTest(entry.getSprite(), ball)) {
+                // sprites overlap, now do a PolyK contains point
+                x = ball.x;
+                y = 8192 - ball.y;
+                if ((<Ship>entry).hitTestByPoint(x,y)) {
+                    hitObj = entry;
+                    break; // short circuit the loop
+                }
+            }
+        }
+
 
         return hitObj;
     }
@@ -154,7 +216,16 @@ export default class FXManager
                 
                 if (hitObj)
                 {
-                    this.ballList[i].inUse = false; // return to pool
+                    // play hit animation
+                    this.explosionList[i].x = this.ballList[i].x;
+                    this.explosionList[i].y = this.ballList[i].y;
+                    this.container.addChild(this.explosionList[i]);
+                    this.explosionList[i].play(); // start the animation
+                    ball = i;
+                    this.explosionList[i].onComplete = () => { this.container.removeChild(this.explosionList[ball]); this.explosionList[ball].gotoAndStop(0); console.log("Removing explosion: " + ball );};
+
+                    this.ballList[i].reset(); // return ball to pool
+                    this.container.removeChild(this.ballList[i]);
                 }
             }
         }

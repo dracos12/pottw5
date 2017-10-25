@@ -561,6 +561,19 @@ export default class Ship extends GameObject
         }
     }
 
+    // return true if passed point is contained in our polygon
+    public hitTestByPoint(x:number, y:number)
+    {
+        //console.log("ship.hitTestByPoint");
+        // convert our polygonal data relative to our position
+        this.convertPolyDataToCartesian();
+        if (PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], x, y)) {
+            console.log("ship HIT by point!");
+            return true;
+        }
+        return false;
+    }
+
     public hitTestByPolygon(polygonPts:any)
     {
         // convert our polygonal data relative to our position
@@ -1067,7 +1080,7 @@ export default class Ship extends GameObject
         // request a cannonball and give it a velocity
         var ball = this.fxManager.getCannonBall();
         ball.fire(this.sprite.x + this.refPt.x, this.sprite.y + this.refPt.y,
-                  v, 4, BallType.BALL);
+                  v, 4, BallType.BALL, this);
 
         // return the reload speed based off crew ability
         return 2500;

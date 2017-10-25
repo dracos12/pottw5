@@ -394,6 +394,9 @@ export default class theSea
             // spawn some AI boats to sail about
             this.spawnAIBoats();
 
+            // give the isle and boats list to the fxmanager
+            this.fxManager.setIslesShips(this.islandArray, this.shipArray);
+
             // final step in loading process.. can now call loadcallback
             this.loadCallback();
         }
@@ -575,7 +578,7 @@ export default class theSea
         var hit = false;
         for (let entry of this.islandArray) {
             if (entry.getType() == ObjectType.ISLAND) {
-                if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
+                if (theSea.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
                     //console.log("boxHit!");
                     // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
                     if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true)
@@ -595,7 +598,7 @@ export default class theSea
         // if theres a hit, perform the polyk hittest for each point in the boats polykdata against the island polygon
     }
 
-    private boxHitTest(s1:PIXI.Sprite, s2:PIXI.Sprite)
+    public static boxHitTest(s1:PIXI.Sprite, s2:PIXI.Sprite)
     {
         var x1 = s1.x;
         var y1 = s1.y;

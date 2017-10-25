@@ -5,6 +5,7 @@
 
 import * as PIXI from 'pixi.js';
 import Victor = require('victor');
+import GameObject from './gameobject';
 
 export const enum BallType {
     CANNISTER,
@@ -24,6 +25,7 @@ export default class CannonBall extends PIXI.Sprite
     public inUse:boolean = false; // if not inuse, fxmanager can recycle
     public spent:boolean = false; // has this ball flown over its maxDist value
     private lastTime:number = 0; // frame calculation data
+    public firer:GameObject = null; // ignore the gameobject that fired it (dont kill yourself :)
 
     constructor()
     {
@@ -36,7 +38,7 @@ export default class CannonBall extends PIXI.Sprite
 
     // allow override for maxdist, this is set by type normally
     // vector givin in pixels/millisecond
-    public fire(ox:number, oy:number, velocity:Victor, weight:number, type:BallType, maxDist?:number)
+    public fire(ox:number, oy:number, velocity:Victor, weight:number, type:BallType, firer:GameObject, maxDist?:number)
     {
         this.origin.x = ox;
         this.origin.y = oy;
@@ -47,6 +49,7 @@ export default class CannonBall extends PIXI.Sprite
         this.weight = weight;
         this.type = type;
         this.spent = false;
+        this.firer = firer;
         if(maxDist)
             this.maxDist = maxDist;
         else
