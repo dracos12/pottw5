@@ -7,6 +7,7 @@ import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
 import Ship from './ship';
 import theSea from './theSea';
+import Victor = require('victor');
 
 declare var PolyK: any;
 
@@ -17,11 +18,13 @@ export default class FXManager
     private lastBall:number=0;  // last ball we handed out - this will also index into the splash/explosion/smoke arrays
     private splashList:Array<PIXI.extras.AnimatedSprite> = [];
     private explosionList:Array<PIXI.extras.AnimatedSprite> = [];
+    private muzzlePlumeList:Array<PIXI.extras.AnimatedSprite> = [];
     private isles:Array<GameObject>;    // reference to theSea's island array
     private ships:Array<GameObject>;    // reference to theSea's ship array
     private container:PIXI.Container;   // the container to add effects to
     private splash:Array<PIXI.Texture> = [];  // array of textures for the splash fx
     private explosion:Array<PIXI.Texture> = []; // array for explosion textures
+    private muzzlePlume:Array<PIXI.Texture> = []; // smoke from cannon fire
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -55,6 +58,13 @@ export default class FXManager
             this.explosion.push(PIXI.Texture.fromFrame(s));
         }
         this.initExplosionPool();
+
+        for (i=1; i<121; i++)
+        {
+            s = "smoke_cloud" + Ship.zeroPad(i, 4) + ".png";
+            this.muzzlePlume.push(PIXI.Texture.fromFrame(s));
+        }
+        this.initMuzzlePool();
     }
 
     private initSplashPool()
@@ -87,6 +97,21 @@ export default class FXManager
         }
     }
 
+    private initMuzzlePool()
+    {
+        var i;
+        var anim;
+
+        for (i=0; i<100; i++)
+        {
+            anim = new PIXI.extras.AnimatedSprite(this.muzzlePlume);
+            anim.anchor.x = 1;
+            anim.anchor.y = 0.5;  // anchor/origin center right (anim goes left)
+            anim.loop = false;
+            this.muzzlePlumeList.push(anim);
+        }
+    }
+
     public setIslesShips(isles:Array<GameObject>, ships:Array<GameObject>)
     {
         this.isles = isles;
@@ -104,6 +129,24 @@ export default class FXManager
         {
             this.ballList.push(new CannonBall());
         }
+    }
+
+    public placeMuzzlePlume(x:number, y:number, dir:Victor)
+    {
+        // place a plume with given position and direction (v is normalized)
+        // assume last ball so use lastBall as index to use
+        this.muzzlePlumeList[this.lastBall].x = x;
+        this.muzzlePlumeList[this.lastBall].y = y;
+        // rotate the plume into the direction of the shot, plume is in negative x axis (faces left)
+        var plumeDir:Victor = new Victor(dir.x, dir.y);
+        //plumeDir.rotate(-Math.PI/2); // simply rotate the given direction 180 
+        this.muzzlePlumeList[this.lastBall].rotation = plumeDir.angle() + Math.PI;
+        this.muzzlePlumeList[this.lastBall].gotoAndPlay(0);
+
+        this.container.addChild(this.muzzlePlumeList[this.lastBall]);
+
+        let ball = this.lastBall; 
+        this.muzzlePlumeList[this.lastBall].onComplete = () => { this.container.removeChild(this.muzzlePlumeList[ball]); this.muzzlePlumeList[ball].gotoAndStop(0); console.log("Removing muzzlePlume: " + ball );};
     }
 
     // get cannonball from pool, returns null if all in use (!)

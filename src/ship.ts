@@ -1079,8 +1079,10 @@ export default class Ship extends GameObject
 
         // request a cannonball and give it a velocity
         var ball = this.fxManager.getCannonBall();
-        ball.fire(this.sprite.x + this.refPt.x, this.sprite.y + this.refPt.y,
-                  v, 4, BallType.BALL, this);
+        var x = this.sprite.x + this.refPt.x;
+        var y = this.sprite.y + this.refPt.y;
+        ball.fire(x, y, v, 4, BallType.BALL, this);
+        this.fxManager.placeMuzzlePlume(x, y, v);
 
         // return the reload speed based off crew ability
         return 2500;
