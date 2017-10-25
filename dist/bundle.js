@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -156,226 +156,6 @@ exports.default = GameObject;
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-//
-// CompassRose class widget 
-//  displays ship heading, cannon angle, and wind direction
-//  ship heading is interactive and allows the player to change the heading
-//  allows the player to adjust the cannon angle as well
-//
-
-var __extends = this && this.__extends || function () {
-    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-        d.__proto__ = b;
-    } || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(0);
-var Victor = __webpack_require__(3);
-var CompassRose = /** @class */function (_super) {
-    __extends(CompassRose, _super);
-    function CompassRose() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.animRot = 0;
-        _this.mouseDown = false;
-        _this.trackedNewHeading = 0;
-        _this.mouseMoveHandler = function (e) {
-            if (e.data.buttons == 0) _this.endSetHeading();
-            // mouse has moved, find the angle relative to the center of the compass and rotate the ghost image there
-            if (_this.mouseDown) {
-                _this.needleGhostHeading.visible = true;
-                _this.noGoArc.visible = true;
-                // get local coords from mouse coords
-                var locPt = _this.toLocal(new PIXI.Point(e.data.global.x, e.data.global.y));
-                // get a vector from these coords
-                var vic = new Victor(locPt.x - _this.compassBase.width / 2, -(locPt.y - _this.compassBase.height / 2));
-                var angDeg = vic.angleDeg();
-                _this.needleGhostHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(angDeg));
-                //console.log("Mouse Degrees: " + vic.angleDeg());
-                _this.trackedNewHeading = angDeg;
-                if (CompassRose.isValidHeading(_this.trackingShip.getAngleToWind(), _this.trackedNewHeading)) _this.noGoArc.visible = false;else _this.noGoArc.visible = true;
-            }
-        };
-        _this.mouseDownHandler = function (e) {
-            if (e.target == _this.needleHeading) {
-                _this.mouseDown = true;
-                //console.log("CompassRose: START ghost heading");
-            }
-        };
-        _this.mouseUpHandler = function (e) {
-            // release mouse no matter what the e.target was
-            _this.endSetHeading();
-        };
-        return _this;
-    }
-    ; // direction wind is coming from (in degrees - 0 is due North)
-    CompassRose.getWindDirection = function () {
-        return CompassRose.windDirection;
-    };
-    // init assumes it has its sprite assets available
-    CompassRose.prototype.init = function () {
-        this.compassBase = new PIXI.Sprite(PIXI.Texture.fromFrame("compassBase.png"));
-        this.starCap = new PIXI.Sprite(PIXI.Texture.fromFrame("starRotate.png"));
-        this.starCap.x = (this.compassBase.width - this.starCap.width) / 2;
-        this.starCap.y = (this.compassBase.height - this.starCap.height) / 2; // centered
-        this.needleHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
-        // this.needleHeading.pivot.x = this.needleHeading.width / 2;
-        // this.needleHeading.pivot.y = this.needleHeading.height;  // bottom center of sprite
-        this.needleHeading.anchor.x = 0.5;
-        this.needleHeading.anchor.y = 1; // anchor at center bottom
-        this.needleHeading.x = 66;
-        this.needleHeading.y = 66;
-        this.needleHeading.rotation = CompassRose.getRads(15);
-        // the ghost heading needle
-        this.needleGhostHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
-        this.needleGhostHeading.anchor.x = 0.5;
-        this.needleGhostHeading.anchor.y = 1; // anchor at center bottom
-        this.needleGhostHeading.x = 66;
-        this.needleGhostHeading.y = 66;
-        this.needleGhostHeading.rotation = CompassRose.getRads(15);
-        this.needleGhostHeading.visible = false;
-        this.needleGhostHeading.alpha = 0.67;
-        this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
-        // this.needleCannon.pivot.x = this.needleCannon.width / 2;
-        // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
-        this.needleCannon.anchor.x = 0.5;
-        this.needleCannon.anchor.y = 1; // anchor at center bottom
-        this.needleCannon.x = 66;
-        this.needleCannon.y = 66; // centered on compass base
-        this.needleCannon.rotation = CompassRose.getRads(105);
-        this.windIndicator = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
-        // this.windDirection.pivot.x = 29;
-        // this.windDirection.pivot.y = 183;  // will rotate around this point against the compass base background
-        this.windIndicator.anchor.x = 0.5;
-        this.windIndicator.anchor.y = 2.5;
-        this.windIndicator.x = 66; //this.compassBase.width / 2 - this.windDirection.width / 2;
-        this.windIndicator.y = 66; //17; // magic number
-        CompassRose.windDirection = 0; // due north
-        this.addChild(this.compassBase); // z order will be in child order, back to front
-        this.setNoGo(60);
-        this.addChild(this.windIndicator);
-        this.addChild(this.needleHeading);
-        this.addChild(this.needleGhostHeading);
-        this.addChild(this.needleCannon);
-        this.addChild(this.starCap);
-        this.needleHeading.interactive = true;
-        this.needleHeading.on("mousedown", this.mouseDownHandler);
-        this.needleHeading.on("mousemove", this.mouseMoveHandler);
-        this.needleHeading.on("mouseup", this.mouseUpHandler);
-        this.pivot.x = this.compassBase.x + this.compassBase.width / 2;
-        this.pivot.y = this.compassBase.y + this.compassBase.height / 2;
-    };
-    CompassRose.prototype.endSetHeading = function () {
-        if (this.mouseDown == true) {
-            this.mouseDown = false;
-            //console.log("CompassRose: END ghost heading");
-            var myEvent = new CustomEvent("changeHeading", {
-                'detail': this.trackedNewHeading
-            });
-            window.dispatchEvent(myEvent);
-        }
-        // else ignore - might be called as mouse moves without mousedown
-    };
-    //
-    // angleToWind: in degrees - specifies angle off the wind a ship can point at maximum
-    // trackedHeading: in degrees (Cartesian) to check for validity
-    // 
-    CompassRose.isValidHeading = function (angleToWind, trackedHeading) {
-        // heading is valid if it is not within angleToWind degrees of the current wind direction
-        var maxWind = CompassRose.windDirection + angleToWind;
-        var minWind = CompassRose.windDirection - angleToWind;
-        var tracked = CompassRose.convertCartToCompass(trackedHeading);
-        // valid angles are 0 -> 360
-        if (maxWind > 0 && minWind > 0 && maxWind < 360) {
-            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
-            if (tracked >= minWind && tracked <= maxWind) return true;else return false;
-        } else {
-            // one has crossed the zero degree threshold, convert and do some shenanigans
-            if (minWind < 0) minWind = 360 + minWind; // ie -15 would become 345
-            if (maxWind > 360) maxWind = maxWind - 360; // ie 375 would become 15
-            if (minWind > maxWind) {
-                var temp = maxWind;
-                maxWind = minWind;
-                minWind = temp;
-            }
-            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
-            if (tracked >= minWind && tracked <= maxWind) return true;else return false;
-        }
-    };
-    // creates the nogo arc
-    // degrees is closest point to wind (total arc will be degrees*2)
-    CompassRose.prototype.setNoGo = function (degrees) {
-        // make a circular arc based off percentDone  100 will be no mask.. reveals clockwise as percent increases
-        var degs = degrees * 2;
-        var rads = CompassRose.getRads(degs);
-        if (this.noGoArc) {
-            this.removeChild(this.noGoArc);
-            this.noGoArc.destroy();
-        }
-        var arc = new PIXI.Graphics();
-        arc.beginFill(0xff0000);
-        arc.moveTo(this.compassBase.width / 2, this.compassBase.height / 2);
-        arc.arc(this.compassBase.width / 2, this.compassBase.height / 2, this.compassBase.width / 2, 0, rads, false); // cx, cy, radius, angle, endAngle, anticlockwise bool
-        arc.endFill();
-        arc.pivot.x = this.compassBase.width / 2;
-        arc.pivot.y = this.compassBase.height / 2;
-        arc.x = this.compassBase.width / 2;
-        arc.y = this.compassBase.height / 2;
-        // rotate arc to straddle the wind direction
-        arc.rotation = CompassRose.getRads(CompassRose.windDirection - 90 - degrees);
-        this.noGoArc = arc;
-        this.noGoArc.alpha = 0.33;
-        this.addChildAt(this.noGoArc, 1); //1 is just above 0, the compassBase
-        this.noGoArc.visible = false;
-    };
-    CompassRose.getRads = function (degrees) {
-        return degrees * Math.PI / 180;
-    };
-    CompassRose.convertCartToCompass = function (degrees) {
-        // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)
-        // and convert it to compass rotation (0 is along the y axis "up" and sweeps clockwise)
-        // cart will be from 0 -> 180 or 0 -> -180 for top or bottom hemisphere
-        // compass rotations are just 0 -> 360
-        var compassAngle = 0;
-        if (degrees < 0) {
-            compassAngle = 90 + Math.abs(degrees);
-        } else if (degrees > 90) {
-            compassAngle = 180 - degrees + 270;
-        } else {
-            compassAngle = 90 - degrees;
-        }
-        return compassAngle;
-    };
-    // set the ship we should track for heading info
-    CompassRose.prototype.trackShip = function (ship) {
-        this.trackingShip = ship;
-        this.setNoGo(this.trackingShip.getAngleToWind());
-    };
-    CompassRose.prototype.update = function () {
-        if (this.trackingShip) this.needleHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
-        // this.animRot += 0.1;
-        // this.needleHeading.rotation = this.getRads(this.animRot);
-        // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
-    };
-    CompassRose.windDirection = 0;
-    return CompassRose;
-}(PIXI.Container);
-exports.default = CompassRose;
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports) {
 
 exports = module.exports = Victor;
@@ -1705,6 +1485,229 @@ function degrees2radian (deg) {
 
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//
+// CompassRose class widget 
+//  displays ship heading, cannon angle, and wind direction
+//  ship heading is interactive and allows the player to change the heading
+//  allows the player to adjust the cannon angle as well
+//
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var PIXI = __webpack_require__(0);
+var Victor = __webpack_require__(2);
+var CompassRose = /** @class */function (_super) {
+    __extends(CompassRose, _super);
+    function CompassRose() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.animRot = 0;
+        _this.mouseDown = false;
+        _this.trackedNewHeading = 0;
+        _this.mouseMoveHandler = function (e) {
+            if (e.data.buttons == 0) _this.endSetHeading();
+            // mouse has moved, find the angle relative to the center of the compass and rotate the ghost image there
+            if (_this.mouseDown) {
+                _this.needleGhostHeading.visible = true;
+                _this.noGoArc.visible = true;
+                // get local coords from mouse coords
+                var locPt = _this.toLocal(new PIXI.Point(e.data.global.x, e.data.global.y));
+                // get a vector from these coords
+                var vic = new Victor(locPt.x - _this.compassBase.width / 2, -(locPt.y - _this.compassBase.height / 2));
+                var angDeg = vic.angleDeg();
+                _this.needleGhostHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(angDeg));
+                //console.log("Mouse Degrees: " + vic.angleDeg());
+                _this.trackedNewHeading = angDeg;
+                if (CompassRose.isValidHeading(_this.trackingShip.getAngleToWind(), _this.trackedNewHeading)) _this.noGoArc.visible = false;else _this.noGoArc.visible = true;
+            }
+        };
+        _this.mouseDownHandler = function (e) {
+            if (e.target == _this.needleHeading) {
+                _this.mouseDown = true;
+                //console.log("CompassRose: START ghost heading");
+            }
+        };
+        _this.mouseUpHandler = function (e) {
+            // release mouse no matter what the e.target was
+            _this.endSetHeading();
+        };
+        return _this;
+    }
+    ; // direction wind is coming from (in degrees - 0 is due North)
+    CompassRose.getWindDirection = function () {
+        return CompassRose.windDirection;
+    };
+    // init assumes it has its sprite assets available
+    CompassRose.prototype.init = function () {
+        this.compassBase = new PIXI.Sprite(PIXI.Texture.fromFrame("compassBase.png"));
+        this.starCap = new PIXI.Sprite(PIXI.Texture.fromFrame("starRotate.png"));
+        this.starCap.x = (this.compassBase.width - this.starCap.width) / 2;
+        this.starCap.y = (this.compassBase.height - this.starCap.height) / 2; // centered
+        this.needleHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
+        // this.needleHeading.pivot.x = this.needleHeading.width / 2;
+        // this.needleHeading.pivot.y = this.needleHeading.height;  // bottom center of sprite
+        this.needleHeading.anchor.x = 0.5;
+        this.needleHeading.anchor.y = 1; // anchor at center bottom
+        this.needleHeading.x = 66;
+        this.needleHeading.y = 66;
+        this.needleHeading.rotation = CompassRose.getRads(15);
+        // the ghost heading needle
+        this.needleGhostHeading = new PIXI.Sprite(PIXI.Texture.fromFrame("needleShip.png"));
+        this.needleGhostHeading.anchor.x = 0.5;
+        this.needleGhostHeading.anchor.y = 1; // anchor at center bottom
+        this.needleGhostHeading.x = 66;
+        this.needleGhostHeading.y = 66;
+        this.needleGhostHeading.rotation = CompassRose.getRads(15);
+        this.needleGhostHeading.visible = false;
+        this.needleGhostHeading.alpha = 0.67;
+        this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
+        // this.needleCannon.pivot.x = this.needleCannon.width / 2;
+        // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
+        this.needleCannon.anchor.x = 0.5;
+        this.needleCannon.anchor.y = 1; // anchor at center bottom
+        this.needleCannon.x = 66;
+        this.needleCannon.y = 66; // centered on compass base
+        this.needleCannon.rotation = CompassRose.getRads(105);
+        this.windIndicator = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
+        // this.windDirection.pivot.x = 29;
+        // this.windDirection.pivot.y = 183;  // will rotate around this point against the compass base background
+        this.windIndicator.anchor.x = 0.5;
+        this.windIndicator.anchor.y = 2.5;
+        this.windIndicator.x = 66; //this.compassBase.width / 2 - this.windDirection.width / 2;
+        this.windIndicator.y = 66; //17; // magic number
+        CompassRose.windDirection = 0; // due north
+        this.addChild(this.compassBase); // z order will be in child order, back to front
+        this.setNoGo(60);
+        this.addChild(this.windIndicator);
+        this.addChild(this.needleHeading);
+        this.addChild(this.needleGhostHeading);
+        this.addChild(this.needleCannon);
+        this.addChild(this.starCap);
+        this.needleHeading.interactive = true;
+        this.needleHeading.on("mousedown", this.mouseDownHandler);
+        this.needleHeading.on("mousemove", this.mouseMoveHandler);
+        this.needleHeading.on("mouseup", this.mouseUpHandler);
+        this.pivot.x = this.compassBase.x + this.compassBase.width / 2;
+        this.pivot.y = this.compassBase.y + this.compassBase.height / 2;
+    };
+    CompassRose.prototype.endSetHeading = function () {
+        if (this.mouseDown == true) {
+            this.mouseDown = false;
+            //console.log("CompassRose: END ghost heading");
+            var myEvent = new CustomEvent("changeHeading", {
+                'detail': this.trackedNewHeading
+            });
+            window.dispatchEvent(myEvent);
+        }
+        // else ignore - might be called as mouse moves without mousedown
+    };
+    //
+    // angleToWind: in degrees - specifies angle off the wind a ship can point at maximum
+    // trackedHeading: in degrees (Cartesian) to check for validity
+    // 
+    CompassRose.isValidHeading = function (angleToWind, trackedHeading) {
+        // heading is valid if it is not within angleToWind degrees of the current wind direction
+        var maxWind = CompassRose.windDirection + angleToWind;
+        var minWind = CompassRose.windDirection - angleToWind;
+        var tracked = CompassRose.convertCartToCompass(trackedHeading);
+        // valid angles are 0 -> 360
+        if (maxWind > 0 && minWind > 0 && maxWind < 360) {
+            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            if (tracked >= minWind && tracked <= maxWind) return true;else return false;
+        } else {
+            // one has crossed the zero degree threshold, convert and do some shenanigans
+            if (minWind < 0) minWind = 360 + minWind; // ie -15 would become 345
+            if (maxWind > 360) maxWind = maxWind - 360; // ie 375 would become 15
+            if (minWind > maxWind) {
+                var temp = maxWind;
+                maxWind = minWind;
+                minWind = temp;
+            }
+            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            if (tracked >= minWind && tracked <= maxWind) return true;else return false;
+        }
+    };
+    // creates the nogo arc
+    // degrees is closest point to wind (total arc will be degrees*2)
+    CompassRose.prototype.setNoGo = function (degrees) {
+        // make a circular arc based off percentDone  100 will be no mask.. reveals clockwise as percent increases
+        var degs = degrees * 2;
+        var rads = CompassRose.getRads(degs);
+        if (this.noGoArc) {
+            this.removeChild(this.noGoArc);
+            this.noGoArc.destroy();
+        }
+        var arc = new PIXI.Graphics();
+        arc.beginFill(0xff0000);
+        arc.moveTo(this.compassBase.width / 2, this.compassBase.height / 2);
+        arc.arc(this.compassBase.width / 2, this.compassBase.height / 2, this.compassBase.width / 2, 0, rads, false); // cx, cy, radius, angle, endAngle, anticlockwise bool
+        arc.endFill();
+        arc.pivot.x = this.compassBase.width / 2;
+        arc.pivot.y = this.compassBase.height / 2;
+        arc.x = this.compassBase.width / 2;
+        arc.y = this.compassBase.height / 2;
+        // rotate arc to straddle the wind direction
+        arc.rotation = CompassRose.getRads(CompassRose.windDirection - 90 - degrees);
+        this.noGoArc = arc;
+        this.noGoArc.alpha = 0.33;
+        this.addChildAt(this.noGoArc, 1); //1 is just above 0, the compassBase
+        this.noGoArc.visible = false;
+    };
+    CompassRose.getRads = function (degrees) {
+        return degrees * Math.PI / 180;
+    };
+    CompassRose.getDegs = function (rads) {
+        return rads * (180 / Math.PI);
+    };
+    CompassRose.convertCartToCompass = function (degrees) {
+        // take a cartesian heading in degrees (0 is along the x axis "to the right" and sweeps counter clockwise)
+        // and convert it to compass rotation (0 is along the y axis "up" and sweeps clockwise)
+        // cart will be from 0 -> 180 or 0 -> -180 for top or bottom hemisphere
+        // compass rotations are just 0 -> 360
+        var compassAngle = 0;
+        if (degrees < 0) {
+            compassAngle = 90 + Math.abs(degrees);
+        } else if (degrees > 90) {
+            compassAngle = 180 - degrees + 270;
+        } else {
+            compassAngle = 90 - degrees;
+        }
+        return compassAngle;
+    };
+    // set the ship we should track for heading info
+    CompassRose.prototype.trackShip = function (ship) {
+        this.trackingShip = ship;
+        this.setNoGo(this.trackingShip.getAngleToWind());
+    };
+    CompassRose.prototype.update = function () {
+        if (this.trackingShip) this.needleHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
+        // this.animRot += 0.1;
+        // this.needleHeading.rotation = this.getRads(this.animRot);
+        // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
+    };
+    CompassRose.windDirection = 0;
+    return CompassRose;
+}(PIXI.Container);
+exports.default = CompassRose;
+
+/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1713,80 +1716,10 @@ function degrees2radian (deg) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var theSea_1 = __webpack_require__(5);
-var mainhud_1 = __webpack_require__(10);
-var Core = /** @class */function () {
-    function Core() {
-        var _this = this;
-        this.seaLoaded = false;
-        this.hudLoaded = false;
-        this.onLoaded = function () {
-            // hud is done and needs no further loading
-            _this.mainHUDLoaded();
-            // theSea needs to load its data files
-            _this._sea.setup();
-            // the sea will call seaLoadedCallback when its finally done so we can proceed
-        };
-        this.mainHUDLoaded = function () {
-            var c = _this._hud.getContainer();
-            c.x = 0;
-            c.y = 0;
-            _this.hudLoaded = true;
-            _this._hud.onAssetsLoaded();
-            _this.postLoad();
-        };
-        this.seaLoadedCallback = function () {
-            _this.seaLoaded = true;
-            _this.postLoad();
-        };
-        this.update = function () {
-            _this._sea.update();
-            _this._hud.update();
-            _this._renderer.render(_this._world);
-            requestAnimationFrame(_this.update);
-        };
-        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { backgroundColor: 0x7BA4DF });
-        this._world = new PIXI.Container();
-        document.body.appendChild(this._renderer.view);
-        // create a new sea object
-        this._sea = new theSea_1.default();
-        this._sea.init(this.seaLoadedCallback);
-        // create the main hud
-        this._hud = new mainhud_1.default();
-        this._hud.addLoaderAssets();
-        // load all the assets requested by theSea and Hud
-        PIXI.loader.load(this.onLoaded);
-        console.log("PotTW: build 0.0.13");
-    }
-    Core.prototype.postLoad = function () {
-        if (this.hudLoaded && this.seaLoaded) {
-            this._world.addChild(this._sea.getContainer());
-            this._world.addChild(this._hud.getContainer());
-            // center hud on window size
-            var c = this._hud.getContainer();
-            c.x = (window.innerWidth - c.width) / 2;
-            //mousewheel not part of Pixi so add the event to the DOM
-            document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
-            this.update();
-        }
-    };
-    return Core;
-}();
-exports.default = Core;
-var game = new Core();
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(0);
 var gameobject_1 = __webpack_require__(1);
-var island_1 = __webpack_require__(6);
-var ship_1 = __webpack_require__(7);
+var island_1 = __webpack_require__(8);
+var ship_1 = __webpack_require__(5);
+var fxmanager_1 = __webpack_require__(11);
 var theSea = /** @class */function () {
     function theSea() {
         var _this = this;
@@ -1963,6 +1896,7 @@ var theSea = /** @class */function () {
             _this.container.addChild(_this.layerObjects); // all other objects will sort above it
             _this.container.scale.x = _this.container.scale.y = _this.wheelScale;
             _this.loadRegion(); // for now this loads the islands, ideally it will load the sea tiles too
+            _this.fxManager.onAssetsLoaded(); // fxManager can now initialize with its assets
         };
         this.sailTrimHandler = function (event) {
             // event.detail contains the data of percent 0->1 of of sail trim.. hadn this down to our boat
@@ -2034,6 +1968,9 @@ var theSea = /** @class */function () {
         PIXI.loader.add("images/4x4Region1/image_part_002.png").add("images/4x4Region1/image_part_003.png").add("images/4x4Region1/image_part_004.png").add("images/4x4Region1/image_part_005.png").add("images/4x4Region1/image_part_006.png").add("images/4x4Region1/image_part_007.png").add("images/4x4Region1/image_part_008.png").add("images/4x4Region1/image_part_009.png").add("images/4x4Region1/image_part_010.png").add("images/4x4Region1/image_part_011.png").add("images/4x4Region1/image_part_012.png").add("images/4x4Region1/image_part_013.png").add("images/4x4Region1/image_part_014.png").add("images/4x4Region1/image_part_015.png").add("images/islands/region1atlas.json") // loader automagically loads all the textures in this atlas
         .add("images/ships/corvette2.json");
         this.loadCallback = callback;
+        this.fxManager = new fxmanager_1.default();
+        this.fxManager.addLoaderAssets(); // have fxManager request its assets
+        this.fxManager.setFXContainer(this.layerObjects); // give the fxManager its layer to add fx to
         this.container.interactive = true;
         this.container.on("mousemove", this.mouseMoveHandler);
         this.container.on("mouseup", this.mouseUpHandler);
@@ -2061,6 +1998,7 @@ var theSea = /** @class */function () {
             var boat = new ship_1.default();
             boat.init(this.boatData.corvette, this.islandArray);
             boat.setPosition(6200, 2600);
+            boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!
             this.layerObjects.addChild(boat.getSprite());
             this.shipArray.push(boat);
             this.selectedBoat = boat;
@@ -2071,17 +2009,26 @@ var theSea = /** @class */function () {
             window.dispatchEvent(myEvent);
             // spawn some AI boats to sail about
             this.spawnAIBoats();
+            // give the isle and boats list to the fxmanager
+            this.fxManager.setIslesShips(this.islandArray, this.shipArray);
             // final step in loading process.. can now call loadcallback
             this.loadCallback();
         }
     };
     theSea.prototype.spawnAIBoats = function () {
         // load one AI boat - heading 600 pixels due north
-        for (var i = 0; i < 20; i++) {
+        var NUMBOATS = 20;
+        for (var i = 0; i < NUMBOATS; i++) {
             var boat = new ship_1.default();
             var portPt = this.getRandomPortDest();
             var edgePt = this.getRandomEdgeDest();
-            if (theSea.getRandomIntInclusive(0, 1) == 1) boat.init(this.boatData.corvette, this.islandArray, true, edgePt, portPt);else boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
+            if (NUMBOATS == 1) {
+                var pos = new PIXI.Point(6200, 2600);
+                boat.init(this.boatData.corvette, this.islandArray, true, pos, portPt);
+            } else {
+                if (theSea.getRandomIntInclusive(0, 1) == 1) boat.init(this.boatData.corvette, this.islandArray, true, edgePt, portPt);else boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
+            }
+            boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!
             this.layerObjects.addChild(boat.getSprite());
             this.shipArray.push(boat);
         }
@@ -2152,6 +2099,7 @@ var theSea = /** @class */function () {
         }
         // console.log(this.deltaX + "," + this.deltaY);
         this.updateObjectArray();
+        this.fxManager.update();
     };
     theSea.prototype.updateObjectArray = function () {
         // sort the children ascending as the renderer will render sprites in container ordrer
@@ -2182,7 +2130,7 @@ var theSea = /** @class */function () {
         for (var _i = 0, _a = this.islandArray; _i < _a.length; _i++) {
             var entry = _a[_i];
             if (entry.getType() == gameobject_1.ObjectType.ISLAND) {
-                if (this.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
+                if (theSea.boxHitTest(entry.getSprite(), this.selectedBoat.getSprite())) {
                     //console.log("boxHit!");
                     // sprites overlap, now do a PolyK hittest against all points on the boat with the islands polygonal data
                     if (this.selectedBoat.hitTestByPolygon(entry.getCartPolyData()) == true) {
@@ -2198,7 +2146,7 @@ var theSea = /** @class */function () {
         if (!hit) this.selectedBoat.setAground(false);
         // if theres a hit, perform the polyk hittest for each point in the boats polykdata against the island polygon
     };
-    theSea.prototype.boxHitTest = function (s1, s2) {
+    theSea.boxHitTest = function (s1, s2) {
         var x1 = s1.x;
         var y1 = s1.y;
         var w1 = s1.width;
@@ -2215,64 +2163,7 @@ var theSea = /** @class */function () {
 exports.default = theSea;
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __extends = this && this.__extends || function () {
-    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-        d.__proto__ = b;
-    } || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-Object.defineProperty(exports, "__esModule", { value: true });
-var gameobject_1 = __webpack_require__(1);
-var gameobject_2 = __webpack_require__(1);
-var Island = /** @class */function (_super) {
-    __extends(Island, _super);
-    function Island() {
-        var _this = _super.call(this) || this;
-        _this._isPort = false;
-        _this.objType = gameobject_2.ObjectType.ISLAND;
-        return _this;
-    }
-    Island.prototype.setData = function (data) {
-        this.islandData = data;
-        if (this.islandData.hasOwnProperty("port") && this.islandData.port == true) {
-            this._isPort = true;
-            console.log("Found port: " + this.islandData.portName);
-        }
-        // set the pivot point from the data
-        // this.sprite.pivot.x = this.islandData.refPt[0];
-        // this.sprite.pivot.x = this.islandData.refPt[1];
-    };
-    Island.prototype.isPort = function () {
-        return this._isPort;
-    };
-    Island.prototype.getPortDest = function () {
-        var x = this.sprite.x + this.islandData.portRef[0];
-        var y = this.sprite.y + this.islandData.portRef[1];
-        return new PIXI.Point(x, y);
-    };
-    Island.prototype.getName = function () {
-        return this.islandData.portName;
-    };
-    return Island;
-}(gameobject_1.default);
-exports.default = Island;
-
-/***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2298,9 +2189,10 @@ var __extends = this && this.__extends || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var gameobject_1 = __webpack_require__(1);
 var gameobject_2 = __webpack_require__(1);
-var Victor = __webpack_require__(3);
-var compassrose_1 = __webpack_require__(2);
-var gsap_1 = __webpack_require__(8);
+var Victor = __webpack_require__(2);
+var compassrose_1 = __webpack_require__(3);
+var gsap_1 = __webpack_require__(9);
+var cannonball_1 = __webpack_require__(6);
 var ShipType;
 (function (ShipType) {
     ShipType[ShipType["SLOOP"] = 0] = "SLOOP";
@@ -2363,11 +2255,15 @@ var Ship = /** @class */function (_super) {
         _this.lastTime = 0;
         _this.refPt = new PIXI.Point();
         _this.tweenVars = { speed: 0 };
+        _this.aiDirectObstacles = []; // empty array
         for (var i = 0; i < 8; i++) {
             _this.cartPolyData8.push(new Array());
         }
         return _this;
     }
+    Ship.prototype.setFXManager = function (fxman) {
+        this.fxManager = fxman;
+    };
     // args:
     // p - polygonal data of type any for collisions with PolyK library
     // ai - flag if this boat is ai
@@ -2399,6 +2295,10 @@ var Ship = /** @class */function (_super) {
         }
     };
     Ship.prototype.plotPoint = function (x, y) {
+        if (this.aiNextPlot >= 32) {
+            console.log("out of Plot Points!");
+            return;
+        }
         this.aiRayCastArray[this.aiNextPlot].x = x;
         this.aiRayCastArray[this.aiNextPlot].y = y;
         this.aiRayCastArray[this.aiNextPlot].visible = true;
@@ -2415,235 +2315,266 @@ var Ship = /** @class */function (_super) {
         this.aiNextPlot = 0;
         for (var i = 0; i < 32; i++) this.aiRayCastArray[i].visible = false;
     };
-    // returns 1 if baseHeading + offset is good
-    // returns -1 if baseHeading - offset is good
-    // returns 0 if neither is good
-    // returns 2 if both +/- offset are good
-    // offset in degrees
-    // baseheading is a cartesian angle
-    Ship.prototype.checkNewHeading = function (baseHeading, offset) {
-        // rotate the vector by +offset
-        var plusVec = baseHeading.clone();
-        var minusVec = baseHeading.clone();
-        plusVec.rotate(compassrose_1.default.getRads(offset));
-        minusVec.rotate(compassrose_1.default.getRads(-offset));
-        plusVec.normalize();
-        minusVec.normalize();
-        //console.log ("checkNewHeading: offset: " + offset + " plusVec: " + plusVec);
-        var plusGood = true;
-        var minusGood = true;
-        var x, y, dx, dy;
-        var plusDeg, minusDeg;
-        var iscc = { dist: 0, edge: 0, norm: { x: 0, y: 0 }, refl: { x: 0, y: 0 } };
-        plusDeg = compassrose_1.default.convertCartToCompass(plusVec.horizontalAngleDeg());
-        minusDeg = compassrose_1.default.convertCartToCompass(minusVec.horizontalAngleDeg());
-        //console.log("Trying headings: " + plusDeg.toFixed(2) + " " + minusDeg.toFixed(2));
-        //console.log("Trying headings: " + plusVec.horizontalAngleDeg().toFixed(2) + " " + minusVec.horizontalAngleDeg().toFixed(2));
-        var plusResult = "OK";
-        var minusResult = "OK";
-        // check plus vec first
-        if (compassrose_1.default.isValidHeading(this.angleToWind, plusVec.horizontalAngleDeg())) {
-            // not into the wind, now ray cast against all islands
-            x = this.sprite.x + this.refPt.x;
-            y = this.sprite.y + this.refPt.y;
-            dx = x + plusVec.x * 200;
-            dy = y + plusVec.y * 200;
-            // before converting to Cartesian, plot a point
-            this.plotPoint(dx, dy);
-            // convert y and dy to cartesian
-            y = 8192 - y;
-            dy = 8192 - dy;
-            for (var _i = 0, _a = this.isles; _i < _a.length; _i++) {
-                var isle = _a[_i];
-                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y)) {
-                    console.log("Origin Point is INSIDE " + isle.getName());
-                }
-                var retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
-                if (!retObj) {
-                    //console.log("missed");
-                    iscc.dist = 10000;
-                }
-                if (iscc.dist < 200) {
-                    plusGood = false;
-                    //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " Raycast hit island!");
-                    //plusResult = "Hit " + (<Island>isle).getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
-                    plusResult = "x,y: " + x.toFixed(1) + "," + y.toFixed(1) + " dx,dy: " + dx.toFixed(1) + "," + dy.toFixed(1);
-                    break; // cancel the loop, we found an isle in our path!
-                }
-            }
-        } else {
-            //console.log("Trying bad heading: " + plusDeg.toFixed(2) + " into the wind!");
-            plusResult = "Wind";
-            plusGood = false; // into the wind
-        }
-        // check minus vec
-        if (compassrose_1.default.isValidHeading(this.angleToWind, minusVec.horizontalAngleDeg())) {
-            // not into the wind, now ray cast against all islands
-            x = this.sprite.x + this.refPt.x;
-            y = this.sprite.y + this.refPt.y;
-            dx = x + minusVec.x * 200;
-            dy = y + minusVec.y * 200;
-            // before converting to Cartesian, plot a point
-            this.plotPoint(dx, dy);
-            // convert y and dy to cartesian
-            y = 8192 - y;
-            dy = 8192 - dy;
-            for (var _b = 0, _c = this.isles; _b < _c.length; _b++) {
-                var isle = _c[_b];
-                if (!PolyK.IsSimple(isle.getCartPolyData())) console.log("Polygon not simple: " + isle.getName());
-                if (PolyK.ContainsPoint(isle.getCartPolyData(), x, y)) {
-                    console.log("Origin Point is INSIDE " + isle.getName());
-                }
-                var retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, dx, dy, iscc);
-                if (!retObj) {
-                    //console.log("missed");
-                    iscc.dist = 10000;
-                }
-                if (iscc.dist < 200) {
-                    minusGood = false;
-                    minusResult = "Hit " + isle.getName() + " at range: " + iscc.dist.toFixed(1) + " edge: " + iscc.edge;
-                    break; // cancel the loop, we found an isle in our path!
-                }
-            }
-        } else {
-            minusResult = "Wind";
-            minusGood = false; // into the wind
-        }
-        console.log(plusResult + " " + minusResult);
-        // return results
-        if (!minusGood && !plusGood) return 0; // neither good
-        if (minusGood && !plusGood) return -1;
-        if (!minusGood && plusGood) return 1;
-        return 2; // both are good
-    };
-    Ship.prototype.saveCode = function () {
-        /*
-        // check our current heading for validity
-        if (this.checkNewHeading(directHeading, 0) == 0)
-        {
-            // find a good heading by looping from our current heading out 180 degrees both lar and starboard
-            console.log("aiSetHeading: bad heading: " + CompassRose.convertCartToCompass(newHeadingAng));
-            console.log("Searching for good heading...");
-              tryOffset = 0;
-            var ptCount = 0;
-              while (goodHeadingFound == 0)
-            {
-                tryOffset += 11.25;
-                ptCount++;
-                if (tryOffset > 180)
-                {
-                    console.log("aiSetHeading: exhausted all headings! Stuck! Tried Pts: " + (ptCount-1));
-                    this.showAchtung();
-                    this.allStop();
-                    this.aiArrived = true;
-                    return; // there is no point in continuing ;)
-                }
-                goodHeadingFound = this.checkNewHeading(directHeading, tryOffset);
-            }
-              // if we are here we have found a good heading
-            if (goodHeadingFound == 1 || goodHeadingFound == 2)
-            {
-                newHeading = directHeading.clone();
-                newHeading.rotate(CompassRose.getRads(tryOffset));
-                newHeadingAng = newHeading.horizontalAngleDeg();
-            } else if (goodHeadingFound == -1)
-            {
-                newHeading = directHeading.clone();
-                newHeading.rotate(CompassRose.getRads(-tryOffset));
-                newHeadingAng = newHeading.horizontalAngleDeg();
-            }
-            else // shouldnt be able to get here
-            {
-                newHeading = directHeading.clone();
-                console.log("shoudnt get here!");
-            }
-              this.heading.x = newHeading.x;
-            this.heading.y = newHeading.y;
-            
-            console.log("aiSetHeading: Found good heading. Tried compass points: " + ptCount);
-        }
-        else // heading valid, use it
-        {
-            this.heading.x = directHeading.x;
-            this.heading.y = directHeading.y;
-            newHeadingAng = this.heading.horizontalAngleDeg();
-        }
-        */
-    };
-    Ship.prototype.checkHeading = function (newHeading) {
-        var newHeadingDeg = newHeading.angleDeg();
-        var newHeadingCompassDeg = compassrose_1.default.convertCartToCompass(newHeadingDeg);
-        if (!compassrose_1.default.isValidHeading(this.angleToWind, newHeadingDeg)) {
-            //console.log("checkHeading: " + newHeadingCompassDeg.toFixed(2) + " is into the wind.");
-            return false; // into the wind
-        }
-        // not into the wind, so hit check against the islands
-        var x, y, dx, dy, px, py;
-        var iscc = { dist: 0, edge: 0, norm: { x: 0, y: 0 }, refl: { x: 0, y: 0 } };
-        x = this.sprite.x + this.refPt.x;
-        y = this.sprite.y + this.refPt.y;
-        px = x;
-        py = y;
-        y = 8192 - y;
-        dx = x + newHeading.x * 200;
-        dy = y + newHeading.y * 200;
-        px += newHeading.x * 200;
-        py += -newHeading.y * 200;
-        this.plotPoint(px, py);
-        // loop thru the isles... see if we hit
-        for (var _i = 0, _a = this.isles; _i < _a.length; _i++) {
-            var isle = _a[_i];
-            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
-            var retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, newHeading.x, newHeading.y, iscc);
-            if (!retObj) iscc.dist = 10000;
-            if (iscc.dist < 300) {
-                //if (PolyK.ContainsPoint(isle.getCartPolyData(),dx,dy)) { // we've hit an isle!
-                //console.log("Hit " + (<Island>isle).getName() + " along heading: " + newHeadingCompassDeg.toFixed(2) + " at dist: " + iscc.dist.toFixed(2));
-                return false;
-            }
-        }
-        return true;
-    };
     Ship.prototype.calcNewHeading = function (original, offset) {
         var newVic = original.clone();
         newVic.rotate(compassrose_1.default.getRads(offset));
         newVic.normalize();
         return newVic;
     };
-    Ship.prototype.aiSetHeading = function () {
-        // find a heading directly at our target destination
-        // and that is not heading directly into the wind
-        // convert world space to cartesian space coords
+    Ship.prototype.getVectorAngleDegs = function (p1, p2) {
+        // angle in degrees
+        var angleDeg = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+        return angleDeg;
+    };
+    Ship.prototype.getVectorAngle = function (p1, p2) {
+        var angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        return angleRadians;
+    };
+    Ship.prototype.getSignedAngle = function (source, compare) {
+        var a2 = Math.atan2(source.y, source.x);
+        var a1 = Math.atan2(compare.y, compare.x);
+        var sign = a1 > a2 ? 1 : -1;
+        var angle = a1 - a2;
+        var K = -sign * Math.PI * 2; // adjusts for crossing the 2PI threashold
+        var angle = Math.abs(K + angle) < Math.abs(angle) ? K + angle : angle;
+        // still in radians at this point
+        return angle;
+    };
+    // get new heading around passed in heading that avoids our current obstacle by minAngle degrees at minimum
+    Ship.prototype.aiGetHeadingAroundThreat = function (heading, minAngle) {
+        var newHeading = new Victor(0, 0);
+        var goodHeadings = [];
+        var dropPt = false;
+        // cast rays from heading in chosen direction in one degree increments 
+        // save all successfull rays into an array
+        // use the minAngle-th ray as our heading 
+        for (var i = 0; i < 180; i++) {
+            newHeading = this.calcNewHeading(heading, i);
+            if (i % 6 == 0) dropPt = true;else dropPt = false;
+            if (this.checkHeadingVSObstacle(newHeading, dropPt, false) && compassrose_1.default.isValidHeading(this.angleToWind, newHeading.angleDeg())) {
+                goodHeadings.push(newHeading);
+            }
+        }
+        if (goodHeadings.length == 0) {
+            return null;
+        } else {
+            // return the minAngle-th element
+            if (minAngle > goodHeadings.length) return goodHeadings[goodHeadings.length - 1]; // the last element is the best we can do
+            else return goodHeadings[minAngle];
+        }
+    };
+    Ship.prototype.checkHeadingVSObstacle = function (heading, dropPoint, useMinDist) {
+        if (dropPoint === void 0) {
+            dropPoint = false;
+        }
+        if (useMinDist === void 0) {
+            useMinDist = true;
+        }
+        var x, y, px, py;
+        var iscc = { dist: 0, edge: 0, norm: { x: 0, y: 0 }, refl: { x: 0, y: 0 } };
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        var DIST = 300;
+        var retObj = PolyK.Raycast(this.aiCurrentObstacle.getCartPolyData(), x, y, heading.x, heading.y, iscc);
+        if (!retObj) iscc.dist = 10000;
+        if (useMinDist == true && iscc.dist < DIST) {
+            if (dropPoint == true) {
+                px += heading.x * iscc.dist;
+                py += -heading.y * iscc.dist;
+                this.plotPoint(px, py);
+            }
+            return false;
+        }
+        if (useMinDist == false) {
+            if (iscc.dist < 10000) {
+                if (dropPoint == true) {
+                    px += heading.x * iscc.dist;
+                    py += -heading.y * iscc.dist;
+                    this.plotPoint(px, py);
+                }
+                return false;
+            }
+        }
+        // no hit
+        if (dropPoint == true) {
+            this.plotPoint(px, py);
+            px += this.heading.x * DIST;
+            py += -this.heading.y * DIST;
+        }
+        return true;
+    };
+    Ship.prototype.checkCurrentHeading = function (directDist, dropPoint) {
+        if (dropPoint === void 0) {
+            dropPoint = false;
+        }
+        var x, y, px, py;
+        var iscc = { dist: 0, edge: 0, norm: { x: 0, y: 0 }, refl: { x: 0, y: 0 } };
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        var DIST = 300;
+        // loop thru the isles... see if we hit
+        for (var _i = 0, _a = this.isles; _i < _a.length; _i++) {
+            var isle = _a[_i];
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            var retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, this.heading.x, this.heading.y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < DIST && iscc.dist < directDist) {
+                // set this isle as our current threat
+                this.aiCurrentObstacle = isle;
+                if (dropPoint == true) {
+                    px += this.heading.x * iscc.dist;
+                    py += -this.heading.y * iscc.dist;
+                    this.plotPoint(px, py);
+                }
+                return false;
+            }
+        }
+        // no hit
+        if (dropPoint == true) {
+            this.plotPoint(px, py);
+            px += this.heading.x * DIST;
+            py += -this.heading.y * DIST;
+        }
+        return true;
+    };
+    // populate list of isles that intersect our direct heading
+    Ship.prototype.checkDirectHeading = function (dropPoint) {
+        if (dropPoint === void 0) {
+            dropPoint = false;
+        }
+        // step 0 - calculate our direct heading to aiTarget
         var diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
         var diffY = 8192 - this.aiTarget.y - (8192 - (this.sprite.y + this.refPt.y)); // y is flipped in cartesian
         var directHeading = new Victor(diffX, diffY);
+        var directDist = directHeading.magnitude();
         directHeading.normalize();
-        var newHeadingAng = directHeading.horizontalAngleDeg();
-        var goodHeadingFound = 0;
-        var tryOffset = 0;
-        var newHeading = directHeading;
-        this.resetPlots();
-        if (!this.checkHeading(directHeading)) {
-            // sweep in 11.25 degree increments in each direction until good heading found
-            while (goodHeadingFound == 0) {
-                tryOffset += 11.25;
-                if (tryOffset > 180) {
-                    console.log("Cant find good heading");
-                    this.showAchtung();
-                    this.allStop();
-                    return;
+        var x, y, px, py;
+        var iscc = { dist: 0, edge: 0, norm: { x: 0, y: 0 }, refl: { x: 0, y: 0 } };
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        // clear our stored array
+        delete this.aiDirectObstacles;
+        this.aiDirectObstacles = [];
+        // loop thru the isles... see if we hit
+        for (var _i = 0, _a = this.isles; _i < _a.length; _i++) {
+            var isle = _a[_i];
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            var retObj = PolyK.Raycast(isle.getCartPolyData(), x, y, directHeading.x, directHeading.y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < 10000) {
+                // set this isle as our current threat
+                // if distance to our target is less than distance to obstruction, then we have hit an island behind our targt, dont add
+                if (iscc.dist < directDist) this.aiDirectObstacles.push(isle);
+                if (dropPoint == true) {
+                    px += this.heading.x * iscc.dist;
+                    py += -this.heading.y * iscc.dist;
+                    this.plotPoint(px, py);
                 }
-                newHeading = this.calcNewHeading(directHeading, tryOffset);
-                if (!this.checkHeading(newHeading)) {
-                    newHeading = this.calcNewHeading(directHeading, -tryOffset);
-                    if (!this.checkHeading(newHeading)) continue;else goodHeadingFound = 1;
-                } else goodHeadingFound = 1;
             }
-            newHeadingAng = newHeading.angleDeg();
         }
-        this.changeHeading(newHeadingAng);
-        //console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
-        this.matchHeadingToSprite();
+    };
+    Ship.prototype.aiSetHeading = function () {
+        // step 0 - calculate our direct heading to aiTarget
+        var diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
+        var diffY = 8192 - this.aiTarget.y - (8192 - (this.sprite.y + this.refPt.y)); // y is flipped in cartesian
+        var directHeading = new Victor(diffX, diffY);
+        var directDist = directHeading.magnitude();
+        directHeading.normalize();
+        var newHeading;
+        var newHeadingAng;
+        var up = new Victor(0, 1);
+        var angleOffDirect = this.getSignedAngle(up, directHeading);
+        //console.log("Beging aiSetHeading");
+        if (angleOffDirect >= 0) this.aiAvoidToLarboard = true;else this.aiAvoidToLarboard = false;
+        this.resetPlots();
+        // step 1
+        // raycast our current heading
+        // if obstacle within minDistance, make this obstacle our current threat
+        if (this.checkCurrentHeading(directDist) == false) {
+            // our direct heading has struck an island, aiCurrentObstacle has been set
+            // find heading around this obstacle in given direction around our current heading
+            // with a minimum of 5 degrees of clearance
+            newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
+            //console.log("Current heading hit obstacle, avoiding!");
+        } else {
+            //console.log("Current heading fine, trying direct heading...");
+            // step 2
+            // raycast our direct heading and determine if anything blocks our course
+            this.checkDirectHeading();
+            if (this.aiDirectObstacles.length == 0) {
+                // set directHeading
+                newHeading = directHeading;
+                //console.log("direct heading clear, setting directHeading");
+            } else {
+                // if yes, see if our aiObstacle is in the list
+                var islefound = false;
+                for (var i = 0; i < this.aiDirectObstacles.length; i++) if (this.aiDirectObstacles[i] == this.aiCurrentObstacle) {
+                    islefound = true;
+                    break;
+                }
+                // if no, set directHeading
+                if (islefound) {
+                    //console.log("aiObstacle still between us and target, continue to avoid");
+                    // our aiobstacle is still between us and our target, continue to avoid it
+                    newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
+                } else {
+                    //console.log("aiObstacle cleared, setting directHeading");
+                    newHeading = directHeading;
+                    this.aiCurrentObstacle = null;
+                }
+            }
+        }
+        if (newHeading == null) {
+            // coudlnt find heading.. put up achtung
+            console.log("Could not find good heading, stopping!");
+            this.showAchtung();
+            this.allStop();
+            this.aiArrived = true;
+        } else {
+            newHeadingAng = newHeading.angleDeg();
+            if (!compassrose_1.default.isValidHeading(this.angleToWind, newHeadingAng)) {
+                //console.log("newHeading into Wind! Laying to off wind angle!");
+                newHeading = this.getSmallestHeadingOffwind(newHeading);
+                newHeadingAng = newHeading.angleDeg();
+                this.changeHeading(newHeadingAng);
+            } else {
+                this.changeHeading(newHeadingAng); // changes targetHeading inside function
+            }
+            //console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
+            this.matchHeadingToSprite();
+        }
+    };
+    Ship.prototype.getSmallestHeadingOffwind = function (heading) {
+        // heading is into the wind, return the smallest vector laying off the wind
+        var rVector = new Victor(0, 0);
+        var lVector = new Victor(0, 0);
+        var angle = 90; // ask compass rose for a cartesian wind angle
+        var rAngle, lAngle, hAngle;
+        // get angle of wind to starboard
+        angle = 90 - this.angleToWind - 1;
+        rVector.x = Math.cos(compassrose_1.default.getRads(angle));
+        rVector.y = Math.sin(compassrose_1.default.getRads(angle));
+        rAngle = this.getVectorAngleDegs(rVector, heading);
+        // get angle of wind to larboard
+        angle = 90 + this.angleToWind + 1;
+        lVector.x = Math.cos(compassrose_1.default.getRads(angle));
+        lVector.y = Math.sin(compassrose_1.default.getRads(angle));
+        lAngle = this.getVectorAngleDegs(lVector, heading);
+        hAngle = compassrose_1.default.convertCartToCompass(heading.angleDeg());
+        var rA, lA;
+        rA = compassrose_1.default.convertCartToCompass(rVector.angleDeg());
+        lA = compassrose_1.default.convertCartToCompass(lVector.angleDeg());
+        //console.log("smallestAngOffWind: heading: " + hAngle.toFixed(2) + " rAngle: " + rVector.angleDeg().toFixed(2) + " lAngle: " + lA.toFixed(2) + "rDiff: " + rAngle.toFixed(2) + " lDiff: " + lAngle.toFixed(2));
+        if (Math.abs(rAngle) < Math.abs(lAngle)) return rVector;else return lVector;
     };
     Ship.prototype.setPolyData = function (p) {
         // p is the ship record from shipdata.json
@@ -2685,6 +2616,17 @@ var Ship = /** @class */function (_super) {
         } else {
             console.log("Failed to find key: " + key + " in ship data!");
         }
+    };
+    // return true if passed point is contained in our polygon
+    Ship.prototype.hitTestByPoint = function (x, y) {
+        //console.log("ship.hitTestByPoint");
+        // convert our polygonal data relative to our position
+        this.convertPolyDataToCartesian();
+        if (PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], x, y)) {
+            console.log("ship HIT by point!");
+            return true;
+        }
+        return false;
     };
     Ship.prototype.hitTestByPolygon = function (polygonPts) {
         // convert our polygonal data relative to our position
@@ -2796,9 +2738,9 @@ var Ship = /** @class */function (_super) {
     Ship.prototype.getFrameString = function (frameNum, mod) {
         var n = frameNum;
         if (mod != 0) n += mod;
-        return this.zeroPad(n, 4);
+        return Ship.zeroPad(n, 4);
     };
-    Ship.prototype.zeroPad = function (num, numZeros) {
+    Ship.zeroPad = function (num, numZeros) {
         var an = Math.abs(num);
         var digitCount = 1 + Math.floor(Math.log(an) / Math.LN10);
         if (digitCount >= numZeros) {
@@ -2847,45 +2789,46 @@ var Ship = /** @class */function (_super) {
         var dampMS = accMS / 4; // dampening force is half of acceleration force
         if (this.lastTime != 0) {
             deltaTime = now - this.lastTime;
-            if (!compassrose_1.default.isValidHeading(this.angleToWind, this.degreeHeading)) {
-                var deltaDamp = dampMS * deltaTime;
-                this.speed -= deltaDamp; // 0.1;
-                if (this.speed < 0) this.speed = 0;
-                //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
-            } else if (this.speed != this.targetSpeed) {
-                var deltaAcc = accMS * deltaTime;
-                if (this.speed < this.targetSpeed) {
-                    this.speed += deltaAcc; //0.1;
-                    if (this.speed >= this.targetSpeed) this.speed = this.targetSpeed;
-                } else {
-                    this.speed -= deltaAcc; //0.1;
-                    if (this.speed < 0) this.speed = 0;
-                }
-                //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
-            }
-            var speedMS = this.speed / 1000;
-            var speedDelta = speedMS * deltaTime;
-            this.sprite.x += speedDelta * this.heading.x;
-            this.sprite.y += speedDelta * -this.heading.y;
         }
-        if (this.targetHeading.toFixed(0) != this.degreeHeading.toFixed(0)) {
-            if (this.lastTime != 0) {
-                var deltaAngle = deltaTime * (this.angularSpeed / 1000);
-                // move to the target in the direction indicated by toLarboard
-                if (this.toLarboard) {
-                    this.degreeHeading += deltaAngle;
-                    if (this.degreeHeading > 180) this.degreeHeading -= 360;
-                } else {
-                    this.degreeHeading -= deltaAngle;
-                    if (this.degreeHeading < -180) this.degreeHeading += 360;
-                }
-                var xpart = Math.cos(compassrose_1.default.getRads(this.degreeHeading));
-                var ypart = Math.sin(compassrose_1.default.getRads(this.degreeHeading));
-                this.heading.x = xpart;
-                this.heading.y = ypart; // y is flipped when applying to sprite in setposition
-                this.heading.normalize(); // make sure its normalized
-                //console.log("target: " + this.targetHeading.toFixed(0) + " heading: " + this.degreeHeading.toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
+        if (!compassrose_1.default.isValidHeading(this.angleToWind, this.degreeHeading)) {
+            var deltaDamp = dampMS * deltaTime;
+            this.speed -= deltaDamp; // 0.1;
+            if (this.speed < 0) this.speed = 0;
+            // if (this.targetHeading != this.degreeHeading)
+            // console.log("Heading: " + CompassRose.convertCartToCompass(this.degreeHeading).toFixed(2) + " Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
+        } else if (this.speed != this.targetSpeed) {
+            var deltaAcc = accMS * deltaTime;
+            if (this.speed < this.targetSpeed) {
+                this.speed += deltaAcc; //0.1;
+                if (this.speed >= this.targetSpeed) this.speed = this.targetSpeed;
+            } else {
+                this.speed -= deltaAcc; //0.1;
+                if (this.speed < 0) this.speed = 0;
             }
+            //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
+        }
+        var speedMS = this.speed / 1000;
+        var speedDelta = speedMS * deltaTime;
+        this.sprite.x += speedDelta * this.heading.x;
+        this.sprite.y += speedDelta * -this.heading.y;
+        if (this.targetHeading != this.degreeHeading) {
+            var deltaAngle = deltaTime * (this.angularSpeed / 1000);
+            // move to the target in the direction indicated by toLarboard
+            if (this.toLarboard) {
+                this.degreeHeading += deltaAngle;
+                if (this.degreeHeading > 180) this.degreeHeading -= 360;
+                if (this.degreeHeading > this.targetHeading) this.degreeHeading = this.targetHeading; // we are done
+            } else {
+                this.degreeHeading -= deltaAngle;
+                if (this.degreeHeading < -180) this.degreeHeading += 360;
+                if (this.degreeHeading < this.targetHeading) this.degreeHeading = this.targetHeading; // we are done
+            }
+            var xpart = Math.cos(compassrose_1.default.getRads(this.degreeHeading));
+            var ypart = Math.sin(compassrose_1.default.getRads(this.degreeHeading));
+            this.heading.x = xpart;
+            this.heading.y = ypart; // y is flipped when applying to sprite in setposition
+            this.heading.normalize(); // make sure its normalized
+            // console.log("target: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(0) + " heading: " + CompassRose.convertCartToCompass(this.degreeHeading).toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
         }
         // update lastTime
         this.lastTime = now;
@@ -2903,7 +2846,7 @@ var Ship = /** @class */function (_super) {
                 this.aiLastHeading = now;
             }
             if (!this.aiArrived) {
-                if (now - this.aiLastHeading > 7500) {
+                if (now - this.aiLastHeading > 1000) {
                     this.aiSetHeading();
                     this.aiLastHeading = now;
                 }
@@ -2949,7 +2892,8 @@ var Ship = /** @class */function (_super) {
             // add it
             this.achtung.x = this.sprite.x + this.sprite.width / 2 - this.achtung.width / 2;
             this.achtung.y = this.sprite.y - this.sprite.height;
-            this.sprite.parent.addChild(this.achtung);
+            var numChildren = this.sprite.parent.children.length;
+            this.sprite.parent.addChildAt(this.achtung, numChildren - 1);
             this.errorDisplayed = true;
             //console.log("adding Achtung");
         }
@@ -3012,12 +2956,256 @@ var Ship = /** @class */function (_super) {
         if (right < left) return -right; // go right, right also contains the degrees needed 
         else return left; // go left, left contains the degrees needed
     };
+    // fire battery and return the milliseconds it will take to reload
+    Ship.prototype.fireCannons = function (rightBattery) {
+        if (rightBattery === void 0) {
+            rightBattery = true;
+        }
+        console.log("FIRE!!");
+        // velocity calculations
+        var v = new Victor(0, 0);
+        v.x = this.heading.x;
+        v.y = -this.heading.y;
+        // get direction
+        if (rightBattery) v.rotate(compassrose_1.default.getRads(90));else v.rotate(compassrose_1.default.getRads(-90));
+        v.normalize();
+        // add speed data - speed expressed as pixels/millisecond
+        // var speed = 250 / 1000;
+        // v.multiplyScalar(speed);
+        // request a cannonball and give it a velocity
+        var ball = this.fxManager.getCannonBall();
+        var x = this.sprite.x + this.refPt.x;
+        var y = this.sprite.y + this.refPt.y;
+        ball.fire(x, y, v, 4, cannonball_1.BallType.BALL, this);
+        this.fxManager.placeMuzzlePlume(x, y, v);
+        // return the reload speed based off crew ability
+        return 2500;
+    };
     return Ship;
 }(gameobject_1.default);
 exports.default = Ship;
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+//
+// CannonBall class
+// self contained entity to manage the cannon ball and its flight, damage, results etc
+//
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var PIXI = __webpack_require__(0);
+var Victor = __webpack_require__(2);
+var BallType;
+(function (BallType) {
+    BallType[BallType["CANNISTER"] = 0] = "CANNISTER";
+    BallType[BallType["BAR"] = 1] = "BAR";
+    BallType[BallType["BALL"] = 2] = "BALL";
+})(BallType = exports.BallType || (exports.BallType = {}));
+var CannonBall = /** @class */function (_super) {
+    __extends(CannonBall, _super);
+    function CannonBall() {
+        var _this = _super.call(this) || this;
+        _this.inUse = false; // if not inuse, fxmanager can recycle
+        _this.spent = false; // has this ball flown over its maxDist value
+        _this.lastTime = 0; // frame calculation data
+        _this.firer = null; // ignore the gameobject that fired it (dont kill yourself :)
+        _this.texture = PIXI.Texture.fromFrame("theBall.png");
+        _this.v = new Victor(0, 0);
+        _this.pos = new Victor(0, 0);
+        _this.origin = new Victor(0, 0);
+        return _this;
+    }
+    // allow override for maxdist, this is set by type normally
+    // vector givin in pixels/millisecond
+    CannonBall.prototype.fire = function (ox, oy, velocity, weight, type, firer, maxDist) {
+        this.origin.x = ox;
+        this.origin.y = oy;
+        this.x = ox;
+        this.y = oy;
+        this.v.x = velocity.x;
+        this.v.y = velocity.y;
+        this.weight = weight;
+        this.type = type;
+        this.spent = false;
+        this.firer = firer;
+        if (maxDist) this.maxDist = maxDist;else this.maxDist = 350;
+    };
+    CannonBall.prototype.reset = function () {
+        this.spent = false;
+        this.inUse = false;
+        this.lastTime = 0;
+    };
+    CannonBall.prototype.update = function () {
+        var deltaTime = 0;
+        var now = Date.now();
+        if (this.lastTime != 0) {
+            deltaTime = now - this.lastTime;
+        }
+        this.lastTime = now;
+        var speed = 300 / 1000;
+        this.x += this.v.x * speed * deltaTime;
+        this.y += this.v.y * speed * deltaTime;
+        this.pos.x = this.x;
+        this.pos.y = this.y;
+        // if we have travelled our maxDist set the spent signal
+        var dist = this.pos.distance(this.origin);
+        if (dist > this.maxDist) {
+            this.spent = true;
+            //console.log("ball dist: " + dist + " pos: " + this.pos.x + "," + this.pos.y);
+        }
+    };
+    return CannonBall;
+}(PIXI.Sprite);
+exports.default = CannonBall;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var PIXI = __webpack_require__(0);
+var theSea_1 = __webpack_require__(4);
+var mainhud_1 = __webpack_require__(12);
+var Core = /** @class */function () {
+    function Core() {
+        var _this = this;
+        this.seaLoaded = false;
+        this.hudLoaded = false;
+        this.onLoaded = function () {
+            // hud is done and needs no further loading
+            _this.mainHUDLoaded();
+            // theSea needs to load its data files
+            _this._sea.setup();
+            // the sea will call seaLoadedCallback when its finally done so we can proceed
+        };
+        this.mainHUDLoaded = function () {
+            var c = _this._hud.getContainer();
+            c.x = 0;
+            c.y = 0;
+            _this.hudLoaded = true;
+            _this._hud.onAssetsLoaded();
+            _this.postLoad();
+        };
+        this.seaLoadedCallback = function () {
+            _this.seaLoaded = true;
+            _this.postLoad();
+        };
+        this.update = function () {
+            _this._sea.update();
+            _this._hud.update();
+            _this._renderer.render(_this._world);
+            requestAnimationFrame(_this.update);
+        };
+        this._renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { backgroundColor: 0x7BA4DF });
+        this._world = new PIXI.Container();
+        document.body.appendChild(this._renderer.view);
+        // create a new sea object
+        this._sea = new theSea_1.default();
+        this._sea.init(this.seaLoadedCallback);
+        // create the main hud
+        this._hud = new mainhud_1.default();
+        this._hud.addLoaderAssets();
+        // load all the assets requested by theSea and Hud
+        PIXI.loader.load(this.onLoaded);
+        console.log("PotTW: build 0.0.14");
+    }
+    Core.prototype.postLoad = function () {
+        if (this.hudLoaded && this.seaLoaded) {
+            this._world.addChild(this._sea.getContainer());
+            this._world.addChild(this._hud.getContainer());
+            // center hud on window size
+            var c = this._hud.getContainer();
+            c.x = (window.innerWidth - c.width) / 2;
+            //mousewheel not part of Pixi so add the event to the DOM
+            document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
+            this.update();
+        }
+    };
+    return Core;
+}();
+exports.default = Core;
+var game = new Core();
+
+/***/ }),
 /* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+        d.__proto__ = b;
+    } || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var gameobject_1 = __webpack_require__(1);
+var gameobject_2 = __webpack_require__(1);
+var Island = /** @class */function (_super) {
+    __extends(Island, _super);
+    function Island() {
+        var _this = _super.call(this) || this;
+        _this._isPort = false;
+        _this.objType = gameobject_2.ObjectType.ISLAND;
+        return _this;
+    }
+    Island.prototype.setData = function (data) {
+        this.islandData = data;
+        if (this.islandData.hasOwnProperty("port") && this.islandData.port == true) {
+            this._isPort = true;
+            console.log("Found port: " + this.islandData.portName);
+        }
+        // set the pivot point from the data
+        // this.sprite.pivot.x = this.islandData.refPt[0];
+        // this.sprite.pivot.x = this.islandData.refPt[1];
+    };
+    Island.prototype.isPort = function () {
+        return this._isPort;
+    };
+    Island.prototype.getPortDest = function () {
+        var x = this.sprite.x + this.islandData.portRef[0];
+        var y = this.sprite.y + this.islandData.portRef[1];
+        return new PIXI.Point(x, y);
+    };
+    Island.prototype.getName = function () {
+        return this.islandData.portName;
+    };
+    return Island;
+}(gameobject_1.default);
+exports.default = Island;
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10983,10 +11171,10 @@ if (_gsScope._gsDefine) { _gsScope._gsQueue.pop()(); } //necessary in case Tween
 		_tickerActive = false; //ensures that the first official animation forces a ticker.tick() to update the time when it is instantiated
 
 })((typeof(module) !== "undefined" && module.exports && typeof(global) !== "undefined") ? global : this || window, "TweenMax");
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 var g;
@@ -11013,7 +11201,239 @@ module.exports = g;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", { value: true });
+//
+// FXManager class to manage cannon balls, miss plumes, explosions, smoke fx on the sea
+//
+var PIXI = __webpack_require__(0);
+var cannonball_1 = __webpack_require__(6);
+var ship_1 = __webpack_require__(5);
+var theSea_1 = __webpack_require__(4);
+var Victor = __webpack_require__(2);
+var FXManager = /** @class */function () {
+    function FXManager() {
+        this.ballList = []; // the pool of cannon balls
+        this.lastBall = 0; // last ball we handed out - this will also index into the splash/explosion/smoke arrays
+        this.splashList = [];
+        this.explosionList = [];
+        this.muzzlePlumeList = [];
+        this.splash = []; // array of textures for the splash fx
+        this.explosion = []; // array for explosion textures
+        this.muzzlePlume = []; // smoke from cannon fire
+    }
+    // request the assets we need loaded
+    FXManager.prototype.addLoaderAssets = function () {
+        PIXI.loader.add("./images/fx/shipfx.json");
+    };
+    // assets are loaded, initialize sprites etc
+    FXManager.prototype.onAssetsLoaded = function () {
+        this.initBalls();
+        this.initAnimations();
+    };
+    FXManager.prototype.initAnimations = function () {
+        var i;
+        var s;
+        for (i = 1; i < 25; i++) {
+            s = "spout" + ship_1.default.zeroPad(i, 4) + ".png";
+            this.splash.push(PIXI.Texture.fromFrame(s));
+        }
+        this.initSplashPool();
+        for (i = 1; i < 68; i++) {
+            s = "fiery_explosion" + ship_1.default.zeroPad(i, 4) + ".png";
+            this.explosion.push(PIXI.Texture.fromFrame(s));
+        }
+        this.initExplosionPool();
+        for (i = 1; i < 121; i++) {
+            s = "smoke_cloud" + ship_1.default.zeroPad(i, 4) + ".png";
+            this.muzzlePlume.push(PIXI.Texture.fromFrame(s));
+        }
+        this.initMuzzlePool();
+    };
+    FXManager.prototype.initSplashPool = function () {
+        var i;
+        var anim;
+        for (i = 0; i < 100; i++) {
+            anim = new PIXI.extras.AnimatedSprite(this.splash);
+            anim.anchor.x = 0.5;
+            anim.anchor.y = 1; // anchor/origin is the middle bottom of the sprite
+            anim.loop = false;
+            this.splashList.push(anim);
+        }
+    };
+    FXManager.prototype.initExplosionPool = function () {
+        var i;
+        var anim;
+        for (i = 0; i < 100; i++) {
+            anim = new PIXI.extras.AnimatedSprite(this.explosion);
+            anim.anchor.x = 0.54;
+            anim.anchor.y = 0.68; // anchor/origin is at 27,42 on a frame 50,62
+            anim.loop = false;
+            this.explosionList.push(anim);
+        }
+    };
+    FXManager.prototype.initMuzzlePool = function () {
+        var i;
+        var anim;
+        for (i = 0; i < 100; i++) {
+            anim = new PIXI.extras.AnimatedSprite(this.muzzlePlume);
+            anim.anchor.x = 1;
+            anim.anchor.y = 0.5; // anchor/origin center right (anim goes left)
+            anim.loop = false;
+            this.muzzlePlumeList.push(anim);
+        }
+    };
+    FXManager.prototype.setIslesShips = function (isles, ships) {
+        this.isles = isles;
+        this.ships = ships;
+    };
+    FXManager.prototype.setFXContainer = function (container) {
+        this.container = container;
+    };
+    FXManager.prototype.initBalls = function () {
+        for (var i = 0; i < 100; i++) {
+            this.ballList.push(new cannonball_1.default());
+        }
+    };
+    FXManager.prototype.placeMuzzlePlume = function (x, y, dir) {
+        var _this = this;
+        // place a plume with given position and direction (v is normalized)
+        // assume last ball so use lastBall as index to use
+        this.muzzlePlumeList[this.lastBall].x = x;
+        this.muzzlePlumeList[this.lastBall].y = y;
+        // rotate the plume into the direction of the shot, plume is in negative x axis (faces left)
+        var plumeDir = new Victor(dir.x, dir.y);
+        //plumeDir.rotate(-Math.PI/2); // simply rotate the given direction 180 
+        this.muzzlePlumeList[this.lastBall].rotation = plumeDir.angle() + Math.PI;
+        this.muzzlePlumeList[this.lastBall].gotoAndPlay(0);
+        this.container.addChild(this.muzzlePlumeList[this.lastBall]);
+        var ball = this.lastBall;
+        this.muzzlePlumeList[this.lastBall].onComplete = function () {
+            _this.container.removeChild(_this.muzzlePlumeList[ball]);_this.muzzlePlumeList[ball].gotoAndStop(0);console.log("Removing muzzlePlume: " + ball);
+        };
+    };
+    // get cannonball from pool, returns null if all in use (!)
+    FXManager.prototype.getCannonBall = function () {
+        var ball;
+        var count = 0;
+        var found = false;
+        while (!found) {
+            this.lastBall++;
+            count++;
+            if (count > this.ballList.length) {
+                console.log("no cannonBalls available in pool");
+                return null; // all cannonballs are out! take cover!
+            }
+            if (this.lastBall >= this.ballList.length) this.lastBall = 0; // wrap around to head of list
+            if (!this.ballList[this.lastBall].inUse) {
+                this.ballList[this.lastBall].inUse = true;
+                found = true;
+                console.log("ballList: assigning ball: " + this.lastBall);
+            }
+        }
+        var numChildren = this.container.children.length;
+        this.container.addChild(this.ballList[this.lastBall]);
+        return this.ballList[this.lastBall];
+    };
+    // determine if this cannonBall has struck any isle or ship
+    FXManager.prototype.hit = function (ball) {
+        var hitObj = null;
+        var i = 0;
+        var x, y;
+        // collision code here
+        // islands first
+        for (var _i = 0, _a = this.isles; _i < _a.length; _i++) {
+            var entry = _a[_i];
+            // first do rectangular hit test
+            if (theSea_1.default.boxHitTest(entry.getSprite(), ball)) {
+                //console.log("ball inside island rect! checking PolyK");
+                // sprites overlap, now do a PolyK contains point
+                x = ball.x;
+                y = 8192 - ball.y; // convert to cartesian
+                if (PolyK.ContainsPoint(entry.getCartPolyData(), x, y)) {
+                    console.log("hit " + entry.getSprite().name + "!");
+                    hitObj = entry;
+                    break; // short circuit the loop
+                }
+            }
+        }
+        // now check boats
+        for (var _b = 0, _c = this.ships; _b < _c.length; _b++) {
+            var entry = _c[_b];
+            // ignore the firer of this ball
+            if (ball.firer == entry) continue;
+            // first do rectangular hit test
+            if (theSea_1.default.boxHitTest(entry.getSprite(), ball)) {
+                // sprites overlap, now do a PolyK contains point
+                x = ball.x;
+                y = 8192 - ball.y;
+                if (entry.hitTestByPoint(x, y)) {
+                    hitObj = entry;
+                    break; // short circuit the loop
+                }
+            }
+        }
+        return hitObj;
+    };
+    FXManager.prototype.update = function () {
+        var _this = this;
+        var hit = false;
+        var hitObj;
+        var i = 0;
+        var _loop_1 = function () {
+            if (this_1.ballList[i].inUse) {
+                //console.log("updating ball: " + i);
+                this_1.ballList[i].update();
+                var ball_1 = 0;
+                // check spent
+                if (this_1.ballList[i].spent) {
+                    // put miss FX at its spot and remove it from contention
+                    this_1.splashList[i].x = this_1.ballList[i].x;
+                    this_1.splashList[i].y = this_1.ballList[i].y;
+                    this_1.container.addChild(this_1.splashList[i]);
+                    this_1.splashList[i].play(); // start the animation
+                    ball_1 = i;
+                    this_1.splashList[i].onComplete = function () {
+                        _this.container.removeChild(_this.splashList[ball_1]);_this.splashList[ball_1].gotoAndStop(0);console.log("Removing splash: " + ball_1);
+                    };
+                    this_1.ballList[i].reset();
+                    this_1.container.removeChild(this_1.ballList[i]);
+                    console.log("ball " + i + " spent... SPLASH");
+                    return "continue";
+                }
+                // collide with islands and ships code here
+                hitObj = this_1.hit(this_1.ballList[i]);
+                if (hitObj) {
+                    // play hit animation
+                    this_1.explosionList[i].x = this_1.ballList[i].x;
+                    this_1.explosionList[i].y = this_1.ballList[i].y;
+                    this_1.container.addChild(this_1.explosionList[i]);
+                    this_1.explosionList[i].play(); // start the animation
+                    ball_1 = i;
+                    this_1.explosionList[i].onComplete = function () {
+                        _this.container.removeChild(_this.explosionList[ball_1]);_this.explosionList[ball_1].gotoAndStop(0);console.log("Removing explosion: " + ball_1);
+                    };
+                    this_1.ballList[i].reset(); // return ball to pool
+                    this_1.container.removeChild(this_1.ballList[i]);
+                }
+            }
+        };
+        var this_1 = this;
+        for (i = 0; i < this.ballList.length; i++) {
+            _loop_1();
+        }
+    };
+    return FXManager;
+}();
+exports.default = FXManager;
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11024,14 +11444,20 @@ module.exports = g;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var sailtrim_1 = __webpack_require__(11);
-var compassrose_1 = __webpack_require__(2);
-var watch_1 = __webpack_require__(12);
+var sailtrim_1 = __webpack_require__(13);
+var compassrose_1 = __webpack_require__(3);
+var watch_1 = __webpack_require__(14);
 var MainHUD = /** @class */function () {
     function MainHUD() {
         var _this = this;
         this.container = new PIXI.Container();
         this.didGrounding = false;
+        this.fireRight = function (event) {
+            _this.trackShip.fireCannons(true);
+        };
+        this.fireLeft = function (event) {
+            _this.trackShip.fireCannons(false);
+        };
         this.changeHeadingHandler = function (event) {
             //console.log("changeHeadingHandler received!");
             // ask the boat to change to new heading, it will return how much time this take
@@ -11061,7 +11487,7 @@ var MainHUD = /** @class */function () {
     };
     // assets are loaded, initialize sprites etc
     MainHUD.prototype.onAssetsLoaded = function () {
-        console.log(PIXI.loader.resources);
+        //console.log(PIXI.loader.resources);
         // create and place the header
         this.header = new PIXI.Sprite(PIXI.Texture.fromFrame("UI_Header.png"));
         this.header.x = 0;
@@ -11073,6 +11499,8 @@ var MainHUD = /** @class */function () {
         this.rightCannonBattery = new PIXI.Sprite(PIXI.Texture.fromFrame("CannonArray.png"));
         this.rightCannonBattery.x = this.footer.width - this.rightCannonBattery.width + 40;
         this.rightCannonBattery.y = this.footer.y;
+        this.rightCannonBattery.interactive = true;
+        this.rightCannonBattery.on("click", this.fireRight);
         // sail trim nbext to guns
         this._sailTrim = new sailtrim_1.default();
         this._sailTrim.init();
@@ -11088,6 +11516,8 @@ var MainHUD = /** @class */function () {
         this.leftCannonBattery.x = this.compassRose.x - this.compassRose.width / 2; // scaleX will be flipped which makes its anchor point top right
         this.leftCannonBattery.y = this.footer.y;
         this.leftCannonBattery.scale.x = -1; // flip the art so it points left
+        this.leftCannonBattery.interactive = true;
+        this.leftCannonBattery.on("click", this.fireLeft);
         this.watch = new watch_1.default();
         this.watch.init();
         this.watch.x = this.compassRose.x - this.watch.width / 2;
@@ -11129,7 +11559,7 @@ var MainHUD = /** @class */function () {
 exports.default = MainHUD;
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11283,7 +11713,7 @@ var sailTrim = /** @class */function (_super) {
 exports.default = sailTrim;
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11308,7 +11738,7 @@ var __extends = this && this.__extends || function () {
 }();
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(0);
-var compassrose_1 = __webpack_require__(2);
+var compassrose_1 = __webpack_require__(3);
 var Watch = /** @class */function (_super) {
     __extends(Watch, _super);
     function Watch() {
