@@ -19,12 +19,16 @@ export default class FXManager
     private splashList:Array<PIXI.extras.AnimatedSprite> = [];
     private explosionList:Array<PIXI.extras.AnimatedSprite> = [];
     private muzzlePlumeList:Array<PIXI.extras.AnimatedSprite> = [];
+    private smokingPlumeList:Array<PIXI.extras.AnimatedSprite> = [];
+    private smokeInUse:Array<boolean> = [];
+    private nextSmoke:number = 0; // smoke doesnt need 100, likely only 20 or so.. one per ship so needs its own pool tracking number
     private isles:Array<GameObject>;    // reference to theSea's island array
     private ships:Array<GameObject>;    // reference to theSea's ship array
     private container:PIXI.Container;   // the container to add effects to
     private splash:Array<PIXI.Texture> = [];  // array of textures for the splash fx
     private explosion:Array<PIXI.Texture> = []; // array for explosion textures
     private muzzlePlume:Array<PIXI.Texture> = []; // smoke from cannon fire
+    private smokingPlume:Array<PIXI.Texture> = []; // ship wreck smoke
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -65,6 +69,13 @@ export default class FXManager
             this.muzzlePlume.push(PIXI.Texture.fromFrame(s));
         }
         this.initMuzzlePool();
+
+        for (i=1; i<43; i++)
+        {
+            s = "ship_destruction_animation" + Ship.zeroPad(i, 4) + ".png";
+            this.smokingPlume.push(PIXI.Texture.fromFrame(s));
+        }
+        this.initSmokePool();
     }
 
     private initSplashPool()
@@ -112,6 +123,24 @@ export default class FXManager
         }
     }
 
+    private initSmokePool()
+    {
+        var i;
+        var anim;
+
+        for (i=0; i<22; i++)
+        {
+            anim = new PIXI.extras.AnimatedSprite(this.smokingPlume);
+            anim.anchor.x = 0.8;
+            anim.anchor.y = 1;  // anchor/origin is 80% right and and at bottom
+            anim.loop = false;
+            anim.animationSpeed = 0.50;
+            anim.alpha = 0.67;
+            this.smokingPlumeList.push(anim);
+            this.smokeInUse[i] = false; // mark all available
+        }
+    }
+
     public setIslesShips(isles:Array<GameObject>, ships:Array<GameObject>)
     {
         this.isles = isles;
@@ -129,6 +158,67 @@ export default class FXManager
         {
             this.ballList.push(new CannonBall());
         }
+    }
+
+    // returns index of smoke plum used, when caller is removed/destroyed this index should be returned to pool
+    public placeSmokePlume(x:number, y:number)
+    {
+        // use nextSmoke then increment index
+        this.smokingPlumeList[this.nextSmoke].x = x;
+        this.smokingPlumeList[this.nextSmoke].y = y;
+
+        // play from beginning, on anim end it will loop from an interior frame
+        this.smokingPlumeList[this.nextSmoke].gotoAndPlay(0);
+
+        var smokeID = this.nextSmoke;
+        this.container.addChild(this.smokingPlumeList[this.nextSmoke]);
+
+        // loop not from the beginning but from frame#21
+        this.smokingPlumeList[this.nextSmoke].onComplete = () => { this.smokingPlumeList[smokeID].gotoAndPlay(21);};
+        
+        this.smokeInUse[this.nextSmoke] = true;
+        var retVal = this.nextSmoke;
+        this.findNextSmoke();
+
+        return retVal; // return the index to caller so that it can be returned to pool later
+    }
+
+    // set next smoke to next available index in pool
+    private findNextSmoke()
+    {
+        var count = this.smokingPlumeList.length;
+        var i = this.nextSmoke;
+        var found = false;
+        var t = 0;
+        
+        while (!found)
+        {
+            i++;
+            t++;
+            if (t>=count)
+            {
+                console.log("smoke pool exhausted, none available");
+                break; // none available!
+            }
+
+            // wrap around
+            if (i > count)
+                i = 0;
+
+            if (this.smokeInUse[i] == false) {
+                this.nextSmoke = i;
+                found = true;
+            }
+
+        }
+    }
+
+    public returnSmokeToPool(index:number)
+    {
+        // index given to ship will be sent backl to us when ship is looted or disappears
+        this.smokingPlumeList[index].stop();
+        this.container.removeChild(this.smokingPlumeList[index]);
+        this.smokeInUse[index] = false;
     }
 
     public placeMuzzlePlume(x:number, y:number, dir:Victor)
@@ -269,6 +359,10 @@ export default class FXManager
 
                     this.ballList[i].reset(); // return ball to pool
                     this.container.removeChild(this.ballList[i]);
+                    // send the damage to the target if its a ship
+                    if (hitObj.getType() == ObjectType.SHIP) {
+                        (<Ship>hitObj).receiveFire(this.ballList[i].weight, this.ballList[i].firer);
+                    }
                 }
             }
         }

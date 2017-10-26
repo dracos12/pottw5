@@ -76,8 +76,17 @@ export default class Ship extends GameObject
     private refPt:PIXI.Point;
 
     private tweenVars:any;
-
     private fxManager:FXManager;
+
+    // ship stats
+    private statHull:number = 12;
+    private statHullMax:number = 12;
+    private statSails:number = 0;
+    private statSailsMax:number = 0;
+    private statCrew:number = 0;            // feature idea, assign bits to crew to index into name index... crew can have name and exp/level waster/able/midshipman etc
+    private statCrewMax:number = 0;
+    private wrecked:boolean = false;
+    private smokeID:number = 0;
 
     constructor()
     {
@@ -797,6 +806,14 @@ export default class Ship extends GameObject
         if (this.lastTime != 0) {
             deltaTime = now - this.lastTime;
         }
+
+        if (this.wrecked)
+        {
+            // do decay timer perhaps here? cant stay wrecked forever
+            // waiting for player to loot, will fade after x minutes
+            // no speed, ai or other adjustments needed.. return
+            return;
+        }
         
         if (!CompassRose.isValidHeading(this.angleToWind, this.degreeHeading)) 
         {
@@ -1086,5 +1103,33 @@ export default class Ship extends GameObject
 
         // return the reload speed based off crew ability
         return 2500;
+    }
+
+    public receiveFire(weight:number, source:GameObject)
+    {
+        this.statHull -= weight;
+        if (this.statHull <= 0)
+        {
+            // we are destroyed
+            this.wrecked = true;
+            this.targetSpeed = 0;
+            this.speed = 0;
+            // switch our frame to our wrecked frame
+            this.switchFrameToWrecked();
+            // ask the fx manager for a smoke plume at our reference point
+            this.smokeID = this.fxManager.placeSmokePlume(this.sprite.x + this.refPt.x, this.sprite.y+this.refPt.y);
+            // wreck frame does not conform.. move sprite by wreck offset.. for now hardcoded
+            this.sprite.y += 30;   
+        }    
+
+        console.log("took " + weight + " damage. Hull: " + this.statHull);
+    }
+
+    private switchFrameToWrecked()
+    {
+        let s = this.getSprite();
+
+        s.texture = PIXI.Texture.fromFrame("CorvetteBodyWreck.png");
+        
     }
 }
