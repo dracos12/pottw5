@@ -369,6 +369,20 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/goldCoin.png</key>
+            <key type="filename">../../../Art/pottw5/ui/silverCoin.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>7,8,14,16</rect>
+                <key>scale9Paddings</key>
+                <rect>7,8,14,16</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/needleCannon.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -456,6 +470,8 @@
             <filename>../../../Art/pottw5/ui/LongBoat.png</filename>
             <filename>../../../Art/pottw5/ui/btn_ZoomMinus.png</filename>
             <filename>../../../Art/pottw5/ui/LongBoatButton.png</filename>
+            <filename>../../../Art/pottw5/ui/goldCoin.png</filename>
+            <filename>../../../Art/pottw5/ui/silverCoin.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
