@@ -130,11 +130,11 @@
 },
 "CorvetteBodyWreck.png":
 {
-	"frame": {"x":542,"y":191,"w":189,"h":60},
+	"frame": {"x":542,"y":191,"w":176,"h":56},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":189,"h":60},
-	"sourceSize": {"w":189,"h":60}
+	"spriteSourceSize": {"x":0,"y":0,"w":176,"h":56},
+	"sourceSize": {"w":176,"h":56}
 }},
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
@@ -143,6 +143,6 @@
 	"format": "RGBA8888",
 	"size": {"w":815,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:6b324512cb36d86dc6ab32c8b30e381b:42da4fe84940d84a7add04056b77cb02:0dc7c8f73d8a1c344a26c1e9574ab657$"
+	"smartupdate": "$TexturePacker:SmartUpdate:6965ad29ac522c998ee5f7c5042f49b0:9649cdde70b43b8a490917ab9036661d:0dc7c8f73d8a1c344a26c1e9574ab657$"
 }
 }
