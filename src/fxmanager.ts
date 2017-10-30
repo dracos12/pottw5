@@ -30,10 +30,13 @@ export default class FXManager
     private muzzlePlume:Array<PIXI.Texture> = []; // smoke from cannon fire
     private smokingPlume:Array<PIXI.Texture> = []; // ship wreck smoke
 
+    private target:Array<PIXI.Texture> = [];
+
     // request the assets we need loaded
     public addLoaderAssets()
     {
-        PIXI.loader.add("./images/fx/shipfx.json");
+        PIXI.loader.add("./images/fx/shipfx.json")
+                   .add("./images/ui/selection.json");
     }
 
     // assets are loaded, initialize sprites etc
@@ -76,6 +79,12 @@ export default class FXManager
             this.smokingPlume.push(PIXI.Texture.fromFrame(s));
         }
         this.initSmokePool();
+
+        for (i=1; i<61; i++)
+        {
+            s = "selected" + Ship.zeroPad(i,4) + ".png";
+            this.target.push(PIXI.Texture.fromFrame(s));
+        }
     }
 
     private initSplashPool()
@@ -316,6 +325,19 @@ export default class FXManager
         return hitObj;
     }
 
+    public placeTarget(ship:Ship)
+    {
+        var targ = new PIXI.extras.AnimatedSprite(this.target);
+        targ.anchor.x = 0.5;
+        targ.anchor.y = 0.5;
+        var ref = ship.getRefPt();
+        targ.x = ship.getSprite().x + ref.x;
+        targ.y = ship.getSprite().y + ref.y;
+        this.container.addChild(targ);
+        targ.loop = true;
+        targ.play();
+    }
+
     public update()
     {
         var hit = false;
@@ -362,6 +384,7 @@ export default class FXManager
                     // send the damage to the target if its a ship
                     if (hitObj.getType() == ObjectType.SHIP) {
                         (<Ship>hitObj).receiveFire(this.ballList[i].weight, this.ballList[i].firer);
+
                     }
                 }
             }
