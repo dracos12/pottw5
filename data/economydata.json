@@ -1,0 +1,282 @@
+{
+    "Anchor": {
+        "fileName": "icon_Anchor.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Animal Hides": {
+        "fileName": "icon_AnimalHides.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Barrel": {
+        "fileName": "icon_Barrel.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Bean": {
+        "fileName": "icon_Bean.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Beans": {
+        "fileName": "icon_Beans.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Cacao": {
+        "fileName": "icon_CacaoCrop.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Cannon": {
+        "fileName": "icon_Cannon.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Cheese": {
+        "fileName": "icon_Cheese.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Coffee": {
+        "fileName": "icon_Coffee.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Copper Ore": {
+        "fileName": "icon_CopperOre.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Corn": {
+        "fileName": "icon_CornCrop.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Cotton": {
+        "fileName": "icon_CottonCrop.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Distilled Tar": {
+        "fileName": "icon_DistilledTar.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Double Shot": {
+        "fileName": "icon_DoubleBall.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Double Powder": {
+        "fileName": "icon_DoublePowder.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Fish": {
+        "fileName": "icon_Fish.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Fore and Aft Rig": {
+        "fileName": "icon_foreAftRig.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Gold Ore": {
+        "fileName": "icon_GoldOre.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Granite": {
+        "fileName": "icon_Granite.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Gravel": {
+        "fileName": "icon_Gravel.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Hard Tack": {
+        "fileName": "icon_HardTack.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Hemp": {
+        "fileName": "icon_Hemp.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Hemp Canvas": {
+        "fileName": "icon_HempCanvas.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Hemp Rope": {
+        "fileName": "icon_hempRope.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Indigo": {
+        "fileName": "icon_Indigo.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Iron Ingot": {
+        "fileName": "icon_IronIngot.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Iron Ore": {
+        "fileName": "icon_IronOre.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Iron Ship Fitting": {
+        "fileName": "icon_ironShipFitting.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Keel Section": {
+        "fileName": "icon_keelSection.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Leather": {
+        "fileName": "icon_Leather.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Limestone": {
+        "fileName": "icon_Limestone.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Cedar Logs": {
+        "fileName": "icon_logsCedar.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Common Logs": {
+        "fileName": "icon_logsCommon.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Fir Logs": {
+        "fileName": "icon_logsFir.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Iron Wood Logs": {
+        "fileName": "icon_logsIronWood.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Oak Logs": {
+        "fileName": "icon_logsOak.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Mast Section": {
+        "fileName": "icon_MastSection.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Meat": {
+        "fileName": "icon_Meat.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Nails": {
+        "fileName": "icon_Nail.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Oak Block": {
+        "fileName": "icon_OakBlock.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Plank": {
+        "fileName": "icon_Plank.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Rigging": {
+        "fileName": "icon_Rigging.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Rum": {
+        "fileName": "icon_Rum.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Sails": {
+        "fileName": "icon_Sails.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Saltpeter": {
+        "fileName": "icon_SaltPeter.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Ship Frame": {
+        "fileName": "icon_ShipFrame.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Ship Hull": {
+        "fileName": "icon_ShipHull.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Ship Stern": {
+        "fileName": "icon_ShipStern.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Silver Ore": {
+        "fileName": "icon_SilverOre.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Square Rig": {
+        "fileName": "icon_SquareRig.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Sugar Cane": {
+        "fileName": "icon_SurgaeCane.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Sulfure Ore": {
+        "fileName": "icon_SulfurOre.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Weave Canvas": {
+        "fileName": "icon_WeaveCanvas.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Wheat": {
+        "fileName": "icon_Wheat.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Wine": {
+        "fileName": "icon_Wine.png",
+        "size": 1,
+        "value": 10      
+    },
+    "Zinc Ore": {
+        "fileName": "icon_ZincOre.png",
+        "size": 1,
+        "value": 10      
+    }
+}
