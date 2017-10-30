@@ -88,6 +88,9 @@ export default class Ship extends GameObject
     private wrecked:boolean = false;
     private smokeID:number = 0;
 
+    private shipsHold:Array<number> = [];        // just an array of item ids EconomyIcon carries the data
+    private shipsHoldCapacity:number = 40;       // in "squares" ex Corvette is 10x4 hold so 40 icons
+
     constructor()
     {
         super();
@@ -636,7 +639,7 @@ export default class Ship extends GameObject
         this.speed = 0;
         this.targetSpeed = 0;
         this.tweenVars.speed = 0;
-        TweenLite.killTweensOf(this.tweenVars);
+        //TweenLite.killTweensOf(this.tweenVars);
     }
 
     public isAground()
@@ -1136,6 +1139,60 @@ export default class Ship extends GameObject
         let s = this.getSprite();
 
         s.texture = PIXI.Texture.fromFrame("CorvetteBodyWreck.png");
-        
+
+        s.interactive = true;
+
+        // add listeners to mouse down and up
+        s.on("mousedown", this.wreckMouseDown);
+        s.on("mouseup", this.wreckMouseUp);
+
+        this.aiPopulateLoot();
+    }
+
+    // mouse handlers, just send a message for the hud to handle the loot mechanic
+    wreckMouseDown = (e:any) => {
+        var myEvent = new CustomEvent("wreckMouseDown",
+        {
+            'detail': { "boat": this, "holdLength": this.shipsHold.length }
+        });
+
+        window.dispatchEvent(myEvent);
+    }
+
+    wreckMouseUp = (e:any) => {
+        var myEvent = new CustomEvent("wreckMouseUp",
+        {
+            'detail': { "boat": this, "holdLength": this.shipsHold.length }
+        });
+
+        window.dispatchEvent(myEvent);
+    }
+
+    public aiPopulateLoot()
+    {
+        // fill the hold with random loot items
+        var i=0;
+        var itemID;
+
+        for (i=0; i<5; i++)
+        {
+            // generate a random loot item 
+            itemID = theSea.getRandomIntInclusive(0,2);
+            this.shipsHold[i] = itemID;
+        }
+    }
+
+    // return next itemID from the shipsHold
+    public aiPopNextLoot()
+    {
+        if (this.shipsHold.length == 0)
+            return -1;
+
+        return this.shipsHold.pop();
+    }
+
+    public aiNumHoldItems()
+    {
+        return this.shipsHold.length;
     }
 }

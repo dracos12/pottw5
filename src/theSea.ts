@@ -34,7 +34,7 @@ export default class theSea
     // layers so sea tiles always sorted beneath ships/islands
     private layerSeaTiles:PIXI.Container = new PIXI.Container();
     private layerObjects:PIXI.Container = new PIXI.Container();
-    //private layerUI:PIXI.Container = new PIXI.Container();
+    private layerUI:PIXI.Container = new PIXI.Container();
 
     private numPorts:number=0;  // number of islands in the island array that are ports
 
@@ -214,6 +214,7 @@ export default class theSea
 
         this.container.addChild(this.layerSeaTiles); // sea tiles sort to bottom
         this.container.addChild(this.layerObjects); // all other objects will sort above it
+        this.container.addChild(this.layerUI);
 
         this.container.scale.x = this.container.scale.y = this.wheelScale; 
 
@@ -221,6 +222,11 @@ export default class theSea
 
         this.fxManager.onAssetsLoaded(); // fxManager can now initialize with its assets
     
+    }
+
+    public getUILayer()
+    {
+        return this.layerUI;
     }
 
     init(callback: Function)

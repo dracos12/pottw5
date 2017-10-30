@@ -54,6 +54,8 @@ export default class Core {
             //mousewheel not part of Pixi so add the event to the DOM
             document.body.addEventListener("wheel", this._sea.mouseWheelHandler, false);
 
+            this._hud.setSeaUILayer(this._sea.getUILayer());
+
             this.update();
         }
     }

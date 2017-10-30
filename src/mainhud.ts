@@ -7,6 +7,8 @@ import sailTrim from './sailtrim';
 import CompassRose from './compassrose';
 import Watch from './watch';
 import Ship from './ship';
+import EconomyIcon from './economyicon';
+import { EcoType } from './economyicon';
 
 export default class MainHUD 
 {
@@ -20,19 +22,23 @@ export default class MainHUD
     private leftCannonBattery:PIXI.Sprite;
     private _sailTrim:sailTrim;
 
-    private watch:Watch;
+    private headingWatch:Watch;
+    private lootWatch:Watch;
 
     private trackShip:Ship; // the ship the hud is currently tracking
 
     private didGrounding:boolean = false;
+
+    private uiLayer:PIXI.Container;
     
 
     // request the assets we need loaded
     public addLoaderAssets()
     {
-        PIXI.loader.add("./images/ui/pottw5ui.json");
-        PIXI.loader.add("images/2yYayZk.png");
-        PIXI.loader.add("images/F8HIZMZFF22CHDE.MEDIUM.jpg");
+        PIXI.loader.add("./images/ui/pottw5ui.json")
+                   .add("images/2yYayZk.png")
+                   .add("images/F8HIZMZFF22CHDE.MEDIUM.jpg")
+                   .add("./images/ui/economy_icons.json");
     }
 
     // assets are loaded, initialize sprites etc
@@ -76,11 +82,14 @@ export default class MainHUD
         this.leftCannonBattery.interactive = true;
         this.leftCannonBattery.on("click", this.fireLeft);
 
-        this.watch = new Watch();
-        this.watch.init();
+        this.headingWatch = new Watch();
+        this.headingWatch.init();
 
-        this.watch.x = this.compassRose.x - this.watch.width/2;
-        this.watch.y = this.compassRose.y - this.compassRose.height/2 - this.watch.height - 5;
+        this.lootWatch = new Watch();
+        this.lootWatch.init();
+
+        this.headingWatch.x = this.compassRose.x - this.headingWatch.width/2;
+        this.headingWatch.y = this.compassRose.y - this.compassRose.height/2 - this.headingWatch.height - 5;
 
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
@@ -88,17 +97,24 @@ export default class MainHUD
         this.container.addChild(this.leftCannonBattery);
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
-        this.container.addChild(this.watch);
+        this.container.addChild(this.headingWatch);
 
-        this.watch.visible = false;
+        this.headingWatch.visible = false;
 
         window.addEventListener("boatSelected", this.boatSelectedHandler, false);
         window.addEventListener("changeHeading", this.changeHeadingHandler, false);
+        window.addEventListener("wreckMouseDown", this.lootMouseDown, false);
+        window.addEventListener("wreckMouseUp", this.lootMouseUp, false);
     }
 
     public getContainer()
     {
         return this.container;
+    }
+
+    public setSeaUILayer(layer:PIXI.Container)
+    {
+        this.uiLayer = layer;
     }
 
     fireRight = (event:any) => {
@@ -115,13 +131,13 @@ export default class MainHUD
         var newHeading = event.detail;
         let headingTime = this.trackShip.changeHeading(newHeading);
         // display a watch over the compass set to countdown by this time (milliseconds)
-        this.watch.visible = true;
-        this.watch.countDown(headingTime);
-        this.watch.start(this.onCountDone);
+        this.headingWatch.visible = true;
+        this.headingWatch.countDown(headingTime);
+        this.headingWatch.start(this.onCountDone);
     }
 
     onCountDone = () => {
-        this.watch.visible = false;
+        this.headingWatch.visible = false;
         //console.log("onCountDone!");
     }
 
@@ -132,10 +148,31 @@ export default class MainHUD
         this.trackShip = newShip;
     }
 
+    lootMouseDown = (e:any) => {
+        // mouse down on a wreck icon, show the loot watch and popout a loot icon one per second
+        var boat:Ship = e.detail.boat;
+        var loots = e.detail.holdLength;
+        console.log("Clicked wreck to get: " + boat.aiNumHoldItems() + " items");
+        var s = boat.getSprite();
+        // var globalP = s.getGlobalPosition();
+        // var localP = this.container.toLocal(globalP);
+        var icon = new EconomyIcon(EcoType.BARREL);
+        var ref = boat.getRefPt();
+        icon.x = s.x + ref.x;
+        icon.y = s.y + ref.y;
+        icon.throwOutAndBob();
+        this.uiLayer.addChild(icon);
+    }
+
+    lootMouseUp = (e:any) => {
+        // mouse up over wreck, stop the loot action (even if not done)
+        console.log("End Loot click");
+    }
+
     public update()
     {
         this.compassRose.update();
-        this.watch.update();
+        this.headingWatch.update();
         this._sailTrim.update();
 
         if (this.trackShip.isAground())
