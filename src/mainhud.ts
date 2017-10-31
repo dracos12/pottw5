@@ -41,6 +41,7 @@ export default class MainHUD
     private coinCount:number = 0;
     private coinMax:number = 0;
     private coinDelta:number = 100; // every 100ms by default
+    private coinPos:PIXI.Point = new PIXI.Point(0,0);
     
 
     // request the assets we need loaded
@@ -173,7 +174,13 @@ export default class MainHUD
         if (boat.aiNumHoldItems() == 0)
         {
             // stream some coins to the HUD when out of loot items
-            this.streamCoins(40);
+            var x,y;
+            x = boat.getSprite().x + boat.getRefPt().x;
+            y = boat.getSprite().y + boat.getRefPt().y;
+            var refPt = new PIXI.Point(x,y);
+            var pos = boat.getSprite().toGlobal(refPt);
+            var locPos = this.container.toLocal(boat.getSprite().getGlobalPosition());
+            this.streamCoins(40,locPos.x,locPos.y);
             return; // dont pop any more
         }
         boat.aiPopNextLoot();
@@ -212,13 +219,15 @@ export default class MainHUD
         this.uiLayer.removeChild(this.lootAvail[id]);
     }
 
-    private streamCoins(numCoins:number)
+    private streamCoins(numCoins:number,x:number,y:number)
     {
         // stream coins to the hud every tick
         this.streamCoinEffect = true;
         this.coinCount = 0;
         this.coinMax = numCoins;
         this.coinDelta = 1000 / (numCoins / 3) ;
+        this.coinPos.x = x;
+        this.coinPos.y = y;
     }
 
     public update()
@@ -236,8 +245,8 @@ export default class MainHUD
                 this.container.addChild(this.silverCoins[this.coinNum]);
 
                 var ox,oy,x1,y1,x2,y2,fx,fy;
-                ox = this.container.width / 2;
-                oy = this.container.height;
+                ox = this.coinPos.x;
+                oy = this.coinPos.y;
                 x1 = 0;
                 y1 = this.container.height * 0.75;
                 x2 = this.container.width;
