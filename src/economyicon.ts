@@ -11,6 +11,8 @@ import CompassRose from './compassrose';
 
 declare var TweenMax:any;
 declare var Linear:any;
+declare var Power2:any;
+declare var Circ:any;
 
 export const enum EcoType {
     ANCHOR,
@@ -22,8 +24,9 @@ export default class EconomyIcon extends PIXI.Sprite
 {
     private type:EcoType = EcoType.ANCHOR;
     private static jsonData:any;
+    private id:number;
 
-    constructor(type:EcoType)
+    constructor(type:EcoType, id:number)
     {
         super();
         // create a sprite with the indicated type
@@ -32,6 +35,7 @@ export default class EconomyIcon extends PIXI.Sprite
         this.texture = PIXI.Texture.fromFrame("icon_Barrel.png");
         this.anchor.x = 0.5;
         this.anchor.y = 0.5;
+        this.id=id;
     }
 
     public static setEconomyData(jsonData:any)
@@ -65,15 +69,15 @@ export default class EconomyIcon extends PIXI.Sprite
         dirRads = CompassRose.getRads(randDir);
         dir.rotate(dirRads);
 
-        x = this.x + dir.x * 150;
-        y = this.y + -dir.y * 150; 
+        x = this.x + dir.x * 115;
+        y = this.y + -dir.y * 115; 
 
         if (rand == 1)
-            midX = this.x + 75;
+            midX = this.x + 57;
         else    
-            midX = this.x - 75;
+            midX = this.x - 57;
             
-        midY = this.y - 150;
+        midY = this.y - 115;
 
 
         // move our position to this new x,y in an curve
@@ -88,5 +92,53 @@ export default class EconomyIcon extends PIXI.Sprite
     public bezierDone = () => {
         // when bezier done, bob in the water til clicked
         console.log("bezierDone!");
+        // now animate y up and down yoyo style
+        TweenMax.to(this,
+                    1.25,
+                    {y: this.y + 30,
+                     yoyo:true,
+                     repeat:-1,
+                     ease: Linear.easeInOut});
+        // and the rotate 
+        TweenMax.to(this,
+            1.5,
+            {rotation: 0.523599,
+             yoyo: true,
+             repeat: -1,
+             ease: Linear.easeInOut});
+
+        this.interactive = true;
+        this.on("click", this.clickHandler);
+    }
+
+    clickHandler = () => {
+        // send a note to the hud to collect us
+        var myEvent = new CustomEvent("floatingIconClick",
+        {
+            'detail': this.id
+        });
+
+        window.dispatchEvent(myEvent);
+    }
+
+    public lootIcon(xp:number, yp:number)
+    {
+        console.log("lootIcon to: " + xp + "," + yp);
+        TweenMax.killTweensOf(this);
+        TweenMax.to(this,1,{x:xp, y:yp,onComplete:this.lootDone});
+        TweenMax.to(this.scale, 1, {x:0,y:0})
+    }
+
+    lootDone = () => {
+        TweenMax.killTweensOf(this);
+        this.interactive = false;
+        // send a note to the hud to collect us
+        var myEvent = new CustomEvent("lootDone",
+        {
+            'detail': this.id
+        });
+
+        window.dispatchEvent(myEvent);
+        
     }
 }

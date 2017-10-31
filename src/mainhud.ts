@@ -30,6 +30,7 @@ export default class MainHUD
     private didGrounding:boolean = false;
 
     private uiLayer:PIXI.Container;
+    private lootAvail:Array<EconomyIcon>=[];
     
 
     // request the assets we need loaded
@@ -105,6 +106,9 @@ export default class MainHUD
         window.addEventListener("changeHeading", this.changeHeadingHandler, false);
         window.addEventListener("wreckMouseDown", this.lootMouseDown, false);
         window.addEventListener("wreckMouseUp", this.lootMouseUp, false);
+        window.addEventListener("floatingIconClick", this.collectLoot, false);
+        window.addEventListener("lootDone", this.lootDone, false);
+
     }
 
     public getContainer()
@@ -156,17 +160,35 @@ export default class MainHUD
         var s = boat.getSprite();
         // var globalP = s.getGlobalPosition();
         // var localP = this.container.toLocal(globalP);
-        var icon = new EconomyIcon(EcoType.BARREL);
+        var icon = new EconomyIcon(EcoType.BARREL,this.lootAvail.length);
         var ref = boat.getRefPt();
         icon.x = s.x + ref.x;
         icon.y = s.y + ref.y;
         icon.throwOutAndBob();
         this.uiLayer.addChild(icon);
+        this.lootAvail.push(icon);
     }
 
     lootMouseUp = (e:any) => {
         // mouse up over wreck, stop the loot action (even if not done)
         console.log("End Loot click");
+    }
+
+    collectLoot = (e:any) => {
+        // mouse up over wreck, stop the loot action (even if not done)
+        console.log("collect loot!");
+        // get the icon from the details
+        var id = e.detail;
+        var targx = this.trackShip.getSprite().x + this.trackShip.getRefPt().x;
+        var targy = this.trackShip.getSprite().y + this.trackShip.getRefPt().y;
+        this.lootAvail[id].lootIcon(targx, targy);
+    }
+
+    lootDone = (e:any) => {
+        var id = e.detail;
+        // give loot to the player's boat if possible
+        // remove this id
+        this.uiLayer.removeChild(this.lootAvail[id]);
     }
 
     public update()
