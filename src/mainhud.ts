@@ -10,6 +10,8 @@ import Ship from './ship';
 import EconomyIcon from './economyicon';
 import { EcoType } from './economyicon';
 
+declare var TweenMax:any;
+
 export default class MainHUD 
 {
     private container:PIXI.Container = new PIXI.Container();
@@ -31,6 +33,14 @@ export default class MainHUD
 
     private uiLayer:PIXI.Container;
     private lootAvail:Array<EconomyIcon>=[];
+
+    private silverCoins:Array<PIXI.Sprite>=[];
+    private coinNum:number = 0;
+    private streamCoinEffect:boolean = false;
+    private lastCoinTime:number = 0;
+    private coinCount:number = 0;
+    private coinMax:number = 0;
+    private coinDelta:number = 100; // every 100ms by default
     
 
     // request the assets we need loaded
@@ -47,6 +57,9 @@ export default class MainHUD
     {
         //console.log(PIXI.loader.resources);
 
+        // create 100 coin sprites for loot effect
+        for (var i = 0; i<100; i++)
+            this.silverCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"))
         // create and place the header
         this.header = new PIXI.Sprite(PIXI.Texture.fromFrame("UI_Header.png"));
         this.header.x = 0;
@@ -157,6 +170,13 @@ export default class MainHUD
         var boat:Ship = e.detail.boat;
         var loots = e.detail.holdLength;
         console.log("Clicked wreck to get: " + boat.aiNumHoldItems() + " items");
+        if (boat.aiNumHoldItems() == 0)
+        {
+            // stream some coins to the HUD when out of loot items
+            this.streamCoins(40);
+            return; // dont pop any more
+        }
+        boat.aiPopNextLoot();
         var s = boat.getSprite();
         // var globalP = s.getGlobalPosition();
         // var localP = this.container.toLocal(globalP);
@@ -167,6 +187,7 @@ export default class MainHUD
         icon.throwOutAndBob();
         this.uiLayer.addChild(icon);
         this.lootAvail.push(icon);
+        
     }
 
     lootMouseUp = (e:any) => {
@@ -191,8 +212,51 @@ export default class MainHUD
         this.uiLayer.removeChild(this.lootAvail[id]);
     }
 
+    private streamCoins(numCoins:number)
+    {
+        // stream coins to the hud every tick
+        this.streamCoinEffect = true;
+        this.coinCount = 0;
+        this.coinMax = numCoins;
+        this.coinDelta = 1000 / (numCoins / 3) ;
+    }
+
     public update()
     {
+        var now = Date.now();
+        
+        if (this.streamCoinEffect)
+        {
+            if (now - this.lastCoinTime > this.coinDelta)
+            {
+                this.coinCount++;
+                if (this.coinCount > this.coinMax)
+                    this.streamCoinEffect = false;
+                this.lastCoinTime = now;
+                this.container.addChild(this.silverCoins[this.coinNum]);
+
+                var ox,oy,x1,y1,x2,y2,fx,fy;
+                ox = this.container.width / 2;
+                oy = this.container.height;
+                x1 = 0;
+                y1 = this.container.height * 0.75;
+                x2 = this.container.width;
+                y2 = this.container.height * 0.25;
+                fx = this.container.width * 0.75;
+                fy = 20;
+                let coin = this.coinNum;
+                this.silverCoins[this.coinNum].x = ox; 
+                this.silverCoins[this.coinNum].y = oy;
+                TweenMax.to(this.silverCoins[this.coinNum], 3,
+                            {bezier: {type:"soft", curviness:1.5,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
+                             onComplete: () => { this.container.removeChild(this.silverCoins[coin]);} }
+                            ); 
+                this.coinNum++;
+                if (this.coinNum >= this.silverCoins.length)
+                    this.coinNum = 0;
+            }
+        }
+
         this.compassRose.update();
         this.headingWatch.update();
         this._sailTrim.update();
