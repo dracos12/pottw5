@@ -9,6 +9,7 @@ import Watch from './watch';
 import Ship from './ship';
 import EconomyIcon from './economyicon';
 import { EcoType } from './economyicon';
+import Player from './player';
 
 declare var TweenMax:any;
 
@@ -42,6 +43,9 @@ export default class MainHUD
     private coinMax:number = 0;
     private coinDelta:number = 100; // every 100ms by default
     private coinPos:PIXI.Point = new PIXI.Point(0,0);
+
+    private txtSilverCoins:PIXI.Text;
+    private player:Player;  // the player object, stores all player data
     
 
     // request the assets we need loaded
@@ -51,6 +55,7 @@ export default class MainHUD
                    .add("images/2yYayZk.png")
                    .add("images/F8HIZMZFF22CHDE.MEDIUM.jpg")
                    .add("./images/ui/economy_icons.json");
+        this.player = new Player();
     }
 
     // assets are loaded, initialize sprites etc
@@ -58,9 +63,11 @@ export default class MainHUD
     {
         //console.log(PIXI.loader.resources);
 
+
         // create 100 coin sprites for loot effect
         for (var i = 0; i<100; i++)
-            this.silverCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"))
+            this.silverCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
+
         // create and place the header
         this.header = new PIXI.Sprite(PIXI.Texture.fromFrame("UI_Header.png"));
         this.header.x = 0;
@@ -114,6 +121,8 @@ export default class MainHUD
         this.container.addChild(this._sailTrim);
         this.container.addChild(this.headingWatch);
 
+        this.initHeader();
+
         this.headingWatch.visible = false;
 
         window.addEventListener("boatSelected", this.boatSelectedHandler, false);
@@ -123,6 +132,21 @@ export default class MainHUD
         window.addEventListener("floatingIconClick", this.collectLoot, false);
         window.addEventListener("lootDone", this.lootDone, false);
 
+    }
+
+    private initHeader()
+    {
+        var style = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 16,
+            fill: 'white'
+        });
+        
+        this.txtSilverCoins = new PIXI.Text('0', style);
+        this.txtSilverCoins.x = 654;
+        this.txtSilverCoins.y = 10;
+        
+        this.container.addChild(this.txtSilverCoins);
     }
 
     public getContainer()
@@ -258,13 +282,16 @@ export default class MainHUD
                 this.silverCoins[this.coinNum].y = oy;
                 TweenMax.to(this.silverCoins[this.coinNum], 3,
                             {bezier: {type:"soft", curviness:1.5,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
-                             onComplete: () => { this.container.removeChild(this.silverCoins[coin]);} }
+                             onComplete: () => { this.container.removeChild(this.silverCoins[coin]); this.player.incSilver(1);} }
                             ); 
                 this.coinNum++;
                 if (this.coinNum >= this.silverCoins.length)
                     this.coinNum = 0;
             }
         }
+
+        if (this.player.getSilver().toString() != this.txtSilverCoins.text)
+            this.txtSilverCoins.text = this.player.getSilver().toString();
 
         this.compassRose.update();
         this.headingWatch.update();
