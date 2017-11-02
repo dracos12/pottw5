@@ -157,6 +157,10 @@ export default class Ship extends GameObject
 
     private plotPoint(x:number, y:number)
     {
+        var debug = 0;
+        if (debug==0)
+            return; // stop displaying debug info TODO: make this switchable with debug switch mayhap
+
         if (this.aiNextPlot >= 32)
         {
             console.log("out of Plot Points!");
