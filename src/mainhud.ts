@@ -10,6 +10,7 @@ import Ship from './ship';
 import EconomyIcon from './economyicon';
 import { EcoType } from './economyicon';
 import Player from './player';
+import ShipWidget from './shipwidget';
 
 declare var TweenMax:any;
 
@@ -46,6 +47,8 @@ export default class MainHUD
 
     private txtSilverCoins:PIXI.Text;
     private player:Player;  // the player object, stores all player data
+
+    private shipWidget:ShipWidget;
     
 
     // request the assets we need loaded
@@ -113,6 +116,12 @@ export default class MainHUD
         this.headingWatch.x = this.compassRose.x - this.headingWatch.width/2;
         this.headingWatch.y = this.compassRose.y - this.compassRose.height/2 - this.headingWatch.height - 5;
 
+        this.shipWidget = new ShipWidget();
+        this.shipWidget.init();
+        this.shipWidget.x = 20;
+        this.shipWidget.y = this.footer.y + 10;
+        this.shipWidget.scale.x = this.shipWidget.scale.y = 0.8;
+
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
         this.container.addChild(this.rightCannonBattery);
@@ -120,6 +129,7 @@ export default class MainHUD
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
         this.container.addChild(this.headingWatch);
+        this.container.addChild(this.shipWidget);
 
         this.initHeader();
 
