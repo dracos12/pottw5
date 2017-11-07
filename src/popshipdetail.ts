@@ -4,12 +4,16 @@
 
 import * as PIXI from 'pixi.js';
 import PopUp from './popup';
+import Ship from './ship';
 
 export default class popShipDetails extends PopUp
 {
-    constructor()
+    private boat:Ship;
+
+    constructor(boat:Ship)
     {
         super();
+        this.boat = boat;
     }
 
     public init()
@@ -24,6 +28,8 @@ export default class popShipDetails extends PopUp
         s = new PIXI.Sprite(PIXI.Texture.fromFrame("Btn_Ex.png"));
         s.x = 713 - s.width/2;
         s.y = 42 - s.height/2;
+        s.interactive = true;
+        s.on('click', this.btnXClick);
         this.addChild(s);
         s = new PIXI.Sprite(PIXI.Texture.fromFrame("sellBtn.png"));
         s.x = 649 - s.width/2;
@@ -51,5 +57,10 @@ export default class popShipDetails extends PopUp
     {
         // switch off of ship type
         return new PIXI.Sprite(PIXI.Texture.fromFrame("uiCorvette.png"));
+    }
+
+    private btnXClick = () =>
+    {
+        this.close(); // will callback to popupmanager to remove us from display
     }
 }

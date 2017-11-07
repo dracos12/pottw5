@@ -11,6 +11,8 @@ import EconomyIcon from './economyicon';
 import { EcoType } from './economyicon';
 import Player from './player';
 import ShipWidget from './shipwidget';
+import PopupManager from './popupmanager';
+import popShipDetails from './popshipdetail';
 
 declare var TweenMax:any;
 
@@ -49,7 +51,7 @@ export default class MainHUD
     private player:Player;  // the player object, stores all player data
 
     private shipWidget:ShipWidget;
-    
+    private popupManager:PopupManager;
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -121,6 +123,8 @@ export default class MainHUD
         this.shipWidget.x = 20;
         this.shipWidget.y = this.footer.y + 10;
         this.shipWidget.scale.x = this.shipWidget.scale.y = 0.8;
+        this.shipWidget.interactive = true;
+        this.shipWidget.on('click', this.doShipDetail);
 
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
@@ -142,6 +146,19 @@ export default class MainHUD
         window.addEventListener("floatingIconClick", this.collectLoot, false);
         window.addEventListener("lootDone", this.lootDone, false);
 
+    }
+
+    public setPopupManager(popman:PopupManager)
+    {
+        this.popupManager = popman;
+    }
+
+    private doShipDetail = () =>
+    {
+        console.log("doShipDetail");
+        // display the ship detail popup
+        var pop =  new popShipDetails(this.trackShip);
+        this.popupManager.displayPopup(pop);
     }
 
     private initHeader()

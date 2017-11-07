@@ -2,11 +2,14 @@ import * as PIXI from 'pixi.js';
 import theSea from './theSea';
 import MainHUD from './mainhud';
 
+import PopupManager from './popupmanager';
+
 export default class Core {
     private _renderer:PIXI.CanvasRenderer|PIXI.WebGLRenderer;
     private _world:PIXI.Container;
     private _sea:theSea;
     private _hud:MainHUD;
+    private _popupManager:PopupManager;
 
     private seaLoaded:boolean = false;
     private hudLoaded:boolean = false;
@@ -23,6 +26,11 @@ export default class Core {
         // create the main hud
         this._hud = new MainHUD();
         this._hud.addLoaderAssets(); 
+
+        // create popupmanager
+        this._popupManager = new PopupManager();
+        this._popupManager.setContainer(this._world);
+        this._hud.setPopupManager(this._popupManager);
 
         // load all the assets requested by theSea and Hud
         PIXI.loader.load(this.onLoaded);

@@ -7,13 +7,23 @@ import PopUp from './popup';
 export default class PopupManager
 {
     private popupStack:Array<PopUp>=[];
+    private container:PIXI.Container;
+
+    public setContainer(container:PIXI.Container)
+    {
+        this.container = container;
+    }
 
     public displayPopup(newpop:PopUp)
     {
+        newpop.init();
         this.popupStack.push(newpop);
+        newpop.setManagerClose(this.popIt);
+        this.container.addChild(newpop);
     }
 
     public popIt = () => { // from callback on popup or called directly by external
-        this.popupStack.pop();
+        var pop = this.popupStack.pop();
+        this.container.removeChild(pop);
     }
 }
