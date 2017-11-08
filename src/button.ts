@@ -8,6 +8,7 @@ import * as filters from 'pixi-filters';
 export default class PButton extends PIXI.Sprite
 {
     private glow:filters.GlowFilter;
+    private disabled:boolean = false;
 
     constructor(texture?: PIXI.Texture)
     {
@@ -22,24 +23,47 @@ export default class PButton extends PIXI.Sprite
 
     onMouseDown = () => 
     {
+        if (this.disabled)
+            return;
         this.scale.x = this.scale.y = 0.67;
         this.filters = [];
     }
 
     onMouseUp = () =>
     {
+        if (this.disabled)
+            return;
         this.scale.x = this.scale.y = 1;
     }
 
     onMouseOver = () =>
     {
+        if (this.disabled)
+            return;
         // apply glow filter
         this.filters = [this.glow];
     }
 
     onMouseOut = () => 
     {
+        if (this.disabled)
+            return;
         this.filters = [];
         this.scale.x = this.scale.y = 1;
+    }
+
+    setDisabled(disabled:boolean)
+    {
+        this.disabled = disabled;
+        if (disabled)
+        {
+            this.tint = 0x333333; // dark grey
+            this.alpha = 0.5;
+        }
+        else
+        {
+            this.tint = 0xFFFFFF; // clear any tint
+            this.alpha = 1.0;
+        }
     }
 }

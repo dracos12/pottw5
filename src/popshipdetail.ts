@@ -33,10 +33,12 @@ export default class popShipDetails extends PopUp
         //b.interactive = true;
         b.on('click', this.btnXClick);
         this.addChild(b);
-        s = new PIXI.Sprite(PIXI.Texture.fromFrame("sellBtn.png"));
-        s.x = 649 - s.width/2;
-        s.y = 400 - s.height/2;
-        this.addChild(s);
+        b = new Button(PIXI.Texture.fromFrame("sellBtn.png"));
+        b.anchor.x = b.anchor.y = 0.5;
+        b.x = 649;
+        b.y = 400;
+        b.setDisabled(true);
+        this.addChild(b);
         s = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
         s.x = 348 - s.width/2;
         s.y = 379 - s.height/2;
