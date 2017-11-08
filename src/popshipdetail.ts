@@ -5,6 +5,7 @@
 import * as PIXI from 'pixi.js';
 import PopUp from './popup';
 import Ship from './ship';
+import Button from './button';
 
 export default class popShipDetails extends PopUp
 {
@@ -25,12 +26,13 @@ export default class popShipDetails extends PopUp
         s.x = 603 - s.width/2;
         s.y = 94 - s.height/2; // coordinate in flash are based off its center
         this.addChild(s);
-        s = new PIXI.Sprite(PIXI.Texture.fromFrame("Btn_Ex.png"));
-        s.x = 713 - s.width/2;
-        s.y = 42 - s.height/2;
-        s.interactive = true;
-        s.on('click', this.btnXClick);
-        this.addChild(s);
+        var b = new Button( PIXI.Texture.fromFrame("Btn_Ex.png"));
+        b.anchor.x = b.anchor.y = 0.5;
+        b.x = 713;
+        b.y = 42;
+        //b.interactive = true;
+        b.on('click', this.btnXClick);
+        this.addChild(b);
         s = new PIXI.Sprite(PIXI.Texture.fromFrame("sellBtn.png"));
         s.x = 649 - s.width/2;
         s.y = 400 - s.height/2;

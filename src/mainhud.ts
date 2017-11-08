@@ -307,8 +307,8 @@ export default class MainHUD
                 let coin = this.coinNum;
                 this.silverCoins[this.coinNum].x = ox; 
                 this.silverCoins[this.coinNum].y = oy;
-                TweenMax.to(this.silverCoins[this.coinNum], 3,
-                            {bezier: {type:"soft", curviness:1.5,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
+                TweenMax.to(this.silverCoins[this.coinNum], 1.75,
+                            {bezier: {type:"soft", curviness:2.0,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
                              onComplete: () => { this.container.removeChild(this.silverCoins[coin]); this.player.incSilver(1);} }
                             ); 
                 this.coinNum++;

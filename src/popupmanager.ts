@@ -19,6 +19,10 @@ export default class PopupManager
         newpop.init();
         this.popupStack.push(newpop);
         newpop.setManagerClose(this.popIt);
+        newpop.x = window.innerWidth / 2 - newpop.width / 2;
+        newpop.y = window.innerHeight / 2 - newpop.height /2;
+        if (newpop.y < 0)
+            newpop.y = 0;
         this.container.addChild(newpop);
     }
 
