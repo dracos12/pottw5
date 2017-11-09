@@ -6,10 +6,24 @@ import * as PIXI from 'pixi.js';
 import PopUp from './popup';
 import Ship from './ship';
 import Button from './button';
+import HealthBar from './healthbar';
 
 export default class popShipDetails extends PopUp
 {
     private boat:Ship;
+    private sailHealth:HealthBar;
+    private crewHealth:HealthBar;
+    private hullHealth:HealthBar;
+    private lblSails:PIXI.Text;
+    private lblCrew:PIXI.Text;
+    private lblHull:PIXI.Text;
+    private lblHold:PIXI.Text;
+    private lblShot:PIXI.Text;
+    private lblCannon:PIXI.Text;
+    private lblName:PIXI.Text;
+    private txtShipName:PIXI.Text;
+
+    private holdBack:PIXI.Sprite;
 
     constructor(boat:Ship)
     {
@@ -39,10 +53,10 @@ export default class popShipDetails extends PopUp
         b.y = 400;
         b.setDisabled(true);
         this.addChild(b);
-        s = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
-        s.x = 348 - s.width/2;
-        s.y = 379 - s.height/2;
-        this.addChild(s);
+        this.holdBack = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
+        this.holdBack.x = 348 - this.holdBack.width/2;
+        this.holdBack.y = 379 - this.holdBack.height/2;
+        this.addChild(this.holdBack);
         s = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
         s.x = 505 - s.width/2;
         s.y = 505 - s.height/2;
@@ -55,6 +69,70 @@ export default class popShipDetails extends PopUp
         s.x = 130 - s.width/2;
         s.y = 158 - s.height/2;
         this.addChild(s);
+
+        // health bars
+        this.sailHealth = new HealthBar(150,12,0x0000FF);
+        this.sailHealth.x = 149;
+        this.sailHealth.y = 192;
+        this.addChild(this.sailHealth);
+        this.crewHealth = new HealthBar(150,12,0x00FF00);
+        this.crewHealth.x = 149;
+        this.crewHealth.y = 223;
+        this.addChild(this.crewHealth);
+        this.hullHealth = new HealthBar(150,12,0xFF0000);
+        this.hullHealth.x = 149;
+        this.hullHealth.y = 252;
+        this.addChild(this.hullHealth);
+        var style = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 22,
+            fill: 'black'
+        });
+        
+        this.lblSails = new PIXI.Text('Sails:', style);
+        this.lblSails.x = this.sailHealth.x  - this.lblSails.width - 5;
+        this.lblSails.y = this.sailHealth.y + this.sailHealth.height / 2 - this.lblSails.height / 2;
+        this.addChild(this.lblSails);
+
+        this.lblCrew = new PIXI.Text('Crew:', style);
+        this.lblCrew.x = this.crewHealth.x  - this.lblCrew.width - 5;
+        this.lblCrew.y = this.crewHealth.y + this.crewHealth.height / 2 - this.lblCrew.height / 2;
+        this.addChild(this.lblCrew);
+
+        this.lblHull = new PIXI.Text('Hull:', style);
+        this.lblHull.x = this.hullHealth.x  - this.lblHull.width - 5;
+        this.lblHull.y = this.hullHealth.y + this.hullHealth.height / 2 - this.lblHull.height / 2;
+        this.addChild(this.lblHull);
+
+        this.lblHold = new PIXI.Text('Hold:', style);
+        this.lblHold.x = this.holdBack.x;
+        this.lblHold.y = this.holdBack.y + this.holdBack.height + 3;
+        this.addChild(this.lblHold);
+        var styleb = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 32,
+            fill: 'black'
+        });
+        this.lblShot = new PIXI.Text('99', styleb);
+        this.lblShot.x = this.sailHealth.x + this.sailHealth.width / 2 - this.lblShot.width /2;
+        this.lblShot.y = 135;
+        this.addChild(this.lblShot);
+
+        this.lblCannon = new PIXI.Text('x 6 4lb', styleb);
+        this.lblCannon.x = this.sailHealth.x + this.sailHealth.width / 2 - this.lblShot.width /2;
+        this.lblCannon.y = 93;
+        this.addChild(this.lblCannon);
+
+        this.lblName = new PIXI.Text('Name:', style);
+        this.lblName.x = 172;
+        this.lblName.y = 18;
+        this.addChild(this.lblName);
+
+        this.txtShipName = new PIXI.Text('\"The Donna Doctrine\"', style);
+        this.txtShipName.x = 172;
+        this.txtShipName.y = 43;
+        this.addChild(this.txtShipName);
+
     }
 
     private getShipImage()
