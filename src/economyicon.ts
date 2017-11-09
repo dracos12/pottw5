@@ -20,27 +20,79 @@ export const enum EcoType {
     BARREL
 }
 
-export default class EconomyIcon extends PIXI.Sprite
+export default class EconomyIcon extends PIXI.Container
 {
     private type:EcoType = EcoType.ANCHOR;
     private static jsonData:any;
     private id:number;
+    private icon:PIXI.Sprite;   // the icon
+    private bg:PIXI.Sprite;     // background sprite: none(default), grey, green, blue 
+    private rarity:number;      // 0 = grey, 1 = green, 2 = blue (common, uncommon, rare)
+    private barreled:boolean = false;
 
-    constructor(type:EcoType, id:number)
+    constructor(type:EcoType, id:number, barreled:boolean=false, rarity?:number)
     {
         super();
         // create a sprite with the indicated type
         this.type = type;
         //this.texture = PIXI.Texture.fromFrame(EconomyIcon.jsonData[this.type].fileName);
-        this.texture = PIXI.Texture.fromFrame("icon_Barrel.png");
-        this.anchor.x = 0.5;
-        this.anchor.y = 0.5;
+        this.icon = new PIXI.Sprite(PIXI.Texture.fromFrame("icon_Barrel.png"));
+        this.addChild(this.icon);
+        this.pivot.x = 21;
+        this.pivot.y = 21;
         this.id=id;
+        if (rarity)
+            this.rarity = rarity;
+        else // rondomly decide 75% common, 15% uncommon, 10% rare
+        {
+            var rand = theSea.getRandomIntInclusive(1,100);
+            if (rand <= 75)
+                this.rarity = 0;
+            else if (rand <= 90)
+                this.rarity = 1;
+            else
+                this.rarity = 2;
+        }
+        if (!barreled)
+            this.loadImageByID(); // load a background and icon else will default to a barrel with no background
+        else
+            this.barreled = true;
+    }
+
+    public getType()
+    {
+        return this.type;
     }
 
     public static setEconomyData(jsonData:any)
     {
         this.jsonData = jsonData;
+    }
+
+    public unBarrel()
+    {
+        if (this.barreled)
+        {
+            this.loadImageByID(); // create the proper icon and background
+            this.barreled = false;
+        }
+    }
+
+    private loadImageByID()
+    {
+        // our type is the index into the json data
+        if (EconomyIcon.jsonData)
+        {
+            var s = EconomyIcon.jsonData[this.type].fileName;
+            this.icon.texture = PIXI.Texture.fromFrame(s);
+            if (this.rarity == 0)
+                this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("iconBGgrey.png"));
+            else if (this.rarity == 1)
+                this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("iconBGgreen.png"));
+            else
+                this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("iconBGblue.png"));
+            this.addChildAt(this.bg,0);
+        }
     }
 
     public throwOutAndBob()
@@ -78,7 +130,6 @@ export default class EconomyIcon extends PIXI.Sprite
             midX = this.x - 57;
             
         midY = this.y - 115;
-
 
         // move our position to this new x,y in an curve
         TweenMax.to(this, 
@@ -139,6 +190,5 @@ export default class EconomyIcon extends PIXI.Sprite
         });
 
         window.dispatchEvent(myEvent);
-        
     }
 }

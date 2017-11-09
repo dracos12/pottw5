@@ -53,6 +53,8 @@ export default class MainHUD
     private shipWidget:ShipWidget;
     private popupManager:PopupManager;
 
+    private economyLoaded:boolean = false;
+
     // request the assets we need loaded
     public addLoaderAssets()
     {
@@ -61,14 +63,22 @@ export default class MainHUD
                    .add("images/F8HIZMZFF22CHDE.MEDIUM.jpg")
                    .add("./images/ui/economy_icons.json");
         this.player = new Player();
+        this.loadJSON("./data/economydata.json", this.onEconomyLoaded);
+        
+    }
+        
+    private onEconomyLoaded = (responseText:string) => 
+    {
+        var json_data = JSON.parse(responseText);
+        //console.log(json_data);
+        this.economyLoaded = true;
+        // save the data to the economyicon static
+        EconomyIcon.setEconomyData(json_data);
     }
 
     // assets are loaded, initialize sprites etc
     public onAssetsLoaded()
     {
-        //console.log(PIXI.loader.resources);
-
-
         // create 100 coin sprites for loot effect
         for (var i = 0; i<100; i++)
             this.silverCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
@@ -234,11 +244,12 @@ export default class MainHUD
             this.streamCoins(40,locPos.x,locPos.y);
             return; // dont pop any more
         }
-        boat.aiPopNextLoot();
+        var itemID = boat.aiPopNextLoot();
         var s = boat.getSprite();
         // var globalP = s.getGlobalPosition();
         // var localP = this.container.toLocal(globalP);
-        var icon = new EconomyIcon(EcoType.BARREL,this.lootAvail.length);
+        // rand loot
+        var icon = new EconomyIcon(itemID,this.lootAvail.length,true);
         var ref = boat.getRefPt();
         icon.x = s.x + ref.x;
         icon.y = s.y + ref.y;
@@ -257,10 +268,19 @@ export default class MainHUD
         // mouse up over wreck, stop the loot action (even if not done)
         console.log("collect loot!");
         // get the icon from the details
-        var id = e.detail;
-        var targx = this.trackShip.getSprite().x + this.trackShip.getRefPt().x;
-        var targy = this.trackShip.getSprite().y + this.trackShip.getRefPt().y;
-        this.lootAvail[id].lootIcon(targx, targy);
+        if (this.trackShip.isHoldFull())
+        {
+            // display first mate error message
+            console.log("Captain! Our hold is full! We cant store any more!");
+        }
+        else
+        {
+            var id = e.detail;
+            var targx = this.trackShip.getSprite().x + this.trackShip.getRefPt().x;
+            var targy = this.trackShip.getSprite().y + this.trackShip.getRefPt().y;
+            this.lootAvail[id].lootIcon(targx, targy);
+        }
+
     }
 
     lootDone = (e:any) => {
@@ -268,6 +288,11 @@ export default class MainHUD
         // give loot to the player's boat if possible
         // remove this id
         this.uiLayer.removeChild(this.lootAvail[id]);
+        if(!this.trackShip.addToHold(this.lootAvail[id].getType()))
+        {
+            // we already checked above, not sure how it could get full between calls
+            console.log("addToHold failed post-check");
+        }
     }
 
     private streamCoins(numCoins:number,x:number,y:number)
@@ -279,6 +304,20 @@ export default class MainHUD
         this.coinDelta = 1000 / (numCoins / 3) ;
         this.coinPos.x = x;
         this.coinPos.y = y;
+    }
+
+    private loadJSON(jsonFile:string, callback:Function) 
+    {
+        var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+        xobj.open('GET', jsonFile, true); 
+        xobj.onreadystatechange = function () {
+            if (xobj.readyState == 4 && xobj.status == 200) {
+                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                callback(xobj.responseText);
+            }
+        };
+        xobj.send(null);  
     }
 
     public update()

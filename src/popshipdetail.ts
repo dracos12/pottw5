@@ -7,6 +7,7 @@ import PopUp from './popup';
 import Ship from './ship';
 import Button from './button';
 import HealthBar from './healthbar';
+import EconomyIcon from './economyicon';
 
 export default class popShipDetails extends PopUp
 {
@@ -133,6 +134,23 @@ export default class popShipDetails extends PopUp
         this.txtShipName.y = 43;
         this.addChild(this.txtShipName);
 
+        this.loadHold();
+
+    }
+
+    private loadHold()
+    {
+        var hold = this.boat.getHold();
+        for (var i=0; i<hold.length; i++)
+        {
+            var e = new EconomyIcon(hold[i], i, false);
+            // place in our 10x4 grid
+            e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+            e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjustf or center anchor
+            e.x += this.holdBack.x + 10;
+            e.y += this.holdBack.y + 4;
+            this.addChild(e);
+        }
     }
 
     private getShipImage()

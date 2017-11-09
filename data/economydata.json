@@ -1,16 +1,19 @@
 {
-    "Anchor": {
+    "0": {
         "fileName": "icon_Anchor.png",
+        "displayName": "Anchor",
         "size": 1,
         "value": 10      
     },
-    "Animal Hides": {
+    "1": {
         "fileName": "icon_AnimalHides.png",
+        "displayName": "Animal Hides",
         "size": 1,
         "value": 10      
     },
-    "Barrel": {
+    "2": {
         "fileName": "icon_Barrel.png",
+        "displayName": "Barrel",
         "size": 1,
         "value": 10      
     },

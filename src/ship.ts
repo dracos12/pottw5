@@ -1199,4 +1199,30 @@ export default class Ship extends GameObject
     {
         return this.shipsHold.length;
     }
+
+    public addToHold(itemID:number)
+    {
+        if (this.shipsHold.length < this.shipsHoldCapacity)
+        {
+            this.shipsHold.push(itemID);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public isHoldFull()
+    {
+        if (this.shipsHold.length < this.shipsHoldCapacity)
+            return false;
+        else
+            return true;    
+    }
+
+    public getHold()
+    {
+        return this.shipsHold;
+    }
 }
