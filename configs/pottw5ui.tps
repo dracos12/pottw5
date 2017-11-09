@@ -382,6 +382,84 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/building1.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>32,32,64,65</rect>
+                <key>scale9Paddings</key>
+                <rect>32,32,64,65</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/building2.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>40,48,80,96</rect>
+                <key>scale9Paddings</key>
+                <rect>40,48,80,96</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/building4.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>30,45,60,90</rect>
+                <key>scale9Paddings</key>
+                <rect>30,45,60,90</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/building5.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>41,50,82,100</rect>
+                <key>scale9Paddings</key>
+                <rect>41,50,82,100</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/building6.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>37,56,74,112</rect>
+                <key>scale9Paddings</key>
+                <rect>37,56,74,112</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/buildingForge.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>40,50,80,99</rect>
+                <key>scale9Paddings</key>
+                <rect>40,50,80,99</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/compassBase.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -392,6 +470,19 @@
                 <rect>49,49,98,98</rect>
                 <key>scale9Paddings</key>
                 <rect>49,49,98,98</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/dockSW.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>64,40,127,80</rect>
+                <key>scale9Paddings</key>
+                <rect>64,40,127,80</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -578,6 +669,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/wareHouse.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>50,54,101,108</rect>
+                <key>scale9Paddings</key>
+                <rect>50,54,101,108</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
         </map>
         <key>fileList</key>
         <array>
@@ -612,6 +716,14 @@
             <filename>../../../Art/pottw5/ui/uiCorvette.png</filename>
             <filename>../../../Art/pottw5/ui/shipFrameUI.png</filename>
             <filename>../../../Art/pottw5/ui/selectShipUI.png</filename>
+            <filename>../../../Art/pottw5/ui/wareHouse.png</filename>
+            <filename>../../../Art/pottw5/ui/building1.png</filename>
+            <filename>../../../Art/pottw5/ui/building2.png</filename>
+            <filename>../../../Art/pottw5/ui/building4.png</filename>
+            <filename>../../../Art/pottw5/ui/building5.png</filename>
+            <filename>../../../Art/pottw5/ui/building6.png</filename>
+            <filename>../../../Art/pottw5/ui/buildingForge.png</filename>
+            <filename>../../../Art/pottw5/ui/dockSW.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
