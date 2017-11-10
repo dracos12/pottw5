@@ -65,7 +65,7 @@ export default class popTownInterface extends PopUp
         this.dock.x = 329 - this.dock.width; // position is flipped in animate so origin is top right
         this.dock.y = 354;
         this.addChild(this.dock);
-        this.building2 = new PIXI.Sprite(PIXI.Texture.fromFrame("building5.png"));
+        this.building2 = new PIXI.Sprite(PIXI.Texture.fromFrame("building2.png"));
         this.building2.x = 261;
         this.building2.y =282;
         this.addChild(this.building2);
