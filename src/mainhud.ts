@@ -13,6 +13,8 @@ import Player from './player';
 import ShipWidget from './shipwidget';
 import PopupManager from './popupmanager';
 import popShipDetails from './popshipdetail';
+import Button from './button';
+import popTownInterface from './poptowninterface';
 
 declare var TweenMax:any;
 
@@ -54,6 +56,8 @@ export default class MainHUD
     private popupManager:PopupManager;
 
     private economyLoaded:boolean = false;
+
+    private btnAnchor:Button; // the anchor button for putting in to port
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -136,6 +140,11 @@ export default class MainHUD
         this.shipWidget.interactive = true;
         this.shipWidget.on('click', this.doShipDetail);
 
+        this.btnAnchor = new Button(PIXI.Texture.fromFrame("AnchorButton.png"));
+        this.btnAnchor.x = this.footer.x + 713;
+        this.btnAnchor.y = this.footer.y - 20;
+        this.btnAnchor.on('click', this.doTownInterface);
+
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
         this.container.addChild(this.rightCannonBattery);
@@ -144,6 +153,7 @@ export default class MainHUD
         this.container.addChild(this._sailTrim);
         this.container.addChild(this.headingWatch);
         this.container.addChild(this.shipWidget);
+        this.container.addChild(this.btnAnchor);
 
         this.initHeader();
 
@@ -168,6 +178,14 @@ export default class MainHUD
         console.log("doShipDetail");
         // display the ship detail popup
         var pop =  new popShipDetails(this.trackShip);
+        this.popupManager.displayPopup(pop);
+    }
+
+    private doTownInterface = () =>
+    {
+        console.log("doTownInterface");
+        // display the town interface popup
+        var pop =  new popTownInterface();
         this.popupManager.displayPopup(pop);
     }
 

@@ -19,6 +19,7 @@ export default class PButton extends PIXI.Sprite
         this.on('mouseover', this.onMouseOver);
         this.on('mouseout', this.onMouseOut);
         this.glow = new filters.GlowFilter(10, 1, 1, 0xFFFFFF);
+        this.anchor.x = this.anchor.y = 0.5; // buttons center anchor so scale effects are proprtionate
     }
 
     onMouseDown = () => 
