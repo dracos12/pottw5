@@ -8,6 +8,14 @@
 	"spriteSourceSize": {"x":4,"y":11,"w":47,"h":41},
 	"sourceSize": {"w":56,"h":64}
 },
+"AnchorButton.png":
+{
+	"frame": {"x":905,"y":639,"w":41,"h":33},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":41,"h":33},
+	"sourceSize": {"w":41,"h":36}
+},
 "Btn_Ex.png":
 {
 	"frame": {"x":705,"y":1132,"w":51,"h":48},
@@ -258,7 +266,7 @@
 },
 "uiBall.png":
 {
-	"frame": {"x":905,"y":639,"w":33,"h":33},
+	"frame": {"x":763,"y":1179,"w":33,"h":33},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":33,"h":33},
@@ -319,6 +327,6 @@
 	"format": "RGBA8888",
 	"size": {"w":959,"h":1364},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7e75e69d354ac33576707db5c06be78a:1d127b1964cc98f11cef775e6cd8160f:bcc0c8310e43279ad21cd3ac6bcc5caf$"
+	"smartupdate": "$TexturePacker:SmartUpdate:807944c8ab6c48e0188361d414324f63:d7843194073932b89fed6482a94e7b82:bcc0c8310e43279ad21cd3ac6bcc5caf$"
 }
 }

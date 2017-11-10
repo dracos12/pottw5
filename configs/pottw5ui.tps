@@ -199,6 +199,19 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../../../Art/pottw5/ui/AnchorButton.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,9,21,18</rect>
+                <key>scale9Paddings</key>
+                <rect>10,9,21,18</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/Btn_Ex.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -724,6 +737,7 @@
             <filename>../../../Art/pottw5/ui/building6.png</filename>
             <filename>../../../Art/pottw5/ui/buildingForge.png</filename>
             <filename>../../../Art/pottw5/ui/dockSW.png</filename>
+            <filename>../../../Art/pottw5/ui/AnchorButton.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
