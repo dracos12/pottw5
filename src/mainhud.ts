@@ -186,6 +186,7 @@ export default class MainHUD
         console.log("doTownInterface");
         // display the town interface popup
         var pop =  new popTownInterface();
+        pop.setPopupManager(this.popupManager);
         this.popupManager.displayPopup(pop);
     }
 

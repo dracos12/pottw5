@@ -10,6 +10,7 @@ export default class PButton extends PIXI.Sprite
     private glow:filters.GlowFilter;
     private disabled:boolean = false;
     private noScale:boolean=false;
+    private origScale:number;
 
     constructor(texture?: PIXI.Texture, noScale:boolean=false)
     {
@@ -30,7 +31,10 @@ export default class PButton extends PIXI.Sprite
         if (this.disabled)
             return;
         if (!this.noScale)
-            this.scale.x = this.scale.y = 0.67;
+        {
+            this.origScale = this.scale.x;
+            this.scale.x = this.scale.y = this.origScale * 0.67;
+        }
         this.filters = [];
     }
 
@@ -39,7 +43,7 @@ export default class PButton extends PIXI.Sprite
         if (this.disabled)
             return;
         if (!this.noScale)
-            this.scale.x = this.scale.y = 1;
+            this.scale.x = this.scale.y = this.origScale;
     }
 
     onMouseOver = () =>
@@ -55,7 +59,10 @@ export default class PButton extends PIXI.Sprite
         if (this.disabled)
             return;
         this.filters = [];
-        this.scale.x = this.scale.y = 1;
+        if (!this.noScale)
+        {
+            this.scale.x = this.scale.y = this.origScale;
+        }
     }
 
     setDisabled(disabled:boolean)

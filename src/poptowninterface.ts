@@ -4,6 +4,8 @@
 import * as PIXI from 'pixi.js';
 import PopUp from './popup';
 import Button from './button';
+import popProvisioner from './popprovisioner';
+import PopupManager from './popupmanager';
 
 export default class popTownInterface extends PopUp
 {
@@ -18,12 +20,17 @@ export default class popTownInterface extends PopUp
     private building7:PIXI.Sprite; 
     private dock:PIXI.Sprite;
     private txtTownName:PIXI.Text;
+    private popMan:PopupManager;
 
     constructor()
     {
         super();
     }
 
+    public setPopupManager(popMan:PopupManager)
+    {
+        this.popMan = popMan;
+    }
     public init()
     {
         // backdrop adds first
@@ -95,7 +102,10 @@ export default class popTownInterface extends PopUp
 
     private doProvisioner = () =>
     {
-
+        console.log("doProvisioner");
+        // display the town interface popup
+        var pop =  new popProvisioner();
+        this.popMan.displayPopup(pop);
     }
 
 }
