@@ -9,8 +9,9 @@ export default class PButton extends PIXI.Sprite
 {
     private glow:filters.GlowFilter;
     private disabled:boolean = false;
+    private noScale:boolean=false;
 
-    constructor(texture?: PIXI.Texture)
+    constructor(texture?: PIXI.Texture, noScale:boolean=false)
     {
         super(texture);
         this.interactive = true;
@@ -19,14 +20,17 @@ export default class PButton extends PIXI.Sprite
         this.on('mouseover', this.onMouseOver);
         this.on('mouseout', this.onMouseOut);
         this.glow = new filters.GlowFilter(10, 1, 1, 0xFFFFFF);
-        this.anchor.x = this.anchor.y = 0.5; // buttons center anchor so scale effects are proprtionate
+        if (!noScale)
+            this.anchor.x = this.anchor.y = 0.5; // buttons center anchor so scale effects are proprtionate
+        this.noScale = noScale;
     }
 
     onMouseDown = () => 
     {
         if (this.disabled)
             return;
-        this.scale.x = this.scale.y = 0.67;
+        if (!this.noScale)
+            this.scale.x = this.scale.y = 0.67;
         this.filters = [];
     }
 
@@ -34,7 +38,8 @@ export default class PButton extends PIXI.Sprite
     {
         if (this.disabled)
             return;
-        this.scale.x = this.scale.y = 1;
+        if (!this.noScale)
+            this.scale.x = this.scale.y = 1;
     }
 
     onMouseOver = () =>

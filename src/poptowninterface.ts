@@ -31,15 +31,15 @@ export default class popTownInterface extends PopUp
         this.addChild(this.bg);
         // btnEX!
         this.btnX = new Button(PIXI.Texture.fromFrame("Btn_Ex.png"));
-        this.btnX.anchor.x = this.btnX.anchor.y = 0.5;
         this.btnX.x = 718;
         this.btnX.y = 33;
         this.btnX.on('click', this.btnXClick);
         this.addChild(this.btnX);
         // add buildings by sort order, back to front
-        this.building6 = new PIXI.Sprite(PIXI.Texture.fromFrame("building6.png"));
+        this.building6 = new Button(PIXI.Texture.fromFrame("building6.png"), true);
         this.building6.x = 121;
         this.building6.y = 48;
+        this.building6.on('click', this.doPrizeAgent);
         this.addChild(this.building6);
         this.building1 = new PIXI.Sprite(PIXI.Texture.fromFrame("building1.png"));
         this.building1.x = 283;
@@ -53,9 +53,10 @@ export default class popTownInterface extends PopUp
         this.building3.x = 338;
         this.building3.y = 122;
         this.addChild(this.building3);
-        this.building5 = new PIXI.Sprite(PIXI.Texture.fromFrame("building5.png"));
+        this.building5 = new Button(PIXI.Texture.fromFrame("building5.png"), true);
         this.building5.x = 439;
         this.building5.y = 210;
+        this.building5.on('click',this.doProvisioner);
         this.addChild(this.building5);
         this.building7 = new PIXI.Sprite(PIXI.Texture.fromFrame("wareHouse.png"));
         this.building7.x = 130;
@@ -85,6 +86,16 @@ export default class popTownInterface extends PopUp
     private btnXClick = () =>
     {
         this.close(); // will callback to popupmanager to remove us from display
+    }
+
+    private doPrizeAgent = () =>
+    {
+
+    }
+
+    private doProvisioner = () =>
+    {
+
     }
 
 }
