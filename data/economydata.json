@@ -17,268 +17,321 @@
         "size": 1,
         "value": 10      
     },
-    "Bean": {
-        "fileName": "icon_Bean.png",
+    "3": {
+        "fileName": "icon_Bean.png",        
+        "displayName": "Bean",
         "size": 1,
         "value": 10      
     },
-    "Beans": {
+    "4": {
         "fileName": "icon_Beans.png",
+        "displayName": "Beans",
         "size": 1,
         "value": 10      
     },
-    "Cacao": {
+    "5": {
         "fileName": "icon_CacaoCrop.png",
+        "displayName": "Cacao",
         "size": 1,
         "value": 10      
     },
-    "Cannon": {
+    "6": {
         "fileName": "icon_Cannon.png",
+        "displayName": "Cannon",
         "size": 1,
         "value": 10      
     },
-    "Cheese": {
+    "7": {
         "fileName": "icon_Cheese.png",
+        "displayName": "Cheese",
         "size": 1,
         "value": 10      
     },
-    "Coffee": {
+    "8": {
         "fileName": "icon_Coffee.png",
+        "displayName": "Coffee",
         "size": 1,
         "value": 10      
     },
-    "Copper Ore": {
+    "9": {
         "fileName": "icon_CopperOre.png",
+        "displayName": "Copper Ore",
         "size": 1,
         "value": 10      
     },
-    "Corn": {
+    "10": {
         "fileName": "icon_CornCrop.png",
+        "displayName": "Corn",
         "size": 1,
         "value": 10      
     },
-    "Cotton": {
+    "11": {
         "fileName": "icon_CottonCrop.png",
+        "displayName": "Cotton",
         "size": 1,
         "value": 10      
     },
-    "Distilled Tar": {
+    "12": {
         "fileName": "icon_DistilledTar.png",
+        "displayName": "Distilled Tar",
         "size": 1,
         "value": 10      
     },
-    "Double Shot": {
+    "13": {
         "fileName": "icon_DoubleBall.png",
+        "displayName": "Double Shot",
         "size": 1,
         "value": 10      
     },
-    "Double Powder": {
+    "14": {
         "fileName": "icon_DoublePowder.png",
+        "displayName": "Double Powder",
         "size": 1,
         "value": 10      
     },
-    "Fish": {
+    "15": {
         "fileName": "icon_Fish.png",
+        "displayName": "Fish",
         "size": 1,
         "value": 10      
     },
-    "Fore and Aft Rig": {
+    "16": {
         "fileName": "icon_foreAftRig.png",
+        "displayName": "Fore and Aft Rig",
         "size": 1,
         "value": 10      
     },
-    "Gold Ore": {
+    "17": {
         "fileName": "icon_GoldOre.png",
+        "displayName": "Gold Ore",
         "size": 1,
         "value": 10      
     },
-    "Granite": {
+    "18": {
         "fileName": "icon_Granite.png",
+        "displayName": "Granite",
         "size": 1,
         "value": 10      
     },
-    "Gravel": {
+    "19": {
         "fileName": "icon_Gravel.png",
+        "displayName": "Gravel",
         "size": 1,
         "value": 10      
     },
-    "Hard Tack": {
+    "20": {
         "fileName": "icon_HardTack.png",
+        "displayName": "Hard Tack",
         "size": 1,
         "value": 10      
     },
-    "Hemp": {
+    "21": {
         "fileName": "icon_Hemp.png",
+        "displayName": "Hemp",
         "size": 1,
         "value": 10      
     },
-    "Hemp Canvas": {
+    "22": {
         "fileName": "icon_HempCanvas.png",
+        "displayName": "Hemp Canvas",
         "size": 1,
         "value": 10      
     },
-    "Hemp Rope": {
+    "23": {
         "fileName": "icon_hempRope.png",
+        "displayName": "Hemp Rope",
         "size": 1,
         "value": 10      
     },
-    "Indigo": {
+    "24": {
         "fileName": "icon_Indigo.png",
+        "displayName": "Indigo",
         "size": 1,
         "value": 10      
     },
-    "Iron Ingot": {
+    "25": {
         "fileName": "icon_IronIngot.png",
+        "displayName": "Iron Ingot",
         "size": 1,
         "value": 10      
     },
-    "Iron Ore": {
+    "26": {
         "fileName": "icon_IronOre.png",
+        "displayName": "Iron Ore",
         "size": 1,
         "value": 10      
     },
-    "Iron Ship Fitting": {
+    "27": {
         "fileName": "icon_ironShipFitting.png",
+        "displayName": "Iron Ship Fitting",
         "size": 1,
         "value": 10      
     },
-    "Keel Section": {
+    "28": {
         "fileName": "icon_keelSection.png",
+        "displayName": "Keel Section",
         "size": 1,
         "value": 10      
     },
-    "Leather": {
+    "29": {
         "fileName": "icon_Leather.png",
+        "displayName": "Leather",
         "size": 1,
         "value": 10      
     },
-    "Limestone": {
+    "30": {
         "fileName": "icon_Limestone.png",
+        "displayName": "Limestone",
         "size": 1,
         "value": 10      
     },
-    "Cedar Logs": {
+    "31": {
         "fileName": "icon_logsCedar.png",
+        "displayName": "Cedar Logs",
         "size": 1,
         "value": 10      
     },
-    "Common Logs": {
+    "32": {
         "fileName": "icon_logsCommon.png",
+        "displayName": "Common Logs",
         "size": 1,
         "value": 10      
     },
-    "Fir Logs": {
+    "33": {
         "fileName": "icon_logsFir.png",
+        "displayName": "Fir Logs",
         "size": 1,
         "value": 10      
     },
-    "Iron Wood Logs": {
+    "34": {
         "fileName": "icon_logsIronWood.png",
+        "displayName": "Iron Wood Logs",
         "size": 1,
         "value": 10      
     },
-    "Oak Logs": {
+    "35": {
         "fileName": "icon_logsOak.png",
+        "displayName": "Oak Logs",
         "size": 1,
         "value": 10      
     },
-    "Mast Section": {
+    "36": {
         "fileName": "icon_MastSection.png",
+        "displayName": "Mast Section",
         "size": 1,
         "value": 10      
     },
-    "Meat": {
+    "37": {
         "fileName": "icon_Meat.png",
+        "displayName": "Meat",
         "size": 1,
         "value": 10      
     },
-    "Nails": {
+    "38": {
         "fileName": "icon_Nail.png",
+        "displayName": "Nails",
         "size": 1,
         "value": 10      
     },
-    "Oak Block": {
+    "39": {
         "fileName": "icon_OakBlock.png",
+        "displayName": "Oak Block",
         "size": 1,
         "value": 10      
     },
-    "Plank": {
+    "40": {
         "fileName": "icon_Plank.png",
+        "displayName": "Plank",
         "size": 1,
         "value": 10      
     },
-    "Rigging": {
+    "41": {
         "fileName": "icon_Rigging.png",
+        "displayName": "Rigging",
         "size": 1,
         "value": 10      
     },
-    "Rum": {
+    "42": {
         "fileName": "icon_Rum.png",
+        "displayName": "Rum",
         "size": 1,
         "value": 10      
     },
-    "Sails": {
+    "43": {
         "fileName": "icon_Sails.png",
+        "displayName": "Sails",
         "size": 1,
         "value": 10      
     },
-    "Saltpeter": {
+    "44": {
         "fileName": "icon_SaltPeter.png",
+        "displayName": "Saltpeter",
         "size": 1,
         "value": 10      
     },
-    "Ship Frame": {
+    "45": {
         "fileName": "icon_ShipFrame.png",
+        "displayName": "Ship Frame",
         "size": 1,
         "value": 10      
     },
-    "Ship Hull": {
+    "46": {
         "fileName": "icon_ShipHull.png",
+        "displayName": "Ship Hull",
         "size": 1,
         "value": 10      
     },
-    "Ship Stern": {
+    "47": {
         "fileName": "icon_ShipStern.png",
+        "displayName": "Ship Stern",
         "size": 1,
         "value": 10      
     },
-    "Silver Ore": {
+    "48": {
         "fileName": "icon_SilverOre.png",
+        "displayName": "Silver Ore",
         "size": 1,
         "value": 10      
     },
-    "Square Rig": {
+    "49": {
         "fileName": "icon_SquareRig.png",
+        "displayName": "Square Rig",
         "size": 1,
         "value": 10      
     },
-    "Sugar Cane": {
+    "50": {
         "fileName": "icon_SurgaeCane.png",
+        "displayName": "Sugar Cane",
         "size": 1,
         "value": 10      
     },
-    "Sulfure Ore": {
+    "51": {
         "fileName": "icon_SulfurOre.png",
+        "displayName": "Sulfure Ore",
         "size": 1,
         "value": 10      
     },
-    "Weave Canvas": {
+    "52": {
         "fileName": "icon_WeaveCanvas.png",
+        "displayName": "Weave Canvas",
         "size": 1,
         "value": 10      
     },
-    "Wheat": {
+    "53": {
         "fileName": "icon_Wheat.png",
+        "displayName": "Wheat",
         "size": 1,
         "value": 10      
     },
-    "Wine": {
+    "54": {
         "fileName": "icon_Wine.png",
+        "displayName": "Wine",
         "size": 1,
         "value": 10      
     },
-    "Zinc Ore": {
+    "55": {
         "fileName": "icon_ZincOre.png",
+        "displayName": "Zinc Ore",
         "size": 1,
         "value": 10      
     }
