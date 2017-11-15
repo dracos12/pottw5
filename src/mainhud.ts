@@ -15,6 +15,7 @@ import PopupManager from './popupmanager';
 import popShipDetails from './popshipdetail';
 import Button from './button';
 import popTownInterface from './poptowninterface';
+import EconomyItem from './economyitem';
 
 declare var TweenMax:any;
 
@@ -77,7 +78,7 @@ export default class MainHUD
         //console.log(json_data);
         this.economyLoaded = true;
         // save the data to the economyicon static
-        EconomyIcon.setEconomyData(json_data);
+        EconomyItem.setEconomyData(json_data);
     }
 
     // assets are loaded, initialize sprites etc
@@ -263,12 +264,15 @@ export default class MainHUD
             this.streamCoins(40,locPos.x,locPos.y);
             return; // dont pop any more
         }
-        var itemID = boat.aiPopNextLoot();
+        var item = boat.aiPopNextLoot();
+        if (item == null)
+        {
+            console.log("Error: aiPopNextLoot returned no value");
+            return;
+        }
         var s = boat.getSprite();
-        // var globalP = s.getGlobalPosition();
-        // var localP = this.container.toLocal(globalP);
         // rand loot
-        var icon = new EconomyIcon(itemID,this.lootAvail.length,true);
+        var icon = new EconomyIcon(item.type,this.lootAvail.length,true,item.rarity);
         var ref = boat.getRefPt();
         icon.x = s.x + ref.x;
         icon.y = s.y + ref.y;

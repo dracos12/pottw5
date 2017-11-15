@@ -86,7 +86,7 @@ export default class popProvisioner extends PopUp
             fontSize: 22,
             fill: 'white'
         });
-        this.txtAmount = new PIXI.Text('0:', stylec);
+        this.txtAmount = new PIXI.Text('0', stylec);
         this.txtAmount.x = s.x + s.width + 5;
         this.txtAmount.y = s.y + s.height/2 - this.txtAmount.height/2;
         this.addChild(this.txtAmount);

@@ -6,6 +6,7 @@ import * as PIXI from 'pixi.js';
 import Victor = require('victor');
 import theSea from './theSea';
 import CompassRose from './compassrose';
+import EconomyItem from './economyitem';
 
 //import {TweenMax, Linear} from 'gsap';
 
@@ -22,15 +23,14 @@ export const enum EcoType {
 
 export default class EconomyIcon extends PIXI.Container
 {
-    private type:EcoType = EcoType.ANCHOR;
-    private static jsonData:any;
+    private type:number = 0;
     private id:number;
     private icon:PIXI.Sprite;   // the icon
     private bg:PIXI.Sprite;     // background sprite: none(default), grey, green, blue 
     private rarity:number;      // 0 = grey, 1 = green, 2 = blue (common, uncommon, rare)
     private barreled:boolean = false;
 
-    constructor(type:EcoType, id:number, barreled:boolean=false, rarity?:number)
+    constructor(type:EcoType,id:number,barreled:boolean=false,rarity:number)
     {
         super();
         // create a sprite with the indicated type
@@ -41,18 +41,7 @@ export default class EconomyIcon extends PIXI.Container
         this.pivot.x = 21;
         this.pivot.y = 21;
         this.id=id;
-        if (rarity)
-            this.rarity = rarity;
-        else // rondomly decide 75% common, 15% uncommon, 10% rare
-        {
-            var rand = theSea.getRandomIntInclusive(1,100);
-            if (rand <= 75)
-                this.rarity = 0;
-            else if (rand <= 90)
-                this.rarity = 1;
-            else
-                this.rarity = 2;
-        }
+        this.rarity = rarity;
         if (!barreled)
             this.loadImageByID(); // load a background and icon else will default to a barrel with no background
         else
@@ -62,11 +51,6 @@ export default class EconomyIcon extends PIXI.Container
     public getType()
     {
         return this.type;
-    }
-
-    public static setEconomyData(jsonData:any)
-    {
-        this.jsonData = jsonData;
     }
 
     public unBarrel()
@@ -81,9 +65,9 @@ export default class EconomyIcon extends PIXI.Container
     private loadImageByID()
     {
         // our type is the index into the json data
-        if (EconomyIcon.jsonData)
+        if (EconomyItem.jsonData)
         {
-            var s = EconomyIcon.jsonData[this.type].fileName;
+            var s = EconomyItem.jsonData[this.type].fileName;
             this.icon.texture = PIXI.Texture.fromFrame(s);
             if (this.rarity == 0)
                 this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("iconBGgrey.png"));

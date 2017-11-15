@@ -12,6 +12,7 @@ import theSea from './theSea';
 import FXManager from './fxmanager';
 import CannonBall from './cannonball';
 import { BallType } from './cannonball';
+import EconomyItem from './economyitem';
 
 export const enum ShipType {
     SLOOP,
@@ -88,7 +89,7 @@ export default class Ship extends GameObject
     private wrecked:boolean = false;
     private smokeID:number = 0;
 
-    private shipsHold:Array<number> = [];        // just an array of item ids EconomyIcon carries the data
+    private shipsHold:Array<EconomyItem> = [];        // just an array of item ids EconomyIcon carries the data
     private shipsHoldCapacity:number = 40;       // in "squares" ex Corvette is 10x4 hold so 40 icons
 
     constructor()
@@ -1181,8 +1182,8 @@ export default class Ship extends GameObject
         for (i=0; i<5; i++)
         {
             // generate a random loot item 
-            itemID = theSea.getRandomIntInclusive(0,2);
-            this.shipsHold[i] = itemID;
+            itemID = theSea.getRandomIntInclusive(0,EconomyItem.maxItems-1);
+            this.shipsHold[i] = new EconomyItem(itemID); // random rarity
         }
     }
 
@@ -1190,7 +1191,7 @@ export default class Ship extends GameObject
     public aiPopNextLoot()
     {
         if (this.shipsHold.length == 0)
-            return -1;
+            return null;
 
         return this.shipsHold.pop();
     }
@@ -1200,11 +1201,12 @@ export default class Ship extends GameObject
         return this.shipsHold.length;
     }
 
-    public addToHold(itemID:number)
+    public addToHold(itemType:number,rarity?:number)
     {
         if (this.shipsHold.length < this.shipsHoldCapacity)
         {
-            this.shipsHold.push(itemID);
+            var e = new EconomyItem(itemType,rarity)
+            this.shipsHold.push(e);
             return true;
         }
         else

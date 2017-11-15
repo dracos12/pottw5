@@ -141,12 +141,13 @@ export default class popShipDetails extends PopUp
     private loadHold()
     {
         var hold = this.boat.getHold();
+        console.log(hold);
         for (var i=0; i<hold.length; i++)
         {
-            var e = new EconomyIcon(hold[i], i, false);
+            var e = new EconomyIcon(hold[i].type, i, false,hold[i].rarity);
             // place in our 10x4 grid
             e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
-            e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjustf or center anchor
+            e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
             e.x += this.holdBack.x + 10;
             e.y += this.holdBack.y + 4;
             this.addChild(e);
