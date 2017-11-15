@@ -150,7 +150,7 @@
         "value": 10      
     },
     "25": {
-        "fileName": "icon_IronIngot.png",
+        "fileName": "icon_ironIngot.png",
         "displayName": "Iron Ingot",
         "size": 1,
         "value": 10      
@@ -282,8 +282,8 @@
         "value": 10      
     },
     "47": {
-        "fileName": "icon_ShipStern.png",
-        "displayName": "Ship Stern",
+        "fileName": "icon_ShipStem.png",
+        "displayName": "Ship Stem",
         "size": 1,
         "value": 10      
     },
@@ -300,7 +300,7 @@
         "value": 10      
     },
     "50": {
-        "fileName": "icon_SurgaeCane.png",
+        "fileName": "icon_SurgarCane.png",
         "displayName": "Sugar Cane",
         "size": 1,
         "value": 10      
