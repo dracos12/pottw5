@@ -50,6 +50,10 @@ export default class PButton extends PIXI.Sprite
     {
         if (this.disabled)
             return;
+        if (!this.noScale)
+        {
+            this.origScale = this.scale.x;
+        }
         // apply glow filter
         this.filters = [this.glow];
     }
