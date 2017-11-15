@@ -5,6 +5,8 @@
 import * as PIXI from 'pixi.js';
 import PopUp from './popup';
 import Button from './button';
+import EconomyIcon from './economyicon';
+import SingletonClass from './singleton';
 
 
 export default class popProvisioner extends PopUp
@@ -90,11 +92,71 @@ export default class popProvisioner extends PopUp
         this.txtAmount.x = s.x + s.width + 5;
         this.txtAmount.y = s.y + s.height/2 - this.txtAmount.height/2;
         this.addChild(this.txtAmount);
+
+        this.loadHold();
+        this.displayMerch();
     }
 
     private btnXClick = () =>
     {
         this.close(); // will callback to popupmanager to remove us from display
+    }
+
+    private loadHold()
+    {
+        var hold = SingletonClass.ship.getHold();
+        console.log(hold);
+        for (var i=0; i<hold.length; i++)
+        {
+            var e = new EconomyIcon(hold[i].type, i, false,hold[i].rarity);
+            // place in our 10x4 grid
+            e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+            e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+            e.x += this.holdBack.x + 10;
+            e.y += this.holdBack.y + 4;
+            this.addChild(e);
+        }
+    }
+
+    private displayMerch()
+    {
+        var i=0;
+        // provisioner sells hard tack, meat, fish, wine, rum
+        var e = new EconomyIcon(20, 0, false, 0);
+        e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+        e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+        e.x += this.mercBack.x + 10;
+        e.y += this.mercBack.y + 4;
+        this.addChild(e);
+        i++;
+        e = new EconomyIcon(37, 0, false, 0);
+        e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+        e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+        e.x += this.mercBack.x + 10;
+        e.y += this.mercBack.y + 4;
+        this.addChild(e);
+        i++;
+        e = new EconomyIcon(15, 0, false, 0);
+        e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+        e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+        e.x += this.mercBack.x + 10;
+        e.y += this.mercBack.y + 4;
+        this.addChild(e);
+        i++;
+        e = new EconomyIcon(54, 0, false, 0);
+        e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+        e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+        e.x += this.mercBack.x + 10;
+        e.y += this.mercBack.y + 4;
+        this.addChild(e);
+        i++;
+        e = new EconomyIcon(42, 0, false, 0);
+        e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+        e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+        e.x += this.mercBack.x + 10;
+        e.y += this.mercBack.y + 4;
+        this.addChild(e);
+        i++;
     }
 
 }

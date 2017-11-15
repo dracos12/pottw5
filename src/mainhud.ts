@@ -16,6 +16,7 @@ import popShipDetails from './popshipdetail';
 import Button from './button';
 import popTownInterface from './poptowninterface';
 import EconomyItem from './economyitem';
+import SingletonClass from './singleton';
 
 declare var TweenMax:any;
 
@@ -245,6 +246,8 @@ export default class MainHUD
         var newShip:Ship = event.detail;
         this.compassRose.trackShip(newShip);
         this.trackShip = newShip;
+        var s = SingletonClass.getInstance(); 
+        s.SetShip(this.trackShip);
     }
 
     lootMouseDown = (e:any) => {
