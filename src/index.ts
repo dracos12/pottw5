@@ -29,7 +29,7 @@ export default class Core {
 
         // create popupmanager
         this._popupManager = new PopupManager();
-        this._popupManager.setContainer(this._world);
+        this._popupManager.setContainer(this._hud.getContainer());
         this._hud.setPopupManager(this._popupManager);
 
         // load all the assets requested by theSea and Hud
