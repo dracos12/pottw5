@@ -86,8 +86,10 @@ export default class MainHUD
     public onAssetsLoaded()
     {
         // create 100 coin sprites for loot effect
-        for (var i = 0; i<100; i++)
+        for (var i = 0; i<100; i++) {
             this.silverCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
+            this.silverCoins[i].anchor.x = this.silverCoins[i].anchor.y = 0.5;
+        }
 
         // create and place the header
         this.header = new PIXI.Sprite(PIXI.Texture.fromFrame("UI_Header.png"));
@@ -167,6 +169,7 @@ export default class MainHUD
         window.addEventListener("wreckMouseUp", this.lootMouseUp, false);
         window.addEventListener("floatingIconClick", this.collectLoot, false);
         window.addEventListener("lootDone", this.lootDone, false);
+        window.addEventListener("merchSell",this.merchSell, false);
 
     }
 
@@ -250,6 +253,15 @@ export default class MainHUD
         s.SetShip(this.trackShip);
     }
 
+    merchSell = (e:any) => {
+        var amount = e.detail.amount; // detail contains just the coint count
+        var x = e.detail.x;
+        var y = e.detail.y;
+        var refPt = new PIXI.Point(x,y); // message has sent up global pos x,y
+        var locPos = this.container.toLocal(refPt);
+        this.streamCoins(amount,locPos.x,locPos.y);
+    }
+
     lootMouseDown = (e:any) => {
         // mouse down on a wreck icon, show the loot watch and popout a loot icon one per second
         var boat:Ship = e.detail.boat;
@@ -326,8 +338,8 @@ export default class MainHUD
         // stream coins to the hud every tick
         this.streamCoinEffect = true;
         this.coinCount = 0;
-        this.coinMax = numCoins;
-        this.coinDelta = 1000 / (numCoins / 3) ;
+        this.coinMax += numCoins;
+        this.coinDelta = 1000 / (40 / 3) ;
         this.coinPos.x = x;
         this.coinPos.y = y;
     }
@@ -356,7 +368,10 @@ export default class MainHUD
             {
                 this.coinCount++;
                 if (this.coinCount > this.coinMax)
+                {
                     this.streamCoinEffect = false;
+                    this.coinMax = 0;
+                }
                 this.lastCoinTime = now;
                 this.container.addChild(this.silverCoins[this.coinNum]);
 
@@ -367,8 +382,8 @@ export default class MainHUD
                 y1 = this.container.height * 0.75;
                 x2 = this.container.width;
                 y2 = this.container.height * 0.25;
-                fx = this.container.width * 0.75;
-                fy = 20;
+                fx = this.header.x + 636;
+                fy = this.header.y + 23;
                 let coin = this.coinNum;
                 this.silverCoins[this.coinNum].x = ox; 
                 this.silverCoins[this.coinNum].y = oy;

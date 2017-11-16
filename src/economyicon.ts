@@ -7,6 +7,7 @@ import Victor = require('victor');
 import theSea from './theSea';
 import CompassRose from './compassrose';
 import EconomyItem from './economyitem';
+import * as filters from 'pixi-filters';
 
 //import {TweenMax, Linear} from 'gsap';
 
@@ -29,6 +30,8 @@ export default class EconomyIcon extends PIXI.Container
     private bg:PIXI.Sprite;     // background sprite: none(default), grey, green, blue 
     private rarity:number;      // 0 = grey, 1 = green, 2 = blue (common, uncommon, rare)
     private barreled:boolean = false;
+    private glow:filters.GlowFilter;
+    private glowing:boolean=false;
 
     constructor(type:EcoType,id:number,barreled:boolean=false,rarity:number)
     {
@@ -46,6 +49,8 @@ export default class EconomyIcon extends PIXI.Container
             this.loadImageByID(); // load a background and icon else will default to a barrel with no background
         else
             this.barreled = true;
+
+        this.glow = new filters.GlowFilter(10, 1, 1, 0x00FF00);
     }
 
     public getType()
@@ -174,5 +179,24 @@ export default class EconomyIcon extends PIXI.Container
         });
 
         window.dispatchEvent(myEvent);
+    }
+
+    public glowToggle()
+    {
+        if (!this.glowing)
+        {
+            this.filters = [this.glow];
+            this.glowing = true;
+        }
+        else
+        {
+            this.filters = [];
+            this.glowing = false;
+        }
+    }
+
+    public isGlowing()
+    {
+        return this.glowing;
     }
 }
