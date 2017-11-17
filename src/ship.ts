@@ -6,7 +6,6 @@ import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
 import Victor = require('victor');
 import CompassRose from './compassrose';
-import { TweenLite, Linear, Power2 } from 'gsap';
 import Island from './island';
 import theSea from './theSea';
 import FXManager from './fxmanager';
@@ -23,7 +22,8 @@ export const enum ShipType {
 }
 
 declare var PolyK: any;
-//declare var TweenLite: any; // Greensock Tweenlite used outside of typescript
+declare var TweenMax:any;
+declare var Linear:any;
 
 export default class Ship extends GameObject
 {
@@ -90,6 +90,7 @@ export default class Ship extends GameObject
     private smokeID:number = 0;
 
     private shipsHold:Array<EconomyItem> = [];        // just an array of item ids EconomyIcon carries the data
+    private coins:number;                       // number of treasure doubloons
     private shipsHoldCapacity:number = 40;       // in "squares" ex Corvette is 10x4 hold so 40 icons
 
     constructor()
@@ -935,8 +936,8 @@ export default class Ship extends GameObject
                 }
             }
 
-            if (!this.showTarget)
-                this.showAITarget();
+            // if (!this.showTarget)
+            //     this.showAITarget();
 
             this.updateAITarget();
         } else 
@@ -1154,6 +1155,23 @@ export default class Ship extends GameObject
         this.aiPopulateLoot();
     }
 
+    public sink()
+    {
+        // fade the ship out and then remove us from the map
+        let s = this.getSprite();
+        s.interactive = false;
+        // return the smoke to the fxmanager
+        this.fxManager.returnSmokeToPool(this.smokeID);
+        TweenMax.to(s, 2, {alpha:0,onComplete:this.sunk})
+    }
+
+    private sunk = () =>
+    {
+        let s = this.getSprite();
+        let p =s.parent;
+        p.removeChild(s);
+    }
+
     // mouse handlers, just send a message for the hud to handle the loot mechanic
     wreckMouseDown = (e:any) => {
         var myEvent = new CustomEvent("wreckMouseDown",
@@ -1185,6 +1203,14 @@ export default class Ship extends GameObject
             itemID = theSea.getRandomIntInclusive(0,EconomyItem.maxItems-1);
             this.shipsHold[i] = new EconomyItem(itemID); // random rarity
         }
+
+        // randomly generate the coin value treasure this boat may have
+        this.coins = theSea.getRandomIntInclusive(1,10);
+    }
+
+    public getCoins()
+    {
+        return this.coins;
     }
 
     // return next itemID from the shipsHold

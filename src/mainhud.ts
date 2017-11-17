@@ -276,7 +276,9 @@ export default class MainHUD
             var refPt = new PIXI.Point(x,y);
             var pos = boat.getSprite().toGlobal(refPt);
             var locPos = this.container.toLocal(boat.getSprite().getGlobalPosition());
-            this.streamCoins(40,locPos.x,locPos.y);
+            var coins = boat.getCoins();
+            this.streamCoins(coins,locPos.x,locPos.y);
+            boat.sink();
             return; // dont pop any more
         }
         var item = boat.aiPopNextLoot();
