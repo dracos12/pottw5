@@ -228,7 +228,7 @@ export default class popProvisioner extends PopUp
         }
 
         this.loadHold(false); // flag to just reposition existing items
-
+        this.txtAmount.text = "0";
     }
 
 }
