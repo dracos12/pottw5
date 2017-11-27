@@ -93,6 +93,9 @@ export default class Ship extends GameObject
     private coins:number;                       // number of treasure doubloons
     private shipsHoldCapacity:number = 40;       // in "squares" ex Corvette is 10x4 hold so 40 icons
 
+    private magBall:number;                 // how many ball shoit the ship has left
+    private magBallMax:number = 15;         // maximum number of ball shot ship can carry
+
     constructor()
     {
         super();
@@ -112,6 +115,8 @@ export default class Ship extends GameObject
         for (var i=0; i<8; i++) {
             this.cartPolyData8.push(new Array<number>());
         }
+
+        this.magBall = this.magBallMax;
     }
 
     public setFXManager(fxman:FXManager)
@@ -1090,34 +1095,53 @@ export default class Ship extends GameObject
     public fireCannons(rightBattery:boolean=true)
     {
 
-        console.log("FIRE!!");
+        if (this.magBall > 0)
+        {
+            console.log("FIRE!!");
+            this.magBall -= 1; // deduct ammo (for now just one shot)
 
-        // velocity calculations
-        var v:Victor = new Victor(0,0);
-        v.x = this.heading.x;
-        v.y = -this.heading.y;
-        
-        // get direction
-        if (rightBattery)
-            v.rotate(CompassRose.getRads(90));
+            // velocity calculations
+            var v:Victor = new Victor(0,0);
+            v.x = this.heading.x;
+            v.y = -this.heading.y;
+            
+            // get direction
+            if (rightBattery)
+                v.rotate(CompassRose.getRads(90));
+            else
+                v.rotate(CompassRose.getRads(-90));
+
+            v.normalize();
+
+            // add speed data - speed expressed as pixels/millisecond
+            // var speed = 250 / 1000;
+            // v.multiplyScalar(speed);
+
+            // request a cannonball and give it a velocity
+            var ball = this.fxManager.getCannonBall();
+            var x = this.sprite.x + this.refPt.x;
+            var y = this.sprite.y + this.refPt.y;
+            ball.fire(x, y, v, 4, BallType.BALL, this);
+            this.fxManager.placeMuzzlePlume(x, y, v);
+
+            // return the reload speed based off crew ability
+            return 2500;
+        }
         else
-            v.rotate(CompassRose.getRads(-90));
+        {
+            console.log("Captain! The magazine has run dry! We should put into port and reload!");
+            return 0;
+        }
+    }
 
-        v.normalize();
+    public getMagBall()
+    {
+        return this.magBall;
+    }
 
-        // add speed data - speed expressed as pixels/millisecond
-        // var speed = 250 / 1000;
-        // v.multiplyScalar(speed);
-
-        // request a cannonball and give it a velocity
-        var ball = this.fxManager.getCannonBall();
-        var x = this.sprite.x + this.refPt.x;
-        var y = this.sprite.y + this.refPt.y;
-        ball.fire(x, y, v, 4, BallType.BALL, this);
-        this.fxManager.placeMuzzlePlume(x, y, v);
-
-        // return the reload speed based off crew ability
-        return 2500;
+    public getMagBallMax()
+    {
+        return this.magBallMax;
     }
 
     public receiveFire(weight:number, source:GameObject)

@@ -114,7 +114,8 @@ export default class popShipDetails extends PopUp
             fontSize: 32,
             fill: 'black'
         });
-        this.lblShot = new PIXI.Text('99', styleb);
+        var sMag = this.boat.getMagBall() + " of " + this.boat.getMagBallMax();
+        this.lblShot = new PIXI.Text(sMag, styleb);
         this.lblShot.x = this.sailHealth.x + this.sailHealth.width / 2 - this.lblShot.width /2;
         this.lblShot.y = 135;
         this.addChild(this.lblShot);
