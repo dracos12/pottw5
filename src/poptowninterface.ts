@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js';
 import PopUp from './popup';
 import Button from './button';
 import popProvisioner from './popprovisioner';
+import popPrizeAgent from './popprizeagent';
 import PopupManager from './popupmanager';
 
 export default class popTownInterface extends PopUp
@@ -82,7 +83,9 @@ export default class popTownInterface extends PopUp
 
     private doPrizeAgent = () =>
     {
-
+        console.log("doPrizeAgent");
+        var pop =  new popPrizeAgent();
+        this.popMan.displayPopup(pop);
     }
 
     private doProvisioner = () =>
