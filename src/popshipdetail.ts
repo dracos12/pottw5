@@ -34,21 +34,16 @@ export default class popShipDetails extends PopUp
 
     public init()
     {
+        super.init(); // load background and X button
+
         // load and position our graphics
-        var s = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_map.png"));
-        this.addChild(s);
-        s = this.getShipImage();
+        var s = this.getShipImage();
         s.x = 603 - s.width/2;
         s.y = 94 - s.height/2; // coordinate in flash are based off its center
         this.addChild(s);
-        var b = new Button( PIXI.Texture.fromFrame("Btn_Ex.png"));
-        b.anchor.x = b.anchor.y = 0.5;
-        b.x = 713;
-        b.y = 42;
-        //b.interactive = true;
-        b.on('click', this.btnXClick);
-        this.addChild(b);
-        b = new Button(PIXI.Texture.fromFrame("sellBtn.png"));
+
+
+        var b = new Button(PIXI.Texture.fromFrame("sellBtn.png"));
         b.anchor.x = b.anchor.y = 0.5;
         b.x = 649;
         b.y = 400;
@@ -159,10 +154,5 @@ export default class popShipDetails extends PopUp
     {
         // switch off of ship type
         return new PIXI.Sprite(PIXI.Texture.fromFrame("uiCorvette.png"));
-    }
-
-    private btnXClick = () =>
-    {
-        this.close(); // will callback to popupmanager to remove us from display
     }
 }

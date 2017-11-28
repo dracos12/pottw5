@@ -9,8 +9,6 @@ import PopupManager from './popupmanager';
 
 export default class popTownInterface extends PopUp
 {
-    private bg:PIXI.Sprite; // the backdrop
-    private btnX:Button;    // the close button
     private building1:PIXI.Sprite; 
     private building2:PIXI.Sprite; 
     private building3:PIXI.Sprite; 
@@ -33,15 +31,7 @@ export default class popTownInterface extends PopUp
     }
     public init()
     {
-        // backdrop adds first
-        this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_map.png"));
-        this.addChild(this.bg);
-        // btnEX!
-        this.btnX = new Button(PIXI.Texture.fromFrame("Btn_Ex.png"));
-        this.btnX.x = 718;
-        this.btnX.y = 33;
-        this.btnX.on('click', this.btnXClick);
-        this.addChild(this.btnX);
+        super.init();
         // add buildings by sort order, back to front
         this.building6 = new Button(PIXI.Texture.fromFrame("building6.png"), true);
         this.building6.x = 121;
@@ -88,11 +78,6 @@ export default class popTownInterface extends PopUp
         this.txtTownName.x = this.bg.width /2 - this.txtTownName.width / 2;
         this.txtTownName.y = 29;
         this.addChild(this.txtTownName);
-    }
-
-    private btnXClick = () =>
-    {
-        this.close(); // will callback to popupmanager to remove us from display
     }
 
     private doPrizeAgent = () =>

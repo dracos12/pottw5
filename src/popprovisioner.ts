@@ -11,8 +11,6 @@ import SingletonClass from './singleton';
 
 export default class popProvisioner extends PopUp
 {
-    private bg:PIXI.Sprite; // the backdrop
-    private btnX:Button;    // the close button 
     private mercBack:PIXI.Sprite;
     private holdBack:PIXI.Sprite;
     private coin:PIXI.Sprite;
@@ -27,15 +25,7 @@ export default class popProvisioner extends PopUp
 
     public init()
     {
-        // backdrop adds first
-        this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_map.png"));
-        this.addChild(this.bg);
-        // btnEX!
-        this.btnX = new Button(PIXI.Texture.fromFrame("Btn_Ex.png"));
-        this.btnX.x = 713;
-        this.btnX.y = 42;
-        this.btnX.on('click', this.btnXClick);
-        this.addChild(this.btnX);
+        super.init(); // add backdrop and x buttton
 
         this.mercBack = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
         this.mercBack.x = 336 - this.mercBack.width/2;
@@ -98,11 +88,6 @@ export default class popProvisioner extends PopUp
 
         this.loadHold();
         this.displayMerch();
-    }
-
-    private btnXClick = () =>
-    {
-        this.close(); // will callback to popupmanager to remove us from display
     }
 
     private loadHold(createIcons:boolean=true)

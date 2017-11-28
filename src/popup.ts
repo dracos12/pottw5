@@ -3,11 +3,14 @@
 //
 
 import * as PIXI from 'pixi.js';
+import Button from './button';
 
 export default class PopUp extends PIXI.Container
 {
     protected onClose:Function=null;
     protected managerClose:Function=null; // second callback for the popupmanager onclose
+    protected bg:PIXI.Sprite; // the backdrop
+    protected btnX:Button;    // the close button
 
     constructor(onClose?:Function)
     {
@@ -30,6 +33,19 @@ export default class PopUp extends PIXI.Container
     // children will override
     public init()
     {
+        // load and position our graphics
+        this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_map.png"));
+        this.addChild(this.bg);
+        this.btnX = new Button( PIXI.Texture.fromFrame("Btn_Ex.png"));
+        this.btnX.anchor.x = this.btnX.anchor.y = 0.5;
+        this.btnX.x = 713;
+        this.btnX.y = 42;
+        this.addChild(this.btnX);
+        this.btnX.on('click', this.btnXClick);
+    }
 
+    protected btnXClick = () =>
+    {
+        this.close(); // will callback to popupmanager to remove us from display
     }
 }
