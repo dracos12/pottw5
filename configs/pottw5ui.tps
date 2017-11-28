@@ -381,6 +381,20 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/btnLong.png</key>
+            <key type="filename">../../../Art/pottw5/ui/uiCannon.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>21,11,41,21</rect>
+                <key>scale9Paddings</key>
+                <rect>21,11,41,21</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/btn_ZoomMinus.png</key>
             <key type="filename">../../../Art/pottw5/ui/btn_zoomPlus.png</key>
             <struct type="IndividualSpriteSettings">
@@ -643,19 +657,6 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../../../Art/pottw5/ui/uiCannon.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>21,11,41,21</rect>
-                <key>scale9Paddings</key>
-                <rect>21,11,41,21</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
             <key type="filename">../../../Art/pottw5/ui/uiCorvette.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -738,6 +739,7 @@
             <filename>../../../Art/pottw5/ui/buildingForge.png</filename>
             <filename>../../../Art/pottw5/ui/dockSW.png</filename>
             <filename>../../../Art/pottw5/ui/AnchorButton.png</filename>
+            <filename>../../../Art/pottw5/ui/btnLong.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
