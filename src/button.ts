@@ -10,10 +10,11 @@ export default class Button extends PIXI.Sprite
     private glow:filters.GlowFilter;
     private disabled:boolean = false;
     private noScale:boolean=false;
-    private origScale:number;
+    private origScale:number = 0;
     private label:PIXI.Text;
+    private strLabel:string="";
 
-    constructor(texture?: PIXI.Texture, noScale:boolean=false)
+    constructor(texture?: PIXI.Texture, noScale:boolean=false, text:string="", fontSize:number=22)
     {
         super(texture);
         this.interactive = true;
@@ -25,6 +26,27 @@ export default class Button extends PIXI.Sprite
         if (!noScale)
             this.anchor.x = this.anchor.y = 0.5; // buttons center anchor so scale effects are proprtionate
         this.noScale = noScale;
+        this.origScale = this.scale.x;
+        if (text != "")
+        {
+            this.strLabel = text;
+            var style = new PIXI.TextStyle({
+                fontFamily: 'IM Fell English SC',
+                fontSize: fontSize,
+                fill: 'white'
+            }); 
+            this.label = new PIXI.Text(text, style)
+            if (this.noScale)
+            {
+                this.label.x = this.width / 2 - this.label.width / 2;
+                this.label.y = this.height / 2 - this.label.height / 2;
+            }
+            else {
+                this.label.x = -this.label.width / 2;
+                this.label.y = -this.label.height / 2;
+            }
+            this.addChild(this.label);
+        }
     }
 
     onMouseDown = () => 
@@ -33,7 +55,6 @@ export default class Button extends PIXI.Sprite
             return;
         if (!this.noScale)
         {
-            this.origScale = this.scale.x;
             this.scale.x = this.scale.y = this.origScale * 0.67;
         }
         this.filters = [];
@@ -51,10 +72,6 @@ export default class Button extends PIXI.Sprite
     {
         if (this.disabled)
             return;
-        if (!this.noScale)
-        {
-            this.origScale = this.scale.x;
-        }
         // apply glow filter
         this.filters = [this.glow];
     }
