@@ -1,0 +1,36 @@
+{"frames": {
+
+"charPirateFemale.png":
+{
+	"frame": {"x":410,"y":1,"w":213,"h":419},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":26,"y":13,"w":213,"h":419},
+	"sourceSize": {"w":299,"h":449}
+},
+"charPirateMale.png":
+{
+	"frame": {"x":196,"y":1,"w":212,"h":435},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":37,"y":10,"w":212,"h":435},
+	"sourceSize": {"w":299,"h":449}
+},
+"charVoodoo.png":
+{
+	"frame": {"x":1,"y":1,"w":193,"h":442},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":193,"h":442},
+	"sourceSize": {"w":193,"h":442}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "pottwcharacters.png",
+	"format": "RGBA8888",
+	"size": {"w":624,"h":444},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:47533bfb3ad801924579bc304e3030b9:099302bd3927dc52048d0f2141144604:a96da43f48edf9d822596df3ee151032$"
+}
+}
