@@ -5,12 +5,13 @@
 import * as PIXI from 'pixi.js';
 import * as filters from 'pixi-filters';
 
-export default class PButton extends PIXI.Sprite
+export default class Button extends PIXI.Sprite
 {
     private glow:filters.GlowFilter;
     private disabled:boolean = false;
     private noScale:boolean=false;
     private origScale:number;
+    private label:PIXI.Text;
 
     constructor(texture?: PIXI.Texture, noScale:boolean=false)
     {

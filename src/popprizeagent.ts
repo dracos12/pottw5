@@ -21,6 +21,8 @@ export default class popPrizeAgent extends PopUp
     private txtReloadTime:PIXI.Text;
     private coin:PIXI.Sprite;
     private txtReloadPrice:PIXI.Text;
+    private btnBuyNow:Button;
+    private btnReload:Button;
 
     constructor()
     {
@@ -98,5 +100,15 @@ export default class popPrizeAgent extends PopUp
         this.txtReloadPrice.x = this.coin.x + this.coin.width + 5;
         this.txtReloadPrice.y = this.coin.y;
         this.addChild(this.txtReloadPrice);
+
+        this.btnBuyNow = new Button(PIXI.Texture.fromFrame("btnLong.png"));
+        this.btnBuyNow.x = 329; // - this.btnBuyNow.width/2;
+        this.btnBuyNow.y = 204; // - this.btnBuyNow.height/2;
+        this.addChild(this.btnBuyNow);
+
+        this.btnReload = new Button(PIXI.Texture.fromFrame("btnLong.png"));
+        this.btnReload.x = 217; //- this.btnReload.width / 2;
+        this.btnReload.y = 254; // - this.btnReload.height / 2;
+        this.addChild(this.btnReload);
     }
 }
