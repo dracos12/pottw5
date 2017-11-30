@@ -3,6 +3,7 @@
 //
 
 import PopUp from './popup';
+import popMsgBox from './popmsgbox';
 
 export default class PopupManager
 {
@@ -20,8 +21,15 @@ export default class PopupManager
         this.popupStack.push(newpop);
         newpop.setManagerClose(this.popIt);
         var p = new PIXI.Point();
-        p.x = window.innerWidth / 2 - newpop.width / 2;
-        p.y = window.innerHeight / 2 - newpop.height /2;
+        if (newpop instanceof popMsgBox)
+        {
+            // position in lower left
+            p.x = 0;
+            p.y = window.innerHeight - newpop.height;
+        } else {
+            p.x = window.innerWidth / 2 - newpop.width / 2;
+            p.y = window.innerHeight / 2 - newpop.height / 2;
+        }
         var loc = this.container.toLocal(p);
         newpop.x = loc.x;
         newpop.y = loc.y;
