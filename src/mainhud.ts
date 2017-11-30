@@ -17,6 +17,7 @@ import Button from './button';
 import popTownInterface from './poptowninterface';
 import EconomyItem from './economyitem';
 import SingletonClass from './singleton';
+import popMsgBox from './popmsgbox';
 
 declare var TweenMax:any;
 
@@ -67,7 +68,8 @@ export default class MainHUD
         PIXI.loader.add("./images/ui/pottw5ui.json")
                    .add("images/2yYayZk.png")
                    .add("images/F8HIZMZFF22CHDE.MEDIUM.jpg")
-                   .add("./images/ui/economy_icons.json");
+                   .add("./images/ui/economy_icons.json")
+                   .add("./images/ui/pottwcharacters.json");
         this.player = new Player();
         this.loadJSON("./data/economydata.json", this.onEconomyLoaded);
         
@@ -189,10 +191,15 @@ export default class MainHUD
     private doTownInterface = () =>
     {
         console.log("doTownInterface");
-        // display the town interface popup
-        var pop =  new popTownInterface();
-        pop.setPopupManager(this.popupManager);
+
+        var pop = new popMsgBox();
+        pop.initMsg(0, "Important Message!", "Really boss! I thought this was important to tell you right now");
         this.popupManager.displayPopup(pop);
+
+        // display the town interface popup
+        // var pop =  new popTownInterface();
+        // pop.setPopupManager(this.popupManager);
+        // this.popupManager.displayPopup(pop);
     }
 
     private initHeader()
