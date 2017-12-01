@@ -8,6 +8,7 @@ import Button from './button';
 import SingletonClass from './singleton';
 import Ship from './ship';
 import popMsgBox from './popmsgbox';
+import popCoinStore from './popcoinstore';
 
 
 export default class popPrizeAgent extends PopUp
@@ -107,6 +108,7 @@ export default class popPrizeAgent extends PopUp
         this.btnBuyNow.x = 329; // - this.btnBuyNow.width/2;
         this.btnBuyNow.y = 204; // - this.btnBuyNow.height/2;
         this.addChild(this.btnBuyNow);
+        this.btnBuyNow.on('click', this.onBuyNow);
 
         this.btnReload = new Button(PIXI.Texture.fromFrame("btnLong.png"), false, "Reload");
         this.btnReload.x = 217; //- this.btnReload.width / 2;
@@ -122,6 +124,38 @@ export default class popPrizeAgent extends PopUp
         this.txtReloadTime.text = this.getTimeRemaining();
 
         requestAnimationFrame(this.update);
+    }
+
+    onBuyNow = (e:any) =>
+    {
+        var balls = SingletonClass.ship.getMagBall();
+        if (balls == SingletonClass.ship.getMagBallMax())
+        {
+            var msg = new popMsgBox();
+            msg.initMsg(0,"1st Mate", "Our magazine is full captain! No need to reload right now.");
+            SingletonClass.popupManager.displayPopup(msg);
+            return;
+        }
+
+        if (SingletonClass.player.getGold() >= 10)
+        {
+            SingletonClass.player.decGold(10);
+            SingletonClass.ship.fillMagazine();
+            var sMag = SingletonClass.ship.getMagBall() + " of " + SingletonClass.ship.getMagBallMax();
+            this.lblShot.text = sMag;
+
+            var msg = new popMsgBox();
+            msg.initMsg(0,"Prize Agent", "Yes, exaction is the best way to deal with the armory...");
+            SingletonClass.popupManager.displayPopup(msg);
+    
+            console.log("Refilled Mag! lastReload = " + SingletonClass.player.lastReload);
+        }
+        else
+        {
+            // display the coin store
+            var pop = new popCoinStore();
+            SingletonClass.popupManager.displayPopup(pop);
+        }
     }
 
     onReload = () =>
