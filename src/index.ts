@@ -3,6 +3,7 @@ import theSea from './theSea';
 import MainHUD from './mainhud';
 
 import PopupManager from './popupmanager';
+import SingletonClass from './singleton';
 
 export default class Core {
     private _renderer:PIXI.CanvasRenderer|PIXI.WebGLRenderer;
@@ -31,6 +32,7 @@ export default class Core {
         this._popupManager = new PopupManager();
         this._popupManager.setContainer(this._hud.getContainer());
         this._hud.setPopupManager(this._popupManager);
+        SingletonClass.popupManager = this._popupManager;
 
         // load all the assets requested by theSea and Hud
         PIXI.loader.load(this.onLoaded);

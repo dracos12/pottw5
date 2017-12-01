@@ -3,12 +3,14 @@
 //
 import Player from './player';
 import Ship from './ship';
+import PopupManager from './popupmanager';
 
 export default class SingletonClass {
     private static _instance:SingletonClass = new SingletonClass();
 
     private static playerObject:Player = new Player(); // instantiate the player object
     private static playerShip:Ship; // maintained by the mainhud
+    private static _popupManager:PopupManager;
 
     constructor() {
         if(SingletonClass._instance){
@@ -35,6 +37,16 @@ export default class SingletonClass {
     public static get player()
     {
         return SingletonClass.playerObject;
+    }
+
+    public static get popupManager()
+    {
+        return this._popupManager;
+    }
+
+    public static set popupManager(newpopman:PopupManager)
+    {
+        this._popupManager = newpopman;
     }
 }
 

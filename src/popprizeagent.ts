@@ -7,6 +7,7 @@ import PopUp from './popup';
 import Button from './button';
 import SingletonClass from './singleton';
 import Ship from './ship';
+import popMsgBox from './popmsgbox';
 
 
 export default class popPrizeAgent extends PopUp
@@ -113,18 +114,12 @@ export default class popPrizeAgent extends PopUp
         this.addChild(this.btnReload);
         this.btnReload.on('click', this.onReload);
 
-        if (this.getTimeRemaining() != "Ready!")
-            this.btnReload.setDisabled(true);
-
         requestAnimationFrame(this.update);
     }
 
     update = () =>
     {
         this.txtReloadTime.text = this.getTimeRemaining();
-        
-        if (this.txtReloadTime.text == "Ready!")
-            this.btnReload.setDisabled(false); // enable the button
 
         requestAnimationFrame(this.update);
     }
@@ -134,13 +129,29 @@ export default class popPrizeAgent extends PopUp
         // var pop = new popMsgBox();
         // pop.initMsg(0, "Important Message!", "Really boss! I thought this was important to tell you right now");
         // this.popupManager.displayPopup(pop);
+        var balls = SingletonClass.ship.getMagBall();
+        if (balls == SingletonClass.ship.getMagBallMax())
+        {
+            var msg = new popMsgBox();
+            msg.initMsg(0,"1st Mate", "Our magazine is full captain! No need to reload right now.");
+            SingletonClass.popupManager.displayPopup(msg);
+            return;
+        }
+
+        if (this.txtReloadTime.text != "Ready!")
+        {
+            var msg2 = new popMsgBox();
+            msg2.initMsg(0,"Prize Agent", "I cannot reload your magazine at the moment. Unless you're willing to bribe the armory...");
+            SingletonClass.popupManager.displayPopup(msg2);
+            return;
+        }
 
         var now = Date.now();
         SingletonClass.player.lastReload = now;
 
         SingletonClass.ship.fillMagazine();
-
-        this.btnReload.setDisabled(true);
+        var sMag = SingletonClass.ship.getMagBall() + " of " + SingletonClass.ship.getMagBallMax();
+        this.lblShot.text = sMag;
 
         console.log("Refilled Mag! lastReload = " + SingletonClass.player.lastReload);
     }

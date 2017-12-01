@@ -7,7 +7,7 @@ export default class Player
     private gold:number = 0;     // premium currency
     private silver:number = 0;   // basic in-game currency
     private _lastReload:number = 0;   // UTC timestamp of last reload time
-    private _reloadTime:number = 10000; // player can reload every reloadTime milliseconds
+    private _reloadTime:number = 30000; // player can reload every reloadTime milliseconds
     private _numReloads:number = 0; // number of times the user has reloaded
 
     public getGold()
