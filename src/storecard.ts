@@ -24,19 +24,15 @@ export default class StoreCard extends PIXI.Container
         this.addChild(this.cardBack);
         var style = new PIXI.TextStyle({
             fontFamily: 'IM Fell English SC',
-            fontSize: 18,
-            fill: 'black'
+            fontSize: 22,
+            fill: 'white'
         });
         this.txtName = new PIXI.Text(name, style);
-        this.txtName.x = this.cardBack.width / 2 - this.txtName.width / 2;
-        this.txtName.y = 6;
+        this.txtName.x = 48;
+        this.txtName.y = 1;
         this.addChild(this.txtName);
-        var styleb = new PIXI.TextStyle({
-            fontFamily: 'IM Fell English SC',
-            fontSize: 22,
-            fill: 'black'
-        });
-        this.txtPrice = new PIXI.Text(price, styleb);
+
+        this.txtPrice = new PIXI.Text(price, style);
         this.txtPrice.x = 39;
         this.txtPrice.y = 151;
         this.addChild(this.txtPrice);
@@ -51,8 +47,8 @@ export default class StoreCard extends PIXI.Container
 
         if (coin != 0)
         {
-            this.coinIcon.x = 28 - this.coinIcon.width / 2;
-            this.coinIcon.y = 165 - this.coinIcon.height / 2;
+            this.coinIcon.x = 34 - this.coinIcon.width / 2;
+            this.coinIcon.y = 17 - this.coinIcon.height / 2;
             this.addChild(this.coinIcon);
         }
 

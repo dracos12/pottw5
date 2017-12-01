@@ -44,8 +44,11 @@ export default class MainHUD
     private lootAvail:Array<EconomyIcon>=[];
 
     private silverCoins:Array<PIXI.Sprite>=[];
+    private goldCoins:Array<PIXI.Sprite>=[];
     private coinNum:number = 0;
     private streamCoinEffect:boolean = false;
+    private streamGold:boolean = false;
+    private coinInc:number = 1;
     private lastCoinTime:number = 0;
     private coinCount:number = 0;
     private coinMax:number = 0;
@@ -53,6 +56,7 @@ export default class MainHUD
     private coinPos:PIXI.Point = new PIXI.Point(0,0);
 
     private txtSilverCoins:PIXI.Text;
+    private txtGoldCoins:PIXI.Text;
 
     private shipWidget:ShipWidget;
     private popupManager:PopupManager;
@@ -86,9 +90,15 @@ export default class MainHUD
     public onAssetsLoaded()
     {
         // create 100 coin sprites for loot effect
-        for (var i = 0; i<100; i++) {
+        var i;
+        for (i = 0; i<50; i++) {
             this.silverCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
             this.silverCoins[i].anchor.x = this.silverCoins[i].anchor.y = 0.5;
+        }
+        // create 100 coin sprites for loot effect
+        for (i = 0; i<50; i++) {
+            this.goldCoins[i] = new PIXI.Sprite(PIXI.Texture.fromFrame("goldCoin.png"));
+            this.goldCoins[i].anchor.x = this.goldCoins[i].anchor.y = 0.5;
         }
 
         // create and place the header
@@ -170,6 +180,7 @@ export default class MainHUD
         window.addEventListener("floatingIconClick", this.collectLoot, false);
         window.addEventListener("lootDone", this.lootDone, false);
         window.addEventListener("merchSell",this.merchSell, false);
+        window.addEventListener("buyGold",this.buyGold, false);
 
     }
 
@@ -207,8 +218,13 @@ export default class MainHUD
         this.txtSilverCoins = new PIXI.Text('0', style);
         this.txtSilverCoins.x = 654;
         this.txtSilverCoins.y = 10;
+
+        this.txtGoldCoins = new PIXI.Text('0', style);
+        this.txtGoldCoins.x = 555;
+        this.txtGoldCoins.y = 10;
         
         this.container.addChild(this.txtSilverCoins);
+        this.container.addChild(this.txtGoldCoins);
     }
 
     public getContainer()
@@ -252,6 +268,17 @@ export default class MainHUD
         this.trackShip = newShip;
         var s = SingletonClass.getInstance(); 
         s.SetShip(this.trackShip);
+    }
+
+    buyGold = (e:any) =>
+    {
+        var amount = e.detail.amount; // detail contains just the coint count
+        var x = e.detail.x;
+        var y = e.detail.y;
+        var inc = e.detail.inc;
+        var refPt = new PIXI.Point(x,y); // message has sent up global pos x,y
+        var locPos = this.container.toLocal(refPt);
+        this.streamCoins(amount,locPos.x,locPos.y,true,inc);       
     }
 
     merchSell = (e:any) => {
@@ -336,7 +363,7 @@ export default class MainHUD
         }
     }
 
-    private streamCoins(numCoins:number,x:number,y:number)
+    private streamCoins(numCoins:number,x:number,y:number,gold:boolean=false,inc:number=1)
     {
         // stream coins to the hud every tick
         this.streamCoinEffect = true;
@@ -345,6 +372,8 @@ export default class MainHUD
         this.coinDelta = 1000 / (40 / 3) ;
         this.coinPos.x = x;
         this.coinPos.y = y;
+        this.streamGold = gold;
+        this.coinInc = inc;
     }
 
     private loadJSON(jsonFile:string, callback:Function) 
@@ -370,14 +399,16 @@ export default class MainHUD
             if (now - this.lastCoinTime > this.coinDelta)
             {
                 this.coinCount++;
-                if (this.coinCount > this.coinMax)
+                if (this.coinCount >= this.coinMax)
                 {
                     this.streamCoinEffect = false;
                     this.coinMax = 0;
                 }
                 this.lastCoinTime = now;
-                this.container.addChild(this.silverCoins[this.coinNum]);
-
+                if (!this.streamGold)
+                    this.container.addChild(this.silverCoins[this.coinNum]);
+                else    
+                    this.container.addChild(this.goldCoins[this.coinNum]);
                 var ox,oy,x1,y1,x2,y2,fx,fy;
                 ox = this.coinPos.x;
                 oy = this.coinPos.y;
@@ -385,15 +416,32 @@ export default class MainHUD
                 y1 = this.container.height * 0.75;
                 x2 = this.container.width;
                 y2 = this.container.height * 0.25;
-                fx = this.header.x + 636;
-                fy = this.header.y + 23;
+                if (!this.streamGold) {
+                    fx = this.header.x + 636;
+                    fy = this.header.y + 23;
+                } else {
+                    fx = this.header.x + 534;
+                    fy = this.header.y + 23;
+                }
                 let coin = this.coinNum;
-                this.silverCoins[this.coinNum].x = ox; 
-                this.silverCoins[this.coinNum].y = oy;
+                if (!this.streamGold) {
+                    this.silverCoins[this.coinNum].x = ox; 
+                    this.silverCoins[this.coinNum].y = oy;
+                } else {
+                    this.goldCoins[this.coinNum].x = ox; 
+                    this.goldCoins[this.coinNum].y = oy;
+                }
+                if (!this.streamGold) {
                 TweenMax.to(this.silverCoins[this.coinNum], 1.75,
                             {bezier: {type:"soft", curviness:2.0,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
-                             onComplete: () => { this.container.removeChild(this.silverCoins[coin]); SingletonClass.player.incSilver(1);} }
+                             onComplete: () => {this.container.removeChild(this.silverCoins[coin]); SingletonClass.player.incSilver(1);} }
                             ); 
+                } else {
+                TweenMax.to(this.goldCoins[this.coinNum], 1.75,
+                    {bezier: {type:"soft", curviness:2.0,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
+                        onComplete: () => { this.container.removeChild(this.goldCoins[coin]); SingletonClass.player.incGold(this.coinInc); } }
+                    );                    
+                }
                 this.coinNum++;
                 if (this.coinNum >= this.silverCoins.length)
                     this.coinNum = 0;
@@ -402,6 +450,9 @@ export default class MainHUD
 
         if (SingletonClass.player.getSilver().toString() != this.txtSilverCoins.text)
             this.txtSilverCoins.text = SingletonClass.player.getSilver().toString();
+
+        if (SingletonClass.player.getGold().toString() != this.txtGoldCoins.text)
+            this.txtGoldCoins.text = SingletonClass.player.getGold().toString();
 
         this.compassRose.update();
         this.headingWatch.update();

@@ -20,6 +20,15 @@ export default class Player
         return this.silver;
     }
 
+    public incGold(amount:number)
+    {
+        this.gold += amount;
+    }
+
+    public decGold(amount:number)
+    {
+        this.gold -= amount;
+    }
     public incSilver(amount:number)
     {
         this.silver += amount;
