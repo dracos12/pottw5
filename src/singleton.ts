@@ -7,7 +7,7 @@ import Ship from './ship';
 export default class SingletonClass {
     private static _instance:SingletonClass = new SingletonClass();
 
-    private static playerObject:Player;
+    private static playerObject:Player = new Player(); // instantiate the player object
     private static playerShip:Ship; // maintained by the mainhud
 
     constructor() {

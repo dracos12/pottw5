@@ -53,7 +53,6 @@ export default class MainHUD
     private coinPos:PIXI.Point = new PIXI.Point(0,0);
 
     private txtSilverCoins:PIXI.Text;
-    private player:Player;  // the player object, stores all player data
 
     private shipWidget:ShipWidget;
     private popupManager:PopupManager;
@@ -70,7 +69,6 @@ export default class MainHUD
                    .add("images/F8HIZMZFF22CHDE.MEDIUM.jpg")
                    .add("./images/ui/economy_icons.json")
                    .add("./images/ui/pottwcharacters.json");
-        this.player = new Player();
         this.loadJSON("./data/economydata.json", this.onEconomyLoaded);
         
     }
@@ -192,14 +190,10 @@ export default class MainHUD
     {
         console.log("doTownInterface");
 
-        var pop = new popMsgBox();
-        pop.initMsg(0, "Important Message!", "Really boss! I thought this was important to tell you right now");
+        //display the town interface popup
+        var pop =  new popTownInterface();
+        pop.setPopupManager(this.popupManager);
         this.popupManager.displayPopup(pop);
-
-        // display the town interface popup
-        // var pop =  new popTownInterface();
-        // pop.setPopupManager(this.popupManager);
-        // this.popupManager.displayPopup(pop);
     }
 
     private initHeader()
@@ -398,7 +392,7 @@ export default class MainHUD
                 this.silverCoins[this.coinNum].y = oy;
                 TweenMax.to(this.silverCoins[this.coinNum], 1.75,
                             {bezier: {type:"soft", curviness:2.0,values:[{x:ox,y:oy},{x:x1,y:y1},{x:x2,y:y2},{x:fx,y:fy}]},
-                             onComplete: () => { this.container.removeChild(this.silverCoins[coin]); this.player.incSilver(1);} }
+                             onComplete: () => { this.container.removeChild(this.silverCoins[coin]); SingletonClass.player.incSilver(1);} }
                             ); 
                 this.coinNum++;
                 if (this.coinNum >= this.silverCoins.length)
@@ -406,8 +400,8 @@ export default class MainHUD
             }
         }
 
-        if (this.player.getSilver().toString() != this.txtSilverCoins.text)
-            this.txtSilverCoins.text = this.player.getSilver().toString();
+        if (SingletonClass.player.getSilver().toString() != this.txtSilverCoins.text)
+            this.txtSilverCoins.text = SingletonClass.player.getSilver().toString();
 
         this.compassRose.update();
         this.headingWatch.update();

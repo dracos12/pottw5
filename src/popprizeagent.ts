@@ -6,6 +6,7 @@ import * as PIXI from 'pixi.js';
 import PopUp from './popup';
 import Button from './button';
 import SingletonClass from './singleton';
+import Ship from './ship';
 
 
 export default class popPrizeAgent extends PopUp
@@ -110,5 +111,58 @@ export default class popPrizeAgent extends PopUp
         this.btnReload.x = 217; //- this.btnReload.width / 2;
         this.btnReload.y = 254; // - this.btnReload.height / 2;
         this.addChild(this.btnReload);
+        this.btnReload.on('click', this.onReload);
+
+        if (this.getTimeRemaining() != "Ready!")
+            this.btnReload.setDisabled(true);
+
+        requestAnimationFrame(this.update);
+    }
+
+    update = () =>
+    {
+        this.txtReloadTime.text = this.getTimeRemaining();
+        
+        if (this.txtReloadTime.text == "Ready!")
+            this.btnReload.setDisabled(false); // enable the button
+
+        requestAnimationFrame(this.update);
+    }
+
+    onReload = () =>
+    {
+        // var pop = new popMsgBox();
+        // pop.initMsg(0, "Important Message!", "Really boss! I thought this was important to tell you right now");
+        // this.popupManager.displayPopup(pop);
+
+        var now = Date.now();
+        SingletonClass.player.lastReload = now;
+
+        SingletonClass.ship.fillMagazine();
+
+        this.btnReload.setDisabled(true);
+
+        console.log("Refilled Mag! lastReload = " + SingletonClass.player.lastReload);
+    }
+
+    private  getTimeRemaining() {
+        if (SingletonClass.player.lastReload == 0)
+            return "Ready!";
+
+        var now = Date.now();
+        var t = now - SingletonClass.player.lastReload;
+
+        if (t > SingletonClass.player.reloadTime)
+            return "Ready!";
+
+        // if not zero, or elapsed, we are within the time window, determine how much is left
+        t = SingletonClass.player.reloadTime - t; 
+
+        var seconds = Math.floor( (t/1000) % 60 );
+        var minutes = Math.floor( (t/1000/60) % 60 );
+        var hours = Math.floor( (t/(1000*60*60)) % 24 );
+        //console.log(hours + ":" + minutes + ":" +  seconds);
+        var strTime = Ship.zeroPad(hours, 2) + ":" + Ship.zeroPad(minutes, 2) + ":" + Ship.zeroPad(seconds, 2);
+        return strTime;
     }
 }

@@ -756,6 +756,13 @@ export default class Ship extends GameObject
     }
 
     public static zeroPad (num:number, numZeros:number) {
+        if (num == 0)
+        {
+            var retStr = "";
+            for (var i = 0; i< numZeros; i++)
+                retStr = retStr + "0";
+            return retStr;
+        }
         var an = Math.abs (num);
         var digitCount = 1 + Math.floor (Math.log (an) / Math.LN10);
         if (digitCount >= numZeros) {
@@ -1137,6 +1144,11 @@ export default class Ship extends GameObject
     public getMagBall()
     {
         return this.magBall;
+    }
+
+    public fillMagazine()
+    {
+        this.magBall = this.magBallMax;
     }
 
     public getMagBallMax()
