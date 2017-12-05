@@ -1,5 +1,6 @@
 import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
+import Victor = require('victor');
 
 export default class Island extends GameObject
 {
@@ -36,6 +37,13 @@ export default class Island extends GameObject
         var x = this.sprite.x + this.islandData.portRef[0];
         var y = this.sprite.y + this.islandData.portRef[1];
         return new PIXI.Point(x,y);
+    }
+
+    public getPortDestVictor()
+    {
+        var x = this.sprite.x + this.islandData.portRef[0];
+        var y = this.sprite.y + this.islandData.portRef[1];
+        return new Victor(x,y);
     }
 
     public getName()

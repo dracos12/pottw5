@@ -5,6 +5,8 @@ import { ObjectType } from './gameobject';
 import Island from './island';
 import Ship from './ship';
 import FXManager from './fxmanager';
+import SingletonClass from './singleton';
+import Victor = require('victor');
 
 declare var PolyK: any;
 
@@ -545,11 +547,34 @@ export default class theSea
         // sort the children ascending as the renderer will render sprites in container ordrer
         this.layerObjects.children.sort(this.objSort);
 
+        var nearPort:boolean = false;
         // loop through our object array and call each element's update function
         for (let gameObj of this.islandArray)
         {
+            var boat = SingletonClass.ship;
             gameObj.update();
+            if (!nearPort)
+            {
+                if ((<Island>gameObj).isPort())
+                {
+                    var isle = <Island>gameObj;
+                    // check its port ref against the player boat position
+                    var boatPt = boat.getRefPtVictor();
+                    var islePt = isle.getPortDestVictor(); // ref math already included here
+                    // if close enough, enable the port button on the main hud
+                    var dist = Math.abs(boatPt.distance(islePt));
+                    if (dist < 150)
+                    {
+                        nearPort = true;
+                        SingletonClass.currentPort = isle.getName();
+                    }
+                }
+            }
         }
+
+        if (!nearPort) // not near a port, clear the currentPort string HUD uses to enable anchor button
+            SingletonClass.currentPort = "";
+
         for (let gameObj of this.shipArray)
         {
             gameObj.update();

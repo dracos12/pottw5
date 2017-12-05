@@ -745,6 +745,12 @@ export default class Ship extends GameObject
         return p;
     }
 
+    public getRefPtVictor()
+    {
+        var p = new Victor(this.sprite.x + this.refPt.x, this.sprite.y + this.refPt.y);
+        return p;
+    }
+
     private getFrameString(frameNum:number, mod:number)
     {
         let n:number = frameNum;

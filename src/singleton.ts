@@ -11,6 +11,7 @@ export default class SingletonClass {
     private static playerObject:Player = new Player(); // instantiate the player object
     private static playerShip:Ship; // maintained by the mainhud
     private static _popupManager:PopupManager;
+    private static _currentPort:string = "";
 
     constructor() {
         if(SingletonClass._instance){
@@ -47,6 +48,16 @@ export default class SingletonClass {
     public static set popupManager(newpopman:PopupManager)
     {
         this._popupManager = newpopman;
+    }
+
+    public static get currentPort()
+    {
+        return this._currentPort;
+    }
+
+    public static set currentPort(newPort:string)
+    {
+        this._currentPort = newPort;
     }
 }
 

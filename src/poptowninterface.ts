@@ -7,6 +7,7 @@ import Button from './button';
 import popProvisioner from './popprovisioner';
 import popPrizeAgent from './popprizeagent';
 import PopupManager from './popupmanager';
+import SingletonClass from './singleton';
 
 export default class popTownInterface extends PopUp
 {
@@ -75,7 +76,8 @@ export default class popTownInterface extends PopUp
             fill: 'black'
         });
 
-        this.txtTownName = new PIXI.Text('Pointe-à-Pitre', style);
+        var townName = SingletonClass.currentPort;
+        this.txtTownName = new PIXI.Text(townName, style);
         this.txtTownName.x = this.bg.width /2 - this.txtTownName.width / 2;
         this.txtTownName.y = 29;
         this.addChild(this.txtTownName);

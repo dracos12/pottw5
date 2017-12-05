@@ -478,5 +478,11 @@ export default class MainHUD
         else {
             this._sailTrim.hideLuff();
         }
+
+        if (SingletonClass.currentPort != "")
+            this.btnAnchor.visible = true;
+        else
+            this.btnAnchor.visible = false;
+        
     }
 } 
