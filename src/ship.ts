@@ -31,6 +31,7 @@ export default class Ship extends GameObject
     private degreeHeading:number; // heading expressed as Cartesian degrees
     private targetHeading:number;
     private toLarboard:boolean = false; // which direction to turn to targetHeading
+    private headingTicks:number = 0;
     
     private lastTime:number; // record last timestamp
 
@@ -51,7 +52,7 @@ export default class Ship extends GameObject
 
     // boat handling characteristics
     private angularSpeed:number = 30;   // turn rate in degrees/second
-    private angleToWind:number = 60;    // closet angle to the wind this ship can sail upon
+    private angleToWind:number = 60;    // closest angle to the wind this ship can sail upon
 
     private aGround:boolean = false;    // are we aground? set by theSea main loop
     private inIrons:boolean = false;    // are we inIrons? set by compassRose
@@ -886,22 +887,32 @@ export default class Ship extends GameObject
 
         if (this.targetHeading != this.degreeHeading) {
             var deltaAngle = deltaTime * (this.angularSpeed/1000);
+            this.headingTicks++;
+            var sameSign = true;
+            if ((this.degreeHeading < 0 && this.targetHeading > 0) || 
+                (this.degreeHeading > 0 && this.targetHeading < 0)) {
+                sameSign = false;
+            }
             // move to the target in the direction indicated by toLarboard
             if (this.toLarboard) // move to target by adding to degree angle
             {
                 this.degreeHeading += deltaAngle;
                 if (this.degreeHeading > 180)
                     this.degreeHeading -= 360;
-                if (this.degreeHeading > this.targetHeading)
+                if (sameSign && this.degreeHeading > this.targetHeading)
+                {
                     this.degreeHeading = this.targetHeading; // we are done
+                }
             }
             else // move to target by subtracting to degree angle
             {
                 this.degreeHeading -= deltaAngle;
                 if (this.degreeHeading < -180)
                     this.degreeHeading += 360;
-                if (this.degreeHeading < this.targetHeading)
+                if (sameSign && this.degreeHeading < this.targetHeading)
+                {
                     this.degreeHeading = this.targetHeading; // we are done
+                }
             }
             
             var xpart = Math.cos(CompassRose.getRads(this.degreeHeading));
@@ -1048,6 +1059,7 @@ export default class Ship extends GameObject
         // tacking through the wind adds a time penalty as the force decays then rises
         let deltaDegrees = this.larOrStarboard(newHeading);
         this.targetHeading = newHeading;
+        this.headingTicks = 0;
         if (deltaDegrees < 0)
             this.toLarboard = false;
         else    
@@ -1058,7 +1070,7 @@ export default class Ship extends GameObject
 
         // calculate degrees per second, multiply by 1000 to convert to milliseconds
         let timeToTurn = (Math.abs(deltaDegrees) / this.angularSpeed) * 1000;
-        //console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
+        console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
         return timeToTurn;
     }
 
