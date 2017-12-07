@@ -394,6 +394,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/bear.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>9,11,19,21</rect>
+                <key>scale9Paddings</key>
+                <rect>9,11,19,21</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/btnCheck.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -510,6 +523,19 @@
                 <rect>40,50,80,99</rect>
                 <key>scale9Paddings</key>
                 <rect>40,50,80,99</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/bull.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>8,11,15,21</rect>
+                <key>scale9Paddings</key>
+                <rect>8,11,15,21</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -709,6 +735,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/uiArrow.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>13,15,27,29</rect>
+                <key>scale9Paddings</key>
+                <rect>13,15,27,29</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/uiBall.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -810,6 +849,9 @@
             <filename>../../../Art/pottw5/ui/msgBoxBack.png</filename>
             <filename>../../../Art/pottw5/ui/cardBack.png</filename>
             <filename>../../../Art/pottw5/bestValue.png</filename>
+            <filename>../../../Art/pottw5/ui/bear.png</filename>
+            <filename>../../../Art/pottw5/ui/bull.png</filename>
+            <filename>../../../Art/pottw5/ui/uiArrow.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
