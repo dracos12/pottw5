@@ -6,6 +6,7 @@ import PopUp from './popup';
 import Button from './button';
 import MarketItem from './marketitem';
 import theSea from './theSea';
+import SingletonClass from './singleton';
 
 export default class popMarket extends PopUp
 {
@@ -14,6 +15,7 @@ export default class popMarket extends PopUp
     private txtPrice:PIXI.Text;
     private coin:PIXI.Sprite;
     private marketItems:Array<MarketItem>;
+    private marketData:any;
 
     constructor()
     {
@@ -23,14 +25,12 @@ export default class popMarket extends PopUp
     public init()
     {
         super.init(); // background and X button with handler
-        var i, m, rate, up;
+        var data = this.getMarketData();
+        var i,m,rate,up;
         for (i=0; i<8; i++)
         {
-            rate = theSea.getRandomIntInclusive(0,100);
-            if (theSea.getRandomIntInclusive(0,1) == 1)
-                up = true;
-            else
-                up = false;
+            rate = data[i].rate;
+            up = data[i].up;
             m = new MarketItem(i,rate,up);
             m.x = 113;
             m.y = 94 + (i * (m.height + 5));
@@ -45,7 +45,9 @@ export default class popMarket extends PopUp
             fontSize: 32,
             fill: 'black'
         });
-        this.txtHeader = new PIXI.Text("Market", styleb);
+        var town = SingletonClass.currentPort;
+        var title = town + " Market";
+        this.txtHeader = new PIXI.Text(title, styleb);
         this.txtHeader.x = this.bg.width / 2 - this.txtHeader.width / 2;
         this.txtHeader.y = 40;
         this.addChild(this.txtHeader);
@@ -77,10 +79,48 @@ export default class popMarket extends PopUp
         this.addChild(this.txtPrice);
     }
 
+    private getMarketData()
+    {
+        // check on the singleton, if not there generate it
+        var town = SingletonClass.currentPort;
+        var data = SingletonClass.getPortMarketData(town);
+        if (Object.keys(data).length === 0)
+        {
+            data = this.generateMarketData();
+        } 
+
+        return data;
+    }
+
+    private generateMarketData()
+    {
+
+        // generate the data and store it on the singleton
+        var i, rate, up;
+        let data:any = {};
+        for (i=0; i<8; i++)
+        {
+            rate = theSea.getRandomIntInclusive(0,100);
+            if (theSea.getRandomIntInclusive(0,1) == 1)
+                up = true;
+            else
+                up = false;
+            data[i] = {rate: rate, up: up};
+        }
+
+        // store this on the singletone with our town info
+        var town = SingletonClass.currentPort;
+        SingletonClass.setPortMarketData(town, data);
+        //console.log("Generating market data for : " +  town);
+
+        // return our generated object
+        return data;
+    }
+
     itemOver = (e:any) =>
     {
         var item = <MarketItem>e.target;
-        console.log(e);
+        //console.log(e);
         if (item)
         {
             this.txtMouseOver.text = item.getName();

@@ -12,6 +12,7 @@ export default class SingletonClass {
     private static playerShip:Ship; // maintained by the mainhud
     private static _popupManager:PopupManager;
     private static _currentPort:string = "";
+    private static _marketData:any = {};
 
     constructor() {
         if(SingletonClass._instance){
@@ -58,6 +59,22 @@ export default class SingletonClass {
     public static set currentPort(newPort:string)
     {
         this._currentPort = newPort;
+    }
+
+    public static getPortMarketData(portName:string)
+    {
+        //console.log(this._marketData);
+        if(this._marketData.hasOwnProperty(portName))
+        {
+            return this._marketData[portName]; // return the object for this port data
+        } else {
+            return {}; // empty object
+        }
+    }
+
+    public static setPortMarketData(portName:string, dataObj:any)
+    {
+        this._marketData[portName] = dataObj;
     }
 }
 
