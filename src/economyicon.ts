@@ -84,6 +84,16 @@ export default class EconomyIcon extends PIXI.Container
         }
     }
 
+    public getName()
+    {
+        return EconomyItem.jsonData[this.type].displayName;
+    }
+
+    public getPrice()
+    {
+        return EconomyItem.jsonData[this.type].value;
+    }
+
     public throwOutAndBob()
     {
         // effect to throw the item out a bit on a curved path, random angle
