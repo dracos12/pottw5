@@ -462,7 +462,7 @@ export default class Ship extends GameObject
         }
 
         if (newHeading == null){
-            // coudlnt find heading.. put up achtung
+            // couldnt find heading.. put up achtung
             console.log("Could not find good heading, stopping!");
             this.showAchtung();
             this.allStop();
@@ -1054,10 +1054,15 @@ export default class Ship extends GameObject
         // change our heading to the newHeading
         // we accomplish this over time dictated by the skill of our crew
         // for now use the scale 3000->10000 for good->bad crew skill levels
+        
+        if (newHeading == this.targetHeading)
+            return; // nothing to do, newheading is same as current heading
 
         // small heading changes take less time than large ones
         // tacking through the wind adds a time penalty as the force decays then rises
         let deltaDegrees = this.larOrStarboard(newHeading);
+        if (Math.abs(deltaDegrees) < 0.1)
+            return; // short circuit for small heading changes
         this.targetHeading = newHeading;
         this.headingTicks = 0;
         if (deltaDegrees < 0)
@@ -1070,7 +1075,7 @@ export default class Ship extends GameObject
 
         // calculate degrees per second, multiply by 1000 to convert to milliseconds
         let timeToTurn = (Math.abs(deltaDegrees) / this.angularSpeed) * 1000;
-        console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
+        //console.log("Changing heading of " + deltaDegrees.toFixed(2) + " in " + timeToTurn.toFixed(2) + " milliseconds");
         return timeToTurn;
     }
 
