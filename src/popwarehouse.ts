@@ -121,14 +121,18 @@ export default class popWarehouse extends PopUp
 
     private displayWares()
     {
-        var i=0;
-        // provisioner sells a limited selection of random items
-        var e = new EconomyIcon(20, 0, false, 0);
-        e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
-        e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
-        e.x += this.mercBack.x + 10;
-        e.y += this.mercBack.y + 4;
-        this.addChild(e);
+        // warehouse sells lowest demand items generated on the singleton
+        var data = SingletonClass.getPortWarehouseData(SingletonClass.currentPort);
+        var i,e;
+        for (i=0;i<data.items.length;i++)
+        {
+            e = new EconomyIcon(data.items[i], 0, false, 0);
+            e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
+            e.y = (Math.floor(i/10) * 42) + Math.floor(i/10)*3 + 21; // adjust for center anchor
+            e.x += this.mercBack.x + 10;
+            e.y += this.mercBack.y + 4;
+            this.addChild(e);
+        }
         
     }
 
