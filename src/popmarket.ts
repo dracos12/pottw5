@@ -84,36 +84,7 @@ export default class popMarket extends PopUp
         // check on the singleton, if not there generate it
         var town = SingletonClass.currentPort;
         var data = SingletonClass.getPortMarketData(town);
-        if (Object.keys(data).length === 0)
-        {
-            data = this.generateMarketData();
-        } 
 
-        return data;
-    }
-
-    private generateMarketData()
-    {
-
-        // generate the data and store it on the singleton
-        var i, rate, up;
-        let data:any = {};
-        for (i=0; i<8; i++)
-        {
-            rate = theSea.getRandomIntInclusive(0,100);
-            if (theSea.getRandomIntInclusive(0,1) == 1)
-                up = true;
-            else
-                up = false;
-            data[i] = {rate: rate, up: up};
-        }
-
-        // store this on the singletone with our town info
-        var town = SingletonClass.currentPort;
-        SingletonClass.setPortMarketData(town, data);
-        //console.log("Generating market data for : " +  town);
-
-        // return our generated object
         return data;
     }
 

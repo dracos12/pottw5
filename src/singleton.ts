@@ -4,6 +4,7 @@
 import Player from './player';
 import Ship from './ship';
 import PopupManager from './popupmanager';
+import theSea from './theSea';
 
 export default class SingletonClass {
     private static _instance:SingletonClass = new SingletonClass();
@@ -68,13 +69,38 @@ export default class SingletonClass {
         {
             return this._marketData[portName]; // return the object for this port data
         } else {
-            return {}; // empty object
+            SingletonClass.generateMarketData(portName);
+            return this._marketData[portName];
         }
     }
 
     public static setPortMarketData(portName:string, dataObj:any)
     {
         this._marketData[portName] = dataObj;
+    }
+
+    public static generateMarketData(portName:string)
+    {
+
+        // generate the data and store it on the singleton
+        var i, rate, up;
+        let data:any = {};
+        for (i=0; i<8; i++)
+        {
+            rate = theSea.getRandomIntInclusive(0,100);
+            if (theSea.getRandomIntInclusive(0,1) == 1)
+                up = true;
+            else
+                up = false;
+            data[i] = {rate: rate, up: up};
+        }
+
+        // store this on the singletone with our town info
+        SingletonClass.setPortMarketData(portName, data);
+        //console.log("Generating market data for : " +  town);
+
+        // return our generated object
+        return data;
     }
 }
 
