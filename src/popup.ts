@@ -11,6 +11,7 @@ export default class PopUp extends PIXI.Container
     protected managerClose:Function=null; // second callback for the popupmanager onclose
     protected bg:PIXI.Sprite; // the backdrop
     protected btnX:Button;    // the close button
+    protected _backgrounded:boolean = false;
 
     constructor(onClose?:Function)
     {
@@ -47,5 +48,15 @@ export default class PopUp extends PIXI.Container
     protected btnXClick = () =>
     {
         this.close(); // will callback to popupmanager to remove us from display
+    }
+
+    public backgrounded()
+    {
+        this._backgrounded = true;
+    }
+
+    public top()
+    {
+        this._backgrounded = false;
     }
 }

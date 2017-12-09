@@ -119,8 +119,13 @@ export default class popTownInterface extends PopUp
         this.txtMouseOver.text = "Prize Agent. Reload you magazine with cannon balls here.";
     }
 
-    private doProvisioner = () =>
+    private doProvisioner = (e:any) =>
     {
+        if (this._backgrounded)
+        {
+            console.log("backgrounded click: ignoring");
+            return;
+        }
         console.log("doProvisioner");
         // display the town interface popup
         var pop =  new popProvisioner();

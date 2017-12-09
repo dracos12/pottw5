@@ -18,6 +18,11 @@ export default class PopupManager
     public displayPopup(newpop:PopUp)
     {
         newpop.init();
+        if (this.popupStack.length != 0)
+        {
+            var top = this.popupStack[this.popupStack.length-1];
+            top.backgrounded();
+        }
         this.popupStack.push(newpop);
         newpop.setManagerClose(this.popIt);
         var p = new PIXI.Point();
@@ -41,5 +46,10 @@ export default class PopupManager
     public popIt = () => { // from callback on popup or called directly by external
         var pop = this.popupStack.pop();
         this.container.removeChild(pop);
+        if (this.popupStack.length != 0)
+        {
+            var top = this.popupStack[this.popupStack.length-1];
+            top.top();
+        }
     }
 }
