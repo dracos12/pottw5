@@ -37,6 +37,7 @@ export default class PopUp extends PIXI.Container
         // load and position our graphics
         this.bg = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_map.png"));
         this.addChild(this.bg);
+        this.bg.interactive = true;
         this.btnX = new Button( PIXI.Texture.fromFrame("Btn_Ex.png"));
         this.btnX.anchor.x = this.btnX.anchor.y = 0.5;
         this.btnX.x = 713;

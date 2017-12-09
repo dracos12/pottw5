@@ -109,6 +109,11 @@ export default class popTownInterface extends PopUp
 
     private doPrizeAgent = () =>
     {
+        if (this._backgrounded)
+        {
+            console.log("backgrounded click: ignoring");
+            return;
+        }
         console.log("doPrizeAgent");
         var pop =  new popPrizeAgent();
         this.popMan.displayPopup(pop);
@@ -139,6 +144,11 @@ export default class popTownInterface extends PopUp
 
     private doWarehouse = () =>
     {
+        if (this._backgrounded)
+        {
+            console.log("backgrounded click: ignoring");
+            return;
+        }
         console.log("doWarehouse");
         // display the town interface popup
         var pop =  new popWarehouse();
@@ -152,6 +162,11 @@ export default class popTownInterface extends PopUp
 
     private doMarket = () =>
     {
+        if (this._backgrounded)
+        {
+            console.log("backgrounded click: ignoring");
+            return;
+        }
         console.log("doMarket");
         // display the town interface popup
         var pop =  new popMarket();
