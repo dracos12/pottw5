@@ -7,6 +7,7 @@ import PopUp from './popup';
 import Button from './button';
 import EconomyIcon from './economyicon';
 import SingletonClass from './singleton';
+import popMsgBox from './popmsgbox';
 
 
 export default class popWarehouse extends PopUp
@@ -16,7 +17,8 @@ export default class popWarehouse extends PopUp
     private coin:PIXI.Sprite;
     private sellBtn:Button;
     private txtAmount:PIXI.Text;
-    private eIcons:Array<EconomyIcon> = [];
+    private holdIcons:Array<EconomyIcon> = [];
+    private wareIcons:Array<EconomyIcon> = [];
 
     constructor()
     {
@@ -92,6 +94,19 @@ export default class popWarehouse extends PopUp
         this.displayWares();
     }
 
+    private reloadHold()
+    {
+        // remove all icons
+        var i,e;
+        for (i=this.holdIcons.length-1; i>=0; i--)
+        {
+            e = this.holdIcons.pop();
+            this.removeChild(e);
+        }
+
+        this.loadHold();
+    }
+
     private loadHold(createIcons:boolean=true)
     {
         var hold = SingletonClass.ship.getHold();
@@ -101,7 +116,7 @@ export default class popWarehouse extends PopUp
             if (createIcons)
                 e = new EconomyIcon(hold[i].type, i, false,hold[i].rarity);
             else
-                e = this.eIcons[i];
+                e = this.holdIcons[i];
 
             // place in our 10x4 grid
             e.x = ((i % 10) * 42) + i%10*3 + 21; // icons are center anchor
@@ -113,7 +128,7 @@ export default class popWarehouse extends PopUp
             {
                 e.interactive = true;
                 e.on('click',this.iconClicked);
-                this.eIcons.push(e);
+                this.holdIcons.push(e);
                 this.addChild(e);
             }
         }
@@ -132,8 +147,63 @@ export default class popWarehouse extends PopUp
             e.x += this.mercBack.x + 10;
             e.y += this.mercBack.y + 4;
             this.addChild(e);
+            e.interactive = true;
+            e.on('click',this.wareClicked);
+            this.wareIcons.push(e);
         }
         
+    }
+
+    private redisplayWares()
+    {
+        var i;
+        for (i=0;i<this.wareIcons.length;i++)
+        {
+
+        }   
+    }
+
+    wareClicked = (e:any) =>
+    {
+        var eIcon = <EconomyIcon>e.target;
+        console.log("wareClicked! eIcon: " + eIcon);
+        var itemID = eIcon.getType();
+        var price = SingletonClass.getMarketItemPrice(itemID);
+        if (SingletonClass.player.getSilver() >= price)
+        {
+            // add the icon to their hold
+            if (!SingletonClass.ship.addToHold(itemID,0))
+            {
+                // no room! abort
+                var msg = new popMsgBox();
+                msg.initMsg(0,"1st Mate", "Hold is full captain! We'll have to sell items to make room.");
+                SingletonClass.popupManager.displayPopup(msg);
+            }
+            else
+            {
+                // charge the user
+                SingletonClass.player.decSilver(price);
+                // remove the icon from the warehouse
+                var i;
+                for (i=this.wareIcons.length-1; i>=0; i--)
+                {
+                    if (this.wareIcons[i] == eIcon)
+                    {
+                        this.wareIcons.splice(i,1);
+                        var data = SingletonClass.getPortWarehouseData(SingletonClass.currentPort);
+                        data.items.splice(i,1); // remove from the warehouse data as well
+                        break;
+                    }
+                }
+                eIcon.interactive = false;
+                eIcon.parent.removeChild(eIcon);
+                this.reloadHold();
+            }
+        } else { // not enough money!
+            var msg = new popMsgBox();
+            msg.initMsg(0,"1st Mate", "We dont have enough silver for that Cap'n! Price: " + price);
+            SingletonClass.popupManager.displayPopup(msg);
+        }
     }
 
     iconClicked = (e:any) => 
@@ -148,11 +218,11 @@ export default class popWarehouse extends PopUp
         var i;
         var price = 0;
         var hold = SingletonClass.ship.getHold();
-        for(i=0;i<this.eIcons.length;i++)
+        for(i=0;i<this.holdIcons.length;i++)
         {
-            if (this.eIcons[i].isGlowing())
+            if (this.holdIcons[i].isGlowing())
             {
-                price += hold[i].value;
+                price += hold[i].getMarketPrice();
             }
         }
 
@@ -180,12 +250,12 @@ export default class popWarehouse extends PopUp
         var i;
         var hold = SingletonClass.ship.getHold();
         // loop from end as splice will change indeces if looped front to back
-        for(i=this.eIcons.length-1;i>=0;i--)
+        for(i=this.holdIcons.length-1;i>=0;i--)
         {
-            if (this.eIcons[i].isGlowing())
+            if (this.holdIcons[i].isGlowing())
             {
-                this.removeChild(this.eIcons[i]);
-                this.eIcons.splice(i,1);
+                this.removeChild(this.holdIcons[i]);
+                this.holdIcons.splice(i,1);
                 hold.splice(i,1);
             }
         }

@@ -174,7 +174,7 @@ export default class popProvisioner extends PopUp
         {
             if (this.eIcons[i].isGlowing())
             {
-                price += hold[i].value;
+                price += hold[i].getMarketPrice();
             }
         }
 

@@ -3,6 +3,7 @@
 //
 
 import theSea from './theSea';
+import SingletonClass from './singleton';
 
 export default class EconomyItem
 {
@@ -42,5 +43,19 @@ export default class EconomyItem
     public static setEconomyData(jsonData:any)
     {
         this.jsonData = jsonData;
+    }
+
+    public getMarketPrice()
+    {
+        var marketPrice,value;
+        // item price is in in the item data
+        value = EconomyItem.jsonData[this.type].value;
+        // modify this by the market rate at the current port
+        var port = SingletonClass.currentPort;
+        var marketData = SingletonClass.getPortMarketData(port);
+        //console.log("econItem getMarketPrice: value: " + value + " type: " + this.type + " marketData: " + marketData);
+        marketPrice = Math.floor(value + Math.ceil(value *  marketData[this.type].rate / 100));
+        // return the modified price
+        return marketPrice;
     }
 }

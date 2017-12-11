@@ -5,6 +5,7 @@ import Player from './player';
 import Ship from './ship';
 import PopupManager from './popupmanager';
 import theSea from './theSea';
+import EconomyItem from './economyitem';
 
 export default class SingletonClass {
     private static _instance:SingletonClass = new SingletonClass();
@@ -91,7 +92,7 @@ export default class SingletonClass {
         // generate the data and store it on the singleton
         var i, rate, up;
         let data:any = {};
-        for (i=0; i<8; i++)
+        for (i=0; i<EconomyItem.maxItems; i++)
         {
             rate = theSea.getRandomIntInclusive(0,100);
             if (theSea.getRandomIntInclusive(0,1) == 1)
@@ -135,23 +136,21 @@ export default class SingletonClass {
         // generate an array of items and sort it on rate
         var k;
         var rateSort = [];
-        for (k=0;k<8;k++)
+        for (k=0;k<EconomyItem.maxItems;k++)
         {
             rateSort.push({itemid:k, rate: marketData[k].rate});
         }
         rateSort.sort(this.rateComp);
         console.log(rateSort);
 
-        // take the bottom 3
-        rateSort.splice(3,5);
-
         // generate the data and store it on the singleton
         var i,j, rate, up;
         let data:any = {};
         var items = [];
+        var sampleIndex = 6; // array in descending order of demand, take the top 6 
         for (i=0; i<40; i++) // i is the item id
         {
-            j = theSea.getRandomIntInclusive(0,2);
+            j = theSea.getRandomIntInclusive(0,sampleIndex);
             items.push(rateSort[j].itemid);
         }
         items.sort(); // sort ascending the list of itemids
@@ -163,6 +162,19 @@ export default class SingletonClass {
 
         // return our generated object
         return data;
+    }
+
+    public static getMarketItemPrice(itemID:number)
+    {
+        var marketPrice,value;
+        // item price is in in the item data
+        value = EconomyItem.jsonData[itemID].value;
+        // modify this by the market rate at the current port
+        var port = this._currentPort;
+        var marketData = SingletonClass.getPortMarketData(port);
+        marketPrice = Math.floor(value + Math.ceil(value *  marketData[itemID].rate / 100));
+        // return the modified price
+        return marketPrice;
     }
 }
 

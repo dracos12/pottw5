@@ -1260,7 +1260,7 @@ export default class Ship extends GameObject
         {
             // generate a random loot item 
             itemID = theSea.getRandomIntInclusive(0,EconomyItem.maxItems-1);
-            this.shipsHold[i] = new EconomyItem(itemID); // random rarity
+            this.shipsHold[i] = new EconomyItem(itemID,0); // random rarity
         }
 
         // randomly generate the coin value treasure this boat may have
@@ -1286,7 +1286,7 @@ export default class Ship extends GameObject
         return this.shipsHold.length;
     }
 
-    public addToHold(itemType:number,rarity?:number)
+    public addToHold(itemType:number,rarity:number=0)
     {
         if (this.shipsHold.length < this.shipsHoldCapacity)
         {
