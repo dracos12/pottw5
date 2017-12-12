@@ -13,6 +13,7 @@ export default class Button extends PIXI.Sprite
     private origScale:number = 0;
     private label:PIXI.Text;
     private strLabel:string="";
+    private firstMouse:boolean = true;
 
     constructor(texture?: PIXI.Texture, noScale:boolean=false, text:string="", fontSize:number=22)
     {
@@ -65,13 +66,23 @@ export default class Button extends PIXI.Sprite
         if (this.disabled)
             return;
         if (!this.noScale)
+        {
             this.scale.x = this.scale.y = this.origScale;
+            //console.log("Button returning to scale: " + this.origScale);
+        }
     }
 
     onMouseOver = () =>
     {
         if (this.disabled)
             return;
+
+        if (this.firstMouse)
+        {
+            this.origScale = this.scale.x;
+            this.firstMouse = false;
+            //console.log("Recording origScale: " + this.origScale);
+        }
         // apply glow filter
         this.filters = [this.glow];
     }
