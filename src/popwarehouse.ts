@@ -14,11 +14,18 @@ export default class popWarehouse extends PopUp
 {
     private mercBack:PIXI.Sprite;
     private holdBack:PIXI.Sprite;
-    private coin:PIXI.Sprite;
+    private sellCoin:PIXI.Sprite;
+    private overCoin:PIXI.Sprite;
+    private goldCoin:PIXI.Sprite;
     private sellBtn:Button;
     private txtAmount:PIXI.Text;
+    private txtMouseOver:PIXI.Text;
+    private txtOverAmount:PIXI.Text;
+    private txtResupplyTimer:PIXI.Text;
+    private txtResupplyAmount:PIXI.Text;
     private holdIcons:Array<EconomyIcon> = [];
     private wareIcons:Array<EconomyIcon> = [];
+    private buyNow:Button;
 
     constructor()
     {
@@ -31,12 +38,12 @@ export default class popWarehouse extends PopUp
 
         this.mercBack = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
         this.mercBack.x = 336 - this.mercBack.width/2;
-        this.mercBack.y = 189 - this.mercBack.height/2;
+        this.mercBack.y = 173 - this.mercBack.height/2;
         this.addChild(this.mercBack);
 
         this.holdBack = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
         this.holdBack.x = 336 - this.holdBack.width/2;
-        this.holdBack.y = 417 - this.holdBack.height/2;
+        this.holdBack.y = 397 - this.holdBack.height/2;
         this.addChild(this.holdBack);
 
         var style = new PIXI.TextStyle({
@@ -63,22 +70,22 @@ export default class popWarehouse extends PopUp
         });
 
         var townName = SingletonClass.currentPort;
-        lbl = new PIXI.Text(townName + ' Warehouse', style);
+        lbl = new PIXI.Text(townName + ' Warehouse', styleb);
         lbl.x = this.mercBack.x + this.mercBack.width/2 - lbl.width / 2;
-        lbl.y = 35;
+        lbl.y = 20;
         this.addChild(lbl);
 
         this.sellBtn = new Button(PIXI.Texture.fromFrame("sellBtn.png"));
         this.sellBtn.x = 531;
-        this.sellBtn.y = 302;
+        this.sellBtn.y = 285;
         this.sellBtn.scale.x = this.sellBtn.scale.y = 0.67;
         this.sellBtn.on('click',this.onSell);
         this.addChild(this.sellBtn);
 
-        this.coin = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
-        this.coin.x = 329 - this.coin.width/2;
-        this.coin.y = 306 - this.coin.height/2;
-        this.addChild(this.coin);
+        this.sellCoin = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
+        this.sellCoin.x = 422 - this.sellCoin.width/2;
+        this.sellCoin.y = 285 - this.sellCoin.height/2;
+        this.addChild(this.sellCoin);
 
         var stylec = new PIXI.TextStyle({
             fontFamily: 'IM Fell English SC',
@@ -86,9 +93,56 @@ export default class popWarehouse extends PopUp
             fill: 'white'
         });
         this.txtAmount = new PIXI.Text('0', stylec);
-        this.txtAmount.x = this.coin.x + this.coin.width + 5;
-        this.txtAmount.y = this.coin.y + this.coin.height/2 - this.txtAmount.height/2;
+        this.txtAmount.x = this.sellCoin.x + this.sellCoin.width + 5;
+        this.txtAmount.y = this.sellCoin.y + this.sellCoin.height/2 - this.txtAmount.height/2;
         this.addChild(this.txtAmount);
+
+        var styled = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 18,
+            fill: 'black'
+        });
+
+        lbl = new PIXI.Text("Resupply In:", styled);
+        lbl.x = 251;
+        lbl.y = 56;
+        this.addChild(lbl);
+        this.txtResupplyTimer = new PIXI.Text("00:00:00", styled);
+        this.txtResupplyTimer.x = lbl.x + lbl.width + 3;
+        this.txtResupplyTimer.y = 56;
+        this.addChild(this.txtResupplyTimer);
+
+        this.txtMouseOver = new PIXI.Text("Mouse Over Description", styled);
+        this.txtMouseOver.x = 209;
+        this.txtMouseOver.y = 495;
+        this.addChild(this.txtMouseOver);
+
+        this.overCoin = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
+        this.overCoin.x = 422 - this.overCoin.width/2;
+        this.overCoin.y = 508 - this.overCoin.height/2;
+        this.addChild(this.overCoin);
+
+        this.txtOverAmount = new PIXI.Text('0', stylec);
+        this.txtOverAmount.x = this.overCoin.x + this.overCoin.width + 5;
+        this.txtOverAmount.y = this.overCoin.y + this.overCoin.height/2 - this.txtOverAmount.height/2;
+        this.addChild(this.txtOverAmount);
+
+        this.goldCoin = new PIXI.Sprite(PIXI.Texture.fromFrame("goldCoin.png"));
+        this.goldCoin.x = 539 - this.goldCoin.width/2;
+        this.goldCoin.y = 61 - this.goldCoin.height/2;
+        this.addChild(this.goldCoin);
+
+        this.txtResupplyAmount = new PIXI.Text('10', style);
+        this.txtResupplyAmount.x = this.goldCoin.x + this.goldCoin.width + 5;
+        this.txtResupplyAmount.y = this.goldCoin.y + this.goldCoin.height/2 - this.txtResupplyAmount.height/2;
+        this.addChild(this.txtResupplyAmount);
+
+        this.buyNow = new Button(PIXI.Texture.fromFrame("btnLong.png"), false, "Resupply", 18);
+        this.buyNow.width = 55;
+        this.buyNow.height = 28;
+        this.buyNow.x = 494;
+        this.buyNow.y = 64;
+        this.addChild(this.buyNow);
 
         this.loadHold();
         this.displayWares();
@@ -128,6 +182,7 @@ export default class popWarehouse extends PopUp
             {
                 e.interactive = true;
                 e.on('click',this.iconClicked);
+                e.on('mouseover',this.wareOver);
                 this.holdIcons.push(e);
                 this.addChild(e);
             }
@@ -149,6 +204,7 @@ export default class popWarehouse extends PopUp
             this.addChild(e);
             e.interactive = true;
             e.on('click',this.wareClicked);
+            e.on('mouseover',this.wareOver);
             this.wareIcons.push(e);
         }
         
@@ -163,10 +219,19 @@ export default class popWarehouse extends PopUp
         }   
     }
 
+    wareOver = (e:any) => 
+    {
+        var eIcon = <EconomyIcon>e.target;
+        var name = eIcon.getName();
+        var itemID = eIcon.getType();
+        var price = SingletonClass.getMarketItemPrice(itemID);
+        this.txtMouseOver.text = name;
+        this.txtOverAmount.text = price.toString();
+    }
+
     wareClicked = (e:any) =>
     {
         var eIcon = <EconomyIcon>e.target;
-        console.log("wareClicked! eIcon: " + eIcon);
         var itemID = eIcon.getType();
         var price = SingletonClass.getMarketItemPrice(itemID);
         if (SingletonClass.player.getSilver() >= price)
@@ -240,10 +305,10 @@ export default class popWarehouse extends PopUp
             return; // do nothing, nothign selected
 
         // and send up the request to the hud to award the coins
-        var pos = this.toGlobal(this.coin.position);
+        var pos = this.toGlobal(this.sellCoin.position);
         var myEvent = new CustomEvent("merchSell",
         {
-            'detail': { "amount": amount, "x": pos.x +this.coin.width/2, "y":pos.y+this.coin.height/2 }
+            'detail': { "amount": amount, "x": pos.x +this.sellCoin.width/2, "y":pos.y+this.sellCoin.height/2 }
         });
 
         window.dispatchEvent(myEvent);

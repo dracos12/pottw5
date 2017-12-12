@@ -141,7 +141,7 @@ export default class SingletonClass {
             rateSort.push({itemid:k, rate: marketData[k].rate});
         }
         rateSort.sort(this.rateComp);
-        console.log(rateSort);
+        //console.log(rateSort);
 
         // generate the data and store it on the singleton
         var i,j, rate, up;
