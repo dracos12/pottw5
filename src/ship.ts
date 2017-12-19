@@ -463,7 +463,7 @@ export default class Ship extends GameObject
 
         if (newHeading == null){
             // couldnt find heading.. put up achtung
-            console.log("Could not find good heading, stopping!");
+            //console.log("Could not find good heading, stopping!");
             this.showAchtung();
             this.allStop();
             this.aiArrived = true;
@@ -801,7 +801,7 @@ export default class Ship extends GameObject
         } else {
             this.sailState = 2; // sails up
         }
-        console.log("setting Sail Trim: " + newTrim.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
+        //console.log("setting Sail Trim: " + newTrim.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
 
         // if (!this.aGround && !this.inIrons)
         //     TweenLite.to(this.tweenVars, 2.5, { speed:this.targetSpeed, ease: Power2.easeInOut });

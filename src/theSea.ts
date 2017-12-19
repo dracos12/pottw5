@@ -369,7 +369,7 @@ export default class theSea
                 if (isle.isPort())
                     this.numPorts++;
 
-                console.log("Adding " + sprite.name + " to theSea");
+                //console.log("Adding " + sprite.name + " to theSea");
             }
         }
 
@@ -481,7 +481,7 @@ export default class theSea
         var portCount = 0;
         var isle;
 
-        console.log("DesiredPort: " + desiredPort +  " numPorts: " + this.numPorts);
+        //console.log("DesiredPort: " + desiredPort +  " numPorts: " + this.numPorts);
 
         // loop through the island array
         for (let gameObj of this.islandArray)

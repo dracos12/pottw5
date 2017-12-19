@@ -19,7 +19,7 @@ export default class Island extends GameObject
         if (this.islandData.hasOwnProperty("port") && this.islandData.port == true)
         {
             this._isPort = true;
-            console.log("Found port: " + this.islandData.portName);
+            //console.log("Found port: " + this.islandData.portName);
         }
 
         // set the pivot point from the data
