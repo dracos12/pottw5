@@ -9,6 +9,8 @@ import StoreCard from './storecard';
 import Button from './button';
 import popMsgBox from './popmsgbox';
 
+declare var FB:any;
+
 
 export default class popCoinStore extends PopUp
 {
@@ -17,6 +19,8 @@ export default class popCoinStore extends PopUp
     private btnBuy:Button;
     private clickID:number = -1;
     private badgeBestValue:PIXI.Sprite;
+    private purchaseAmount:number;
+    private coinInc:number; 
 
     constructor()
     {
@@ -84,34 +88,48 @@ export default class popCoinStore extends PopUp
             return;
         }
 
-        var amount;
-        var inc = 1;
+        this.coinInc = 1;
         if (id == 1)
-            amount = 10; // 10 gold
+            this.purchaseAmount = 10; // 10 gold
         if (id == 2)
-            amount = 30; // 30 gold
+            this.purchaseAmount = 30; // 30 gold
         if (id == 3) {
-            amount = 7; // 70 gold in increments of 10
-            inc = 10;
+            this.purchaseAmount = 7; // 70 gold in increments of 10
+            this.coinInc = 10;
         }
         if (id == 4) {
-            amount = 30; // 300 gold in increments of 10
-            inc = 10;
+            this.purchaseAmount = 30; // 300 gold in increments of 10
+            this.coinInc = 10;
         }
         if (id == 5) { // 600 gold in increments of 100
-            amount = 6;
-            inc = 100;
+            this.purchaseAmount = 6;
+            this.coinInc = 100;
         }
         if (id == 6) { // 1500 gold in increments of 100
-            amount = 15;
-            inc = 100;
+            this.purchaseAmount = 15;
+            this.coinInc = 100;
         }
+
+        FB.ui(
+            {
+              method: 'pay',
+              action: 'purchaseiap',
+              product_id: 'payments_lite_01',
+              developer_payload: 'this_is_a_test_payload'
+            },
+            this.fbIAPResponse // Callback function
+        );
+    }
+
+    fbIAPResponse = (response:any) => {
+        console.log("FB.ui pay response: ");
+        console.log(response);
 
         // and send up the request to the hud to award the coins
         var pos = this.toGlobal(this.btnBuy.position);
         var myEvent = new CustomEvent("buyGold",
         {
-            'detail': { "amount": amount, "inc": inc, "x": pos.x +this.btnBuy.width/2, "y":pos.y+this.btnBuy.height/2 }
+            'detail': { "amount": this.purchaseAmount, "inc": this.coinInc, "x": pos.x +this.btnBuy.width/2, "y":pos.y+this.btnBuy.height/2 }
         });
         window.dispatchEvent(myEvent);
     }
