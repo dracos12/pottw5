@@ -20,6 +20,7 @@ import SingletonClass from './singleton';
 import popMsgBox from './popmsgbox';
 
 declare var TweenMax:any;
+declare var FB:any;
 
 export default class MainHUD 
 {
@@ -182,6 +183,7 @@ export default class MainHUD
         window.addEventListener("merchSell",this.merchSell, false);
         window.addEventListener("buyGold",this.buyGold, false);
 
+        this.testAPI(); // test the FB API
     }
 
     public setPopupManager(popman:PopupManager)
@@ -388,6 +390,26 @@ export default class MainHUD
             }
         };
         xobj.send(null);  
+    }
+
+    private testAPI() 
+    {
+        console.log("FB.getLoginStatus:")
+        FB.getLoginStatus(this.fbStatusResponse);
+    }
+
+    fbStatusResponse = (response:any) => {
+        console.log("FB.getLoginStatus:");
+        console.log(response);
+        this.doMe();
+    }
+
+    private doMe()
+    {
+        console.log("FB.api(/me)");
+        FB.api('/me', function(response:any) {
+            console.log(response);
+          });
     }
 
     public update()
