@@ -9,6 +9,8 @@ export default class Player
     private _lastReload:number = 0;   // UTC timestamp of last reload time
     private _reloadTime:number = 30000; // player can reload every reloadTime milliseconds
     private _numReloads:number = 0; // number of times the user has reloaded
+    private accessToken:string = ""; // FB access token to perform FB social calls with
+    private _FBUserID:string = ""; // FB user id to use to query data
 
     public getGold()
     {
@@ -62,5 +64,25 @@ export default class Player
     public incReloads()
     {
         this._numReloads++;
+    }
+
+    public get FBAccessToken()
+    {
+        return this.accessToken;
+    }
+
+    public set FBAccessToken(token:string)
+    {
+        this.accessToken = token;        
+    }
+
+    public get FBUserID()
+    {
+        return this._FBUserID;
+    }
+
+    public set FBUserID(userID:string)
+    {
+        this._FBUserID = userID;
     }
  }

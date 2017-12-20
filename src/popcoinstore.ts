@@ -21,6 +21,7 @@ export default class popCoinStore extends PopUp
     private badgeBestValue:PIXI.Sprite;
     private purchaseAmount:number;
     private coinInc:number; 
+    private purchaseToken:string = "";
 
     constructor()
     {
@@ -125,13 +126,42 @@ export default class popCoinStore extends PopUp
         console.log("FB.ui pay response: ");
         console.log(response);
 
-        // and send up the request to the hud to award the coins
-        var pos = this.toGlobal(this.btnBuy.position);
-        var myEvent = new CustomEvent("buyGold",
+        if (typeof response == 'undefined')
         {
-            'detail': { "amount": this.purchaseAmount, "inc": this.coinInc, "x": pos.x +this.btnBuy.width/2, "y":pos.y+this.btnBuy.height/2 }
-        });
-        window.dispatchEvent(myEvent);
+            console.log("fbIAPResponse is undefined");
+            return;
+        }
+        
+        if (response.hasOwnProperty("error_message"))
+        {
+            console.log("Error in FB.ui pay!");
+        }
+        else 
+        {
+            this.purchaseToken = response.purchase_token;
+
+            // call the FB api to consume the purchase
+            FB.api(
+                '/' + this.purchaseToken + '/consume',    // Replace the PURCHASE_TOKEN
+                'post',
+                {access_token: SingletonClass.player.FBAccessToken},         // Replace with a user access token
+                this.fbConsumeResponse
+            );
+
+            // and send up the request to the hud to award the coins
+            var pos = this.toGlobal(this.btnBuy.position);
+            var myEvent = new CustomEvent("buyGold",
+            {
+                'detail': { "amount": this.purchaseAmount, "inc": this.coinInc, "x": pos.x +this.btnBuy.width/2, "y":pos.y+this.btnBuy.height/2 }
+            });
+            window.dispatchEvent(myEvent);
+        }
+    }
+
+    fbConsumeResponse = (response:any) =>
+    {
+        console.log("fbConsumeResponse: ");
+        console.log(response);
     }
 
     coinCallBack = (id:number) =>

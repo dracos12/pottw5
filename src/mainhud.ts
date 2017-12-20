@@ -394,14 +394,24 @@ export default class MainHUD
 
     private testAPI() 
     {
-        console.log("FB.getLoginStatus:")
+        console.log("call FB.getLoginStatus:");
         FB.getLoginStatus(this.fbStatusResponse);
     }
 
     fbStatusResponse = (response:any) => {
-        console.log("FB.getLoginStatus:");
+        console.log("response FB.getLoginStatus:");
         console.log(response);
-        this.doMe();
+        if (response.status = "connected")
+        {
+            // save access token and userid
+            SingletonClass.player.FBUserID = response.userID;
+            SingletonClass.player.FBAccessToken = response.accessToken;
+            this.doMe();
+        }
+        else
+        {
+            console.log("Error in fbStatusRespone!");
+        }
     }
 
     private doMe()
