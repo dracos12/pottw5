@@ -592,7 +592,7 @@ export default class Ship extends GameObject
         // convert our polygonal data relative to our position
         this.convertPolyDataToCartesian();
         if (PolyK.ContainsPoint(this.cartPolyData8[this.polyNum], x, y)) {
-            console.log("ship HIT by point!");
+            //console.log("ship HIT by point!");
             return true;
         }
         return false;
@@ -1127,7 +1127,7 @@ export default class Ship extends GameObject
 
         if (this.magBall > 0)
         {
-            console.log("FIRE!!");
+            //console.log("FIRE!!");
             this.magBall -= 1; // deduct ammo (for now just one shot)
 
             // velocity calculations
@@ -1196,7 +1196,7 @@ export default class Ship extends GameObject
             this.sprite.y += 30;   
         }    
 
-        console.log("took " + weight + " damage. Hull: " + this.statHull);
+        //console.log("took " + weight + " damage. Hull: " + this.statHull);
     }
 
     private switchFrameToWrecked()

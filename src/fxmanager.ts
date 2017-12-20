@@ -245,7 +245,7 @@ export default class FXManager
         this.container.addChild(this.muzzlePlumeList[this.lastBall]);
 
         let ball = this.lastBall; 
-        this.muzzlePlumeList[this.lastBall].onComplete = () => { this.container.removeChild(this.muzzlePlumeList[ball]); this.muzzlePlumeList[ball].gotoAndStop(0); console.log("Removing muzzlePlume: " + ball );};
+        this.muzzlePlumeList[this.lastBall].onComplete = () => { this.container.removeChild(this.muzzlePlumeList[ball]); this.muzzlePlumeList[ball].gotoAndStop(0); /*console.log("Removing muzzlePlume: " + ball );*/};
     }
 
     // get cannonball from pool, returns null if all in use (!)
@@ -271,7 +271,7 @@ export default class FXManager
             {
                 this.ballList[this.lastBall].inUse = true;
                 found = true;
-                console.log("ballList: assigning ball: " + this.lastBall);
+                //console.log("ballList: assigning ball: " + this.lastBall);
             }
         }
 
@@ -298,7 +298,7 @@ export default class FXManager
                 x = ball.x;
                 y = 8192 - ball.y; // convert to cartesian
                 if (PolyK.ContainsPoint(entry.getCartPolyData(), x, y)) {
-                    console.log("hit " + entry.getSprite().name + "!");
+                    //console.log("hit " + entry.getSprite().name + "!");
                     hitObj = entry;
                     break; // short circuit the loop
                 }
@@ -358,10 +358,10 @@ export default class FXManager
                     this.container.addChild(this.splashList[i]);
                     this.splashList[i].play(); // start the animation
                     ball = i;
-                    this.splashList[i].onComplete = () => { this.container.removeChild(this.splashList[ball]); this.splashList[ball].gotoAndStop(0); console.log("Removing splash: " + ball );};
+                    this.splashList[i].onComplete = () => { this.container.removeChild(this.splashList[ball]); this.splashList[ball].gotoAndStop(0); /*console.log("Removing splash: " + ball );*/};
                     this.ballList[i].reset();
                     this.container.removeChild(this.ballList[i]);
-                    console.log("ball " + i + " spent... SPLASH");
+                    //console.log("ball " + i + " spent... SPLASH");
                     continue;
                 }
 
@@ -377,7 +377,7 @@ export default class FXManager
                     this.container.addChild(this.explosionList[i]);
                     this.explosionList[i].play(); // start the animation
                     ball = i;
-                    this.explosionList[i].onComplete = () => { this.container.removeChild(this.explosionList[ball]); this.explosionList[ball].gotoAndStop(0); console.log("Removing explosion: " + ball );};
+                    this.explosionList[i].onComplete = () => { this.container.removeChild(this.explosionList[ball]); this.explosionList[ball].gotoAndStop(0); /*console.log("Removing explosion: " + ball );*/};
 
                     this.ballList[i].reset(); // return ball to pool
                     this.container.removeChild(this.ballList[i]);
