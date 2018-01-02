@@ -2,7 +2,7 @@
 
 "charPirateFemale.png":
 {
-	"frame": {"x":410,"y":1,"w":213,"h":419},
+	"frame": {"x":875,"y":1,"w":213,"h":419},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":26,"y":13,"w":213,"h":419},
@@ -10,7 +10,7 @@
 },
 "charPirateMale.png":
 {
-	"frame": {"x":196,"y":1,"w":212,"h":435},
+	"frame": {"x":661,"y":1,"w":212,"h":435},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":37,"y":10,"w":212,"h":435},
@@ -18,19 +18,35 @@
 },
 "charVoodoo.png":
 {
-	"frame": {"x":1,"y":1,"w":193,"h":442},
+	"frame": {"x":172,"y":1,"w":193,"h":442},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":193,"h":442},
 	"sourceSize": {"w":193,"h":442}
+},
+"Prize Agent 300x450.png":
+{
+	"frame": {"x":367,"y":1,"w":292,"h":439},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":8,"w":292,"h":439},
+	"sourceSize": {"w":300,"h":450}
+},
+"Provisioner 300x450.png":
+{
+	"frame": {"x":1,"y":1,"w":169,"h":448},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":63,"y":2,"w":169,"h":448},
+	"sourceSize": {"w":300,"h":450}
 }},
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "pottwcharacters.png",
 	"format": "RGBA8888",
-	"size": {"w":624,"h":444},
+	"size": {"w":1089,"h":450},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:47533bfb3ad801924579bc304e3030b9:099302bd3927dc52048d0f2141144604:a96da43f48edf9d822596df3ee151032$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8b771073d06f4586a62a00a1c2c002d9:926bb28fab14623d932072caf299ca31:a96da43f48edf9d822596df3ee151032$"
 }
 }
