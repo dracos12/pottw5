@@ -17,6 +17,7 @@ export default class popProvisioner extends PopUp
     private sellBtn:Button;
     private txtAmount:PIXI.Text;
     private eIcons:Array<EconomyIcon> = [];
+    private charProvisioner:PIXI.Sprite;
 
     constructor()
     {
@@ -85,6 +86,11 @@ export default class popProvisioner extends PopUp
         this.txtAmount.x = this.coin.x + this.coin.width + 5;
         this.txtAmount.y = this.coin.y + this.coin.height/2 - this.txtAmount.height/2;
         this.addChild(this.txtAmount);
+
+        this.charProvisioner = new PIXI.Sprite(PIXI.Texture.fromFrame("Provisioner 300x450.png"));
+        this.charProvisioner.x = 508;
+        this.charProvisioner.y = 66;
+        this.addChild(this.charProvisioner);
 
         this.loadHold();
         this.displayMerch();

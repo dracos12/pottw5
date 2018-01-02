@@ -26,6 +26,7 @@ export default class popPrizeAgent extends PopUp
     private txtReloadPrice:PIXI.Text;
     private btnBuyNow:Button;
     private btnReload:Button;
+    private charPrizeAgent:PIXI.Sprite;
 
     constructor()
     {
@@ -115,6 +116,11 @@ export default class popPrizeAgent extends PopUp
         this.btnReload.y = 254; // - this.btnReload.height / 2;
         this.addChild(this.btnReload);
         this.btnReload.on('click', this.onReload);
+
+        this.charPrizeAgent = new PIXI.Sprite(PIXI.Texture.fromFrame("Prize Agent 300x450.png"));
+        this.charPrizeAgent.x = 472;
+        this.charPrizeAgent.y = 31;
+        this.addChild(this.charPrizeAgent);
 
         requestAnimationFrame(this.update);
     }
