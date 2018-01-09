@@ -33,32 +33,32 @@ export default class popCoinStore extends PopUp
         super.init(); // background and x button
 
         // baked cards for now, later this will be data driven from some kind of store config file
-        var card = new StoreCard("10", "$0.99", 1, 2, this.coinCallBack);
+        var card = new StoreCard("10", "$0.99", 1, 2, this.coinCallBack,"smMoney.png");
         card.x = 183;
         card.y = 85;
         this.addChild(card);
         this.cards.push(card);
-        card = new StoreCard("30", "$1.99", 2, 2, this.coinCallBack);
+        card = new StoreCard("30", "$1.99", 2, 2, this.coinCallBack,"medMoney1.png");
         card.x = 309;
         card.y = 85;
         this.addChild(card);
         this.cards.push(card);
-        card = new StoreCard("70", "$4.99", 3, 2, this.coinCallBack);
+        card = new StoreCard("70", "$4.99", 3, 2, this.coinCallBack,"medMoney1.png");
         card.x = 434;
         card.y = 85;
         this.addChild(card);
         this.cards.push(card);
-        card = new StoreCard("300", "$9.99", 4, 2, this.coinCallBack);
+        card = new StoreCard("300", "$9.99", 4, 2, this.coinCallBack,"medMoney2.png");
         card.x = 183;
         card.y = 278;
         this.addChild(card);
         this.cards.push(card);
-        card = new StoreCard("600", "$19.99", 5, 2, this.coinCallBack);
+        card = new StoreCard("600", "$19.99", 5, 2, this.coinCallBack,"medMoney2.png");
         card.x = 309;
         card.y = 278;
         this.addChild(card);
         this.cards.push(card);
-        card = new StoreCard("1,500", "$49.99", 6, 2, this.coinCallBack);
+        card = new StoreCard("1,500", "$49.99", 6, 2, this.coinCallBack,"lrgMoney.png");
         card.x = 434;
         card.y = 278;
         this.addChild(card);

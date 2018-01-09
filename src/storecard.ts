@@ -27,15 +27,6 @@ export default class StoreCard extends PIXI.Container
             fontSize: 22,
             fill: 'white'
         });
-        this.txtName = new PIXI.Text(name, style);
-        this.txtName.x = 48;
-        this.txtName.y = 1;
-        this.addChild(this.txtName);
-
-        this.txtPrice = new PIXI.Text(price, style);
-        this.txtPrice.x = 39;
-        this.txtPrice.y = 151;
-        this.addChild(this.txtPrice);
 
         this.itemID = id;
         
@@ -55,7 +46,22 @@ export default class StoreCard extends PIXI.Container
         if (imageName != "")
         {
             // add an image with indicated name to the frame
+            // center based off the 90x145 space on the card from position 15,34
+            this.itemImage = new PIXI.Sprite(PIXI.Texture.fromFrame(imageName));
+            this.itemImage.x = 15 + 45 - (this.itemImage.width / 2);
+            this.itemImage.y = 34 + 72 - (this.itemImage.height / 2);
+            this.addChild(this.itemImage);
         }
+
+        this.txtName = new PIXI.Text(name, style);
+        this.txtName.x = 48;
+        this.txtName.y = 1;
+        this.addChild(this.txtName);
+
+        this.txtPrice = new PIXI.Text(price, style);
+        this.txtPrice.x = 39;
+        this.txtPrice.y = 151;
+        this.addChild(this.txtPrice);
 
         this.interactive = true;
         this.on('mousedown', this.onMouseDown);
