@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>4</int>
         <key>texturePackerVersion</key>
-        <string>4.5.0</string>
+        <string>4.6.1</string>
         <key>fileName</key>
         <string>E:/HTML5Projects/pottw5/configs/pottw5ui.tps</string>
         <key>autoSDSettings</key>
@@ -592,6 +592,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/lrgMoney.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>23,22,45,45</rect>
+                <key>scale9Paddings</key>
+                <rect>23,22,45,45</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/mask2.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -602,6 +615,32 @@
                 <rect>38,27,75,54</rect>
                 <key>scale9Paddings</key>
                 <rect>38,27,75,54</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/medMoney1.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>21,34,43,69</rect>
+                <key>scale9Paddings</key>
+                <rect>21,34,43,69</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/medMoney2.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>23,35,45,69</rect>
+                <key>scale9Paddings</key>
+                <rect>23,35,45,69</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -706,6 +745,19 @@
                 <rect>6,114,12,228</rect>
                 <key>scale9Paddings</key>
                 <rect>6,114,12,228</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/smMoney.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>23,20,45,41</rect>
+                <key>scale9Paddings</key>
+                <rect>23,20,45,41</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -852,6 +904,10 @@
             <filename>../../../Art/pottw5/ui/bear.png</filename>
             <filename>../../../Art/pottw5/ui/bull.png</filename>
             <filename>../../../Art/pottw5/ui/uiArrow.png</filename>
+            <filename>../../../Art/pottw5/ui/smMoney.png</filename>
+            <filename>../../../Art/pottw5/ui/lrgMoney.png</filename>
+            <filename>../../../Art/pottw5/ui/medMoney1.png</filename>
+            <filename>../../../Art/pottw5/ui/medMoney2.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

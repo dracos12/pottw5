@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>4</int>
         <key>texturePackerVersion</key>
-        <string>4.5.0</string>
+        <string>4.6.1</string>
         <key>fileName</key>
         <string>E:/HTML5Projects/pottw5/configs/characters.tps</string>
         <key>autoSDSettings</key>
@@ -199,6 +199,20 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../../../Art/pottw5/characters/Prize Agent 300x450.png</key>
+            <key type="filename">../../../Art/pottw5/characters/Provisioner 300x450.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>75,113,150,225</rect>
+                <key>scale9Paddings</key>
+                <rect>75,113,150,225</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/characters/charPirateFemale.png</key>
             <key type="filename">../../../Art/pottw5/characters/charPirateMale.png</key>
             <struct type="IndividualSpriteSettings">
@@ -232,6 +246,8 @@
             <filename>../../../Art/pottw5/characters/charPirateFemale.png</filename>
             <filename>../../../Art/pottw5/characters/charPirateMale.png</filename>
             <filename>../../../Art/pottw5/characters/charVoodoo.png</filename>
+            <filename>../../../Art/pottw5/characters/Prize Agent 300x450.png</filename>
+            <filename>../../../Art/pottw5/characters/Provisioner 300x450.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
