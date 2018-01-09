@@ -22,6 +22,8 @@ export default class popCoinStore extends PopUp
     private purchaseAmount:number;
     private coinInc:number; 
     private purchaseToken:string = "";
+    private title:PIXI.Text;
+    private charPrizeAgent:PIXI.Sprite;
 
     constructor()
     {
@@ -34,32 +36,32 @@ export default class popCoinStore extends PopUp
 
         // baked cards for now, later this will be data driven from some kind of store config file
         var card = new StoreCard("10", "$0.99", 1, 2, this.coinCallBack,"smMoney.png");
-        card.x = 183;
+        card.x = 114;
         card.y = 85;
         this.addChild(card);
         this.cards.push(card);
         card = new StoreCard("30", "$1.99", 2, 2, this.coinCallBack,"medMoney1.png");
-        card.x = 309;
+        card.x = 239;
         card.y = 85;
         this.addChild(card);
         this.cards.push(card);
         card = new StoreCard("70", "$4.99", 3, 2, this.coinCallBack,"medMoney1.png");
-        card.x = 434;
+        card.x = 365;
         card.y = 85;
         this.addChild(card);
         this.cards.push(card);
         card = new StoreCard("300", "$9.99", 4, 2, this.coinCallBack,"medMoney2.png");
-        card.x = 183;
+        card.x = 114;
         card.y = 278;
         this.addChild(card);
         this.cards.push(card);
         card = new StoreCard("600", "$19.99", 5, 2, this.coinCallBack,"medMoney2.png");
-        card.x = 309;
+        card.x = 239;
         card.y = 278;
         this.addChild(card);
         this.cards.push(card);
         card = new StoreCard("1,500", "$49.99", 6, 2, this.coinCallBack,"lrgMoney.png");
-        card.x = 434;
+        card.x = 365;
         card.y = 278;
         this.addChild(card);
         this.cards.push(card); 
@@ -72,9 +74,25 @@ export default class popCoinStore extends PopUp
 
         this.badgeBestValue = new PIXI.Sprite(PIXI.Texture.fromFrame("bestValue.png"));
         this.badgeBestValue.scale.x =this.badgeBestValue.scale.y = 0.5;
-        this.badgeBestValue.x = 163;
+        this.badgeBestValue.x = 93;
         this.badgeBestValue.y = 410;
         this.addChild(this.badgeBestValue);
+
+        var styleb = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 32,
+            fill: 'black'
+        });
+
+        this.title = new PIXI.Text("Coin Store", styleb);
+        this.title.x = this.bg.width / 2 - this.title.width / 2;
+        this.title.y = 30;
+        this.addChild(this.title);
+
+        this.charPrizeAgent = new PIXI.Sprite(PIXI.Texture.fromFrame("Prize Agent 300x450.png"));
+        this.charPrizeAgent.x = 472;
+        this.charPrizeAgent.y = 31;
+        this.addChild(this.charPrizeAgent);
     }
 
     onBuy = (e:any) =>
@@ -111,11 +129,13 @@ export default class popCoinStore extends PopUp
             this.coinInc = 100;
         }
 
+        var prodIDStr = "payments_lite_0" + id;
+
         FB.ui(
             {
               method: 'pay',
               action: 'purchaseiap',
-              product_id: 'payments_lite_01',
+              product_id: prodIDStr,
               developer_payload: 'this_is_a_test_payload'
             },
             this.fbIAPResponse // Callback function
