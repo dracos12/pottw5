@@ -22,8 +22,10 @@ export default class popPlayerSetup extends PopUp
     private textFrame:PIXI.Sprite;
     private lblFaction:PIXI.Text;
     private lblShipName:PIXI.Text;
-    private shipName:String = "";
+    private shipName:string = "";
     private btnCheck:Button;
+    private txtShipName:PIXI.Text;
+    private txtHint:PIXI.Text;
 
     constructor()
     {
@@ -92,7 +94,7 @@ export default class popPlayerSetup extends PopUp
         // text frame
         this.textFrame = new PIXI.Sprite(PIXI.Texture.fromFrame("TextEntryBox.png"));
         this.textFrame.x = 258;
-        this.textFrame.y = 466;
+        this.textFrame.y = 461;
         this.addChild(this.textFrame);
 
         var style = new PIXI.TextStyle({
@@ -113,6 +115,30 @@ export default class popPlayerSetup extends PopUp
         this.lblShipName.y = 463;
         this.addChild(this.lblShipName);
 
+        var styleb = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 24,
+            fill: 'black'
+        });
+
+        this.txtShipName = new PIXI.Text("", styleb);
+        this.txtShipName.x = this.textFrame.x + 6;
+        this.txtShipName.y = this.textFrame.y + 8;
+        this.addChild(this.txtShipName);
+
+        var stylec = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 16,
+            fill: 'black',
+            wordWrap: true,
+            wordWrapWidth: 150
+        });
+
+        this.txtHint = new PIXI.Text("Welcome to Pirates on the Trade Winds! Select your first mate...", stylec);
+        this.txtHint.x = 53;
+        this.txtHint.y = 131;
+        this.addChild(this.txtHint);
+
         this.btnCheck = new Button( PIXI.Texture.fromFrame("BtnCheck.png"));
         this.btnCheck.anchor.x = this.btnX.anchor.y = 0.5;
         this.btnCheck.x = 587;
@@ -120,6 +146,29 @@ export default class popPlayerSetup extends PopUp
         this.addChild(this.btnCheck);
         this.btnCheck.on('click', this.onCheck);
 
+        window.addEventListener(
+            "keydown", this.keyDownHandler, false
+            );
+
+    }
+
+    keyDownHandler = (event:any) => {
+        //console.log("Pressed key: " + event.keyCode);
+        if (event.keyCode == 32 || (event.keyCode >= 65 && event.keyCode <= 90) ||
+            (event.keyCode >= 97 && event.KeyCode <= 122) )
+        {
+            this.shipName += event.key;
+            this.txtShipName.text = this.shipName;
+            //console.log(event.keyCode);
+            this.txtHint.text = "When finished with your ship name, click the check button to set sail!";
+        }
+
+        if (event.keyCode == 8) // backspace
+        {
+            // delete the end character of ship name
+            this.shipName = this.shipName.slice(0,-1);
+            this.txtShipName.text = this.shipName;
+        }
     }
 
     onEnglish = () => {
@@ -127,6 +176,7 @@ export default class popPlayerSetup extends PopUp
         this.flagFrench.filters = [this.blackShadow];
         this.flagSpanish.filters = [this.blackShadow];
         this.flagDutch.filters = [this.blackShadow];
+        this.txtHint.text = "You have selected to hoist the English flag! Now name your ship below!";
     }
 
     onFrench = () => {
@@ -134,34 +184,42 @@ export default class popPlayerSetup extends PopUp
         this.flagFrench.filters = [this.highlight];
         this.flagSpanish.filters = [this.blackShadow];
         this.flagDutch.filters = [this.blackShadow];
+        this.txtHint.text = "You have selected to hoist the French flag! Now name your ship below!";
     }
     
     onSpanish = () => {
         this.flagEnglish.filters = [this.blackShadow];
         this.flagFrench.filters = [this.blackShadow];
         this.flagSpanish.filters = [this.highlight];
-        this.flagDutch.filters = [this.blackShadow];       
+        this.flagDutch.filters = [this.blackShadow];     
+        this.txtHint.text = "You have selected to hoist the Spanish flag! Now name your ship below!";  
     }
 
     onDutch = () => {
         this.flagEnglish.filters = [this.blackShadow];
         this.flagFrench.filters = [this.blackShadow];
         this.flagSpanish.filters = [this.blackShadow];
-        this.flagDutch.filters = [this.highlight];              
+        this.flagDutch.filters = [this.highlight];     
+        this.txtHint.text = "You have selected to hoist the Dutch flag! Now name your ship below!";         
     }
 
     onCheck = () => {
         // clicked the check button! verify data and proceed
+        // save the ship name
+        SingletonClass.ship.setName(this.shipName);
+        this.close();
     }
 
     onFemme = () => {
         this.femMate.filters = [this.highlight];   
         this.maleMate.filters = [];
+        this.txtHint.text = "Now choose one of the four faction flags to the right!"
     }
 
     onMale = () => {
         this.maleMate.filters = [this.highlight];   
         this.femMate.filters = [];
+        this.txtHint.text = "Now choose one of the four faction flags to the right!"
     }
 
 }
