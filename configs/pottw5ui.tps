@@ -225,6 +225,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/BtnCheck.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>13,12,25,23</rect>
+                <key>scale9Paddings</key>
+                <rect>13,12,25,23</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/Btn_Ex.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -329,6 +342,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/TextEntryBox.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>75,11,151,22</rect>
+                <key>scale9Paddings</key>
+                <rect>75,11,151,22</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/UIFooter.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -404,19 +430,6 @@
                 <rect>9,11,19,21</rect>
                 <key>scale9Paddings</key>
                 <rect>9,11,19,21</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">../../../Art/pottw5/ui/btnCheck.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>9,8,18,17</rect>
-                <key>scale9Paddings</key>
-                <rect>9,8,18,17</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -826,6 +839,22 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/ui_flagDutch.png</key>
+            <key type="filename">../../../Art/pottw5/ui/ui_flagEnglish.png</key>
+            <key type="filename">../../../Art/pottw5/ui/ui_flagFrench.png</key>
+            <key type="filename">../../../Art/pottw5/ui/ui_flagSpanish.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>25,17,50,33</rect>
+                <key>scale9Paddings</key>
+                <rect>25,17,50,33</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/ui_map.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -896,7 +925,6 @@
             <filename>../../../Art/pottw5/ui/dockSW.png</filename>
             <filename>../../../Art/pottw5/ui/AnchorButton.png</filename>
             <filename>../../../Art/pottw5/ui/btnLong.png</filename>
-            <filename>../../../Art/pottw5/ui/btnCheck.png</filename>
             <filename>../../../Art/pottw5/ui/mask2.png</filename>
             <filename>../../../Art/pottw5/ui/msgBoxBack.png</filename>
             <filename>../../../Art/pottw5/ui/cardBack.png</filename>
@@ -908,6 +936,12 @@
             <filename>../../../Art/pottw5/ui/lrgMoney.png</filename>
             <filename>../../../Art/pottw5/ui/medMoney1.png</filename>
             <filename>../../../Art/pottw5/ui/medMoney2.png</filename>
+            <filename>../../../Art/pottw5/ui/BtnCheck.png</filename>
+            <filename>../../../Art/pottw5/ui/ui_flagDutch.png</filename>
+            <filename>../../../Art/pottw5/ui/ui_flagEnglish.png</filename>
+            <filename>../../../Art/pottw5/ui/ui_flagFrench.png</filename>
+            <filename>../../../Art/pottw5/ui/ui_flagSpanish.png</filename>
+            <filename>../../../Art/pottw5/ui/TextEntryBox.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
