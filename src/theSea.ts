@@ -249,8 +249,9 @@ export default class theSea
             .add("images/4x4Region1/image_part_013.png")
             .add("images/4x4Region1/image_part_014.png")
             .add("images/4x4Region1/image_part_015.png")
-            .add("images/islands/region1atlas.json")        // loader automagically loads all the textures in this atlas
+            .add("images/islands/region1islands.json")        // loader automagically loads all the textures in this atlas
             .add("images/ships/corvette2.json")
+            .add("images/islands/trinidad.png")
 
         this.loadCallback = callback;
 
@@ -349,7 +350,16 @@ export default class theSea
                 // create a sprite for each
                 let isle = new Island();
 
-                let sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
+                var sprite;
+
+                if (key == "Trinidad") // loaded independently, not within an atlas
+                {
+                    sprite = new PIXI.Sprite(PIXI.loader.resources["images/islands/trinidad.png"].texture);
+                }
+                else
+                {
+                    sprite = new PIXI.Sprite(PIXI.Texture.fromFrame(json_data[key].fileName));
+                }
                 
                 // position the sprite according to the data
                 sprite.x = json_data[key].x;
