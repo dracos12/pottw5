@@ -1,0 +1,324 @@
+{"frames": {
+
+"Anguilla.png":
+{
+	"frame": {"x":756,"y":601,"w":293,"h":95},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":293,"h":95},
+	"sourceSize": {"w":293,"h":95}
+},
+"Barbados.png":
+{
+	"frame": {"x":504,"y":1416,"w":389,"h":251},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":389,"h":251},
+	"sourceSize": {"w":389,"h":251}
+},
+"barbuda.png":
+{
+	"frame": {"x":756,"y":329,"w":312,"h":270},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":312,"h":270},
+	"sourceSize": {"w":312,"h":270}
+},
+"BritishVirgianIsles.png":
+{
+	"frame": {"x":1070,"y":406,"w":608,"h":301},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":608,"h":301},
+	"sourceSize": {"w":608,"h":301}
+},
+"desirade.png":
+{
+	"frame": {"x":1624,"y":1441,"w":217,"h":101},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":217,"h":101},
+	"sourceSize": {"w":217,"h":101}
+},
+"Dog Island.png":
+{
+	"frame": {"x":1843,"y":1441,"w":108,"h":79},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":108,"h":79},
+	"sourceSize": {"w":108,"h":79}
+},
+"EdgeIsle.png":
+{
+	"frame": {"x":1680,"y":406,"w":279,"h":238},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":279,"h":238},
+	"sourceSize": {"w":279,"h":238}
+},
+"eustatius.png":
+{
+	"frame": {"x":1844,"y":1522,"w":119,"h":75},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":119,"h":75},
+	"sourceSize": {"w":119,"h":75}
+},
+"Flamenco.png":
+{
+	"frame": {"x":724,"y":1050,"w":157,"h":138},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":157,"h":138},
+	"sourceSize": {"w":157,"h":138}
+},
+"galante.png":
+{
+	"frame": {"x":747,"y":874,"w":255,"h":174},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":255,"h":174},
+	"sourceSize": {"w":255,"h":174}
+},
+"Grenada.png":
+{
+	"frame": {"x":1,"y":1143,"w":535,"h":271},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":535,"h":271},
+	"sourceSize": {"w":535,"h":271}
+},
+"Grenadines1.png":
+{
+	"frame": {"x":1680,"y":646,"w":258,"h":250},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":258,"h":250},
+	"sourceSize": {"w":258,"h":250}
+},
+"Grenadines2.png":
+{
+	"frame": {"x":1555,"y":1252,"w":410,"h":187},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":410,"h":187},
+	"sourceSize": {"w":410,"h":187}
+},
+"Grenadines3.png":
+{
+	"frame": {"x":1551,"y":709,"w":126,"h":113},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":126,"h":113},
+	"sourceSize": {"w":126,"h":113}
+},
+"guadelupe.png":
+{
+	"frame": {"x":1079,"y":1,"w":945,"h":403},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":945,"h":403},
+	"sourceSize": {"w":945,"h":403}
+},
+"haut.png":
+{
+	"frame": {"x":1291,"y":1513,"w":115,"h":119},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":115,"h":119},
+	"sourceSize": {"w":115,"h":119}
+},
+"Macuro.png":
+{
+	"frame": {"x":1,"y":329,"w":753,"h":347},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":753,"h":347},
+	"sourceSize": {"w":753,"h":347}
+},
+"Martinique.png":
+{
+	"frame": {"x":1,"y":678,"w":543,"h":463},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":543,"h":463},
+	"sourceSize": {"w":543,"h":463}
+},
+"montserrat.png":
+{
+	"frame": {"x":546,"y":803,"w":199,"h":169},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":199,"h":169},
+	"sourceSize": {"w":199,"h":169}
+},
+"nevis.png":
+{
+	"frame": {"x":546,"y":678,"w":208,"h":123},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":208,"h":123},
+	"sourceSize": {"w":208,"h":123}
+},
+"PearCays.png":
+{
+	"frame": {"x":1551,"y":1078,"w":87,"h":42},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":87,"h":42},
+	"sourceSize": {"w":87,"h":42}
+},
+"redonda.png":
+{
+	"frame": {"x":1551,"y":824,"w":110,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":110,"h":72},
+	"sourceSize": {"w":110,"h":72}
+},
+"RondeIsland.png":
+{
+	"frame": {"x":1940,"y":646,"w":76,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":76,"h":102},
+	"sourceSize": {"w":76,"h":102}
+},
+"roseau.png":
+{
+	"frame": {"x":1014,"y":709,"w":535,"h":418},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":535,"h":418},
+	"sourceSize": {"w":535,"h":418}
+},
+"sabaisland.png":
+{
+	"frame": {"x":895,"y":1050,"w":117,"h":96},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":117,"h":96},
+	"sourceSize": {"w":117,"h":96}
+},
+"saintes.png":
+{
+	"frame": {"x":1408,"y":1513,"w":214,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":214,"h":115},
+	"sourceSize": {"w":214,"h":115}
+},
+"SanJuanE.png":
+{
+	"frame": {"x":1,"y":1,"w":1076,"h":326},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1076,"h":326},
+	"sourceSize": {"w":1076,"h":326}
+},
+"ScrubIsle.png":
+{
+	"frame": {"x":1844,"y":1599,"w":90,"h":74},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":90,"h":74},
+	"sourceSize": {"w":90,"h":74}
+},
+"stbarth.png":
+{
+	"frame": {"x":756,"y":698,"w":256,"h":174},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":174},
+	"sourceSize": {"w":256,"h":174}
+},
+"stchristopher.png":
+{
+	"frame": {"x":900,"y":1148,"w":230,"h":235},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":230,"h":235},
+	"sourceSize": {"w":230,"h":235}
+},
+"StCroix.png":
+{
+	"frame": {"x":1132,"y":1129,"w":421,"h":227},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":421,"h":227},
+	"sourceSize": {"w":421,"h":227}
+},
+"stjohns.png":
+{
+	"frame": {"x":538,"y":1190,"w":360,"h":203},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":203},
+	"sourceSize": {"w":360,"h":203}
+},
+"StLucia.png":
+{
+	"frame": {"x":1,"y":1416,"w":501,"h":277},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":501,"h":277},
+	"sourceSize": {"w":501,"h":277}
+},
+"stmartin.png":
+{
+	"frame": {"x":1291,"y":1358,"w":227,"h":153},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":227,"h":153},
+	"sourceSize": {"w":227,"h":153}
+},
+"StVincent.png":
+{
+	"frame": {"x":895,"y":1395,"w":394,"h":288},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":394,"h":288},
+	"sourceSize": {"w":394,"h":288}
+},
+"Tabago.png":
+{
+	"frame": {"x":1551,"y":898,"w":470,"h":178},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":470,"h":178},
+	"sourceSize": {"w":470,"h":178}
+},
+"TheSettlement.png":
+{
+	"frame": {"x":546,"y":974,"w":176,"h":174},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":176,"h":174},
+	"sourceSize": {"w":176,"h":174}
+},
+"Vieques.png":
+{
+	"frame": {"x":1640,"y":1078,"w":366,"h":172},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":366,"h":172},
+	"sourceSize": {"w":366,"h":172}
+},
+"VirginGorda.png":
+{
+	"frame": {"x":1624,"y":1544,"w":218,"h":100},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":218,"h":100},
+	"sourceSize": {"w":218,"h":100}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "region1islands.png",
+	"format": "RGBA8888",
+	"size": {"w":2025,"h":1694},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:915480f70aa6f550808a583495bb9689:773d0e7ae829ce13354a144344768031:92e5654b8ea4e98dfaf9b53affe5821d$"
+}
+}
