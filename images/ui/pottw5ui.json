@@ -8,6 +8,14 @@
 	"spriteSourceSize": {"x":4,"y":11,"w":47,"h":41},
 	"sourceSize": {"w":56,"h":64}
 },
+"ammoCount.png":
+{
+	"frame": {"x":970,"y":272,"w":32,"h":28},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":28},
+	"sourceSize": {"w":32,"h":28}
+},
 "AnchorButton.png":
 {
 	"frame": {"x":775,"y":734,"w":41,"h":33},
@@ -298,7 +306,7 @@
 },
 "silverCoin.png":
 {
-	"frame": {"x":970,"y":272,"w":27,"h":32},
+	"frame": {"x":970,"y":302,"w":27,"h":32},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":27,"h":32},
@@ -471,6 +479,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1004,"h":1531},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:669e6f7e55698c445733bb61356651b7:758cdbad5fc8433343d4a88c44ac9663:bcc0c8310e43279ad21cd3ac6bcc5caf$"
+	"smartupdate": "$TexturePacker:SmartUpdate:ae9c2c8e169aa3169ae851de8f70849d:b479761b054da44bd71968f8a2e7ee30:bcc0c8310e43279ad21cd3ac6bcc5caf$"
 }
 }

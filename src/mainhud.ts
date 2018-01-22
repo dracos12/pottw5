@@ -65,6 +65,8 @@ export default class MainHUD
     private economyLoaded:boolean = false;
 
     private btnAnchor:Button; // the anchor button for putting in to port
+    private ammoCount:PIXI.Sprite; // background for ammo count
+    private ammoNum:PIXI.Text;     // the number of rounds from the tracked ship object
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -160,10 +162,15 @@ export default class MainHUD
         this.btnAnchor.y = this.footer.y - 20;
         this.btnAnchor.on('click', this.doTownInterface);
 
+        this.ammoCount = new PIXI.Sprite(PIXI.Texture.fromFrame("ammoCount.png"));
+        this.ammoCount.x = this.footer.x + 559;
+        this.ammoCount.y = this.footer.y + 80;
+
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
         this.container.addChild(this.rightCannonBattery);
         this.container.addChild(this.leftCannonBattery);
+        this.container.addChild(this.ammoCount); // behind compass and sail trim
         this.container.addChild(this.compassRose);
         this.container.addChild(this._sailTrim);
         this.container.addChild(this.headingWatch);
@@ -227,6 +234,12 @@ export default class MainHUD
         
         this.container.addChild(this.txtSilverCoins);
         this.container.addChild(this.txtGoldCoins);
+
+        // also add ammo count to the footer
+        this.ammoNum = new PIXI.Text('0', style);
+        this.ammoNum.x = this.ammoCount.x + this.ammoCount.width / 2 - this.ammoNum.width / 2;
+        this.ammoNum.y = this.ammoCount.y + this.ammoCount.height / 2 - this.ammoNum.height / 2;
+        this.container.addChild(this.ammoNum);
     }
 
     public getContainer()
@@ -485,6 +498,10 @@ export default class MainHUD
 
         if (SingletonClass.player.getGold().toString() != this.txtGoldCoins.text)
             this.txtGoldCoins.text = SingletonClass.player.getGold().toString();
+
+        this.ammoNum.text = this.trackShip.getMagBall().toString();
+        this.ammoNum.x = this.ammoCount.x + this.ammoCount.width / 2 - this.ammoNum.width / 2;
+        this.ammoNum.y = this.ammoCount.y + this.ammoCount.height / 2 - this.ammoNum.height / 2;
 
         this.compassRose.update();
         this.headingWatch.update();
