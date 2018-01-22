@@ -420,6 +420,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/ammoCount.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>8,7,16,14</rect>
+                <key>scale9Paddings</key>
+                <rect>8,7,16,14</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/bear.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -942,6 +955,7 @@
             <filename>../../../Art/pottw5/ui/ui_flagFrench.png</filename>
             <filename>../../../Art/pottw5/ui/ui_flagSpanish.png</filename>
             <filename>../../../Art/pottw5/ui/TextEntryBox.png</filename>
+            <filename>../../../Art/pottw5/ui/ammoCount.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
