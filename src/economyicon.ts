@@ -44,7 +44,7 @@ export default class EconomyIcon extends PIXI.Container
         this.pivot.x = 21;
         this.pivot.y = 21;
         this.id=id;
-        this.rarity = rarity;
+        this.rarity = 0; //rarity; // no rarity for now
         if (!barreled)
             this.loadImageByID(); // load a background and icon else will default to a barrel with no background
         else

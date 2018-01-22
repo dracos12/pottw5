@@ -24,13 +24,14 @@ export default class EconomyItem
         }
         else // 85% common, 10% uncommon, 5% rare
         {
-            var rand = theSea.getRandomIntInclusive(1,100);
-            if (rand <= 85)
-                this.rarity = 0;
-            else if (rand <= 95)
-                this.rarity = 1;
-            else
-                this.rarity = 2;
+            // var rand = theSea.getRandomIntInclusive(1,100);
+            // if (rand <= 85)
+            //     this.rarity = 0;
+            // else if (rand <= 95)
+            //     this.rarity = 1;
+            // else
+            //     this.rarity = 2;
+            this.rarity = 0; // no rarity for now
         }
 
         if (EconomyItem.jsonData)
