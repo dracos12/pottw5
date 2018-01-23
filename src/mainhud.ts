@@ -36,6 +36,8 @@ export default class MainHUD
 
     private headingWatch:Watch;
     private lootWatch:Watch;
+    private portWatch:Watch;
+    private starWatch:Watch;
 
     private trackShip:Ship; // the ship the hud is currently tracking
 
@@ -143,8 +145,18 @@ export default class MainHUD
         this.headingWatch = new Watch();
         this.headingWatch.init();
 
-        this.lootWatch = new Watch();
-        this.lootWatch.init();
+        // this.lootWatch = new Watch();
+        // this.lootWatch.init();
+
+        this.portWatch = new Watch();
+        this.portWatch.init();
+        this.portWatch.x = this.leftCannonBattery.x - this.leftCannonBattery.width / 2 - this.portWatch.width / 2;
+        this.portWatch.y = this.leftCannonBattery.y + this.leftCannonBattery.height / 2 - this.portWatch.height / 2;
+
+        this.starWatch = new Watch();
+        this.starWatch.init();
+        this.starWatch.x = this.rightCannonBattery.x + this.rightCannonBattery.width / 2 - this.starWatch.width / 2;
+        this.starWatch.y = this.rightCannonBattery.y + this.rightCannonBattery.height / 2 - this.starWatch.height / 2;
 
         this.headingWatch.x = this.compassRose.x - this.headingWatch.width/2;
         this.headingWatch.y = this.compassRose.y - this.compassRose.height/2 - this.headingWatch.height - 5;
@@ -176,10 +188,14 @@ export default class MainHUD
         this.container.addChild(this.headingWatch);
         this.container.addChild(this.shipWidget);
         this.container.addChild(this.btnAnchor);
+        this.container.addChild(this.portWatch);
+        this.container.addChild(this.starWatch);
 
         this.initHeader();
 
         this.headingWatch.visible = false;
+        this.portWatch.visible = false;
+        this.starWatch.visible = false;
 
         window.addEventListener("boatSelected", this.boatSelectedHandler, false);
         window.addEventListener("changeHeading", this.changeHeadingHandler, false);
@@ -253,11 +269,35 @@ export default class MainHUD
     }
 
     fireRight = (event:any) => {
-        this.trackShip.fireCannons(true);
+        var time;
+        time = this.trackShip.fireCannons(true);
+        if (time != 0)
+        {
+            // display starboard reload timer
+            this.starWatch.visible = true;
+            this.starWatch.countDown(time);
+            this.starWatch.start(this.onRightReloadDone); 
+        }
+    }
+
+    onRightReloadDone = () => {
+        this.starWatch.visible = false;
     }
 
     fireLeft = (event:any) => {
-        this.trackShip.fireCannons(false);
+        var time;
+        time  = this.trackShip.fireCannons(false);
+        if (time != 0)
+        {
+            // display starboard reload timer
+            this.portWatch.visible = true;
+            this.portWatch.countDown(time);
+            this.portWatch.start(this.onLeftReloadDone); 
+        }
+    }
+
+    onLeftReloadDone = () => { 
+        this.portWatch.visible = false;
     }
 
     changeHeadingHandler = (event:any) => {
@@ -505,6 +545,8 @@ export default class MainHUD
 
         this.compassRose.update();
         this.headingWatch.update();
+        this.starWatch.update();
+        this.portWatch.update();
         this._sailTrim.update();
 
         if (this.trackShip.isAground())

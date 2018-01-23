@@ -12,6 +12,8 @@ import FXManager from './fxmanager';
 import CannonBall from './cannonball';
 import { BallType } from './cannonball';
 import EconomyItem from './economyitem';
+import popMsgBox from './popmsgbox';
+import SingletonClass from './singleton';
 
 export const enum ShipType {
     SLOOP,
@@ -75,6 +77,8 @@ export default class Ship extends GameObject
     private aiLastHeading:number = 0;   // time of last call to aiSetHeading
     private aiRayCastArray:Array<PIXI.Sprite> = []; // 32 dots to display potentially 32 ray casts during aiSetHeading
     private aiNextPlot:number = -1;     // init to -1 to signal initialization on first call
+    private aiShipTarget:Ship = null;          // the ship we are targetting to fire at
+    
     private refPt:PIXI.Point;
 
     private tweenVars:any;
@@ -94,8 +98,10 @@ export default class Ship extends GameObject
     private coins:number;                       // number of treasure doubloons
     private shipsHoldCapacity:number = 40;       // in "squares" ex Corvette is 10x4 hold so 40 icons
 
-    private magBall:number;                 // how many ball shoit the ship has left
+    private magBall:number;                 // how many ball shot the ship has left
     private magBallMax:number = 15;         // maximum number of ball shot ship can carry
+    private portCannonLastFired:number = 0;     // time stamp of last port cannon click
+    private starCannonLastFired:number = 0;     // time stamp of last starboard cannon click
 
     constructor()
     {
@@ -123,6 +129,11 @@ export default class Ship extends GameObject
     public setFXManager(fxman:FXManager)
     {
         this.fxManager = fxman;
+    }
+
+    public setName(newName:string)
+    {
+        this.shipName = newName;
     }
 
     // args:
@@ -394,7 +405,7 @@ export default class Ship extends GameObject
         } 
     }
 
-    private aiSetHeading ()
+    private aiSetHeading()
     {
         // step 0 - calculate our direct heading to aiTarget
         let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
@@ -424,7 +435,7 @@ export default class Ship extends GameObject
             // our direct heading has struck an island, aiCurrentObstacle has been set
 
             // find heading around this obstacle in given direction around our current heading
-            // with a minimum of 5 degrees of clearance
+            // with a minimum of 10 degrees of clearance
             newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
             //console.log("Current heading hit obstacle, avoiding!");
         } else {
@@ -1124,9 +1135,34 @@ export default class Ship extends GameObject
     // fire battery and return the milliseconds it will take to reload
     public fireCannons(rightBattery:boolean=true)
     {
+        var now = Date.now();
+        var RELOADTIME = 4000;
+        var reloading = false;
+
+        if (rightBattery && (now - this.starCannonLastFired < RELOADTIME))
+            reloading = true;
+        if (!rightBattery && (now - this.portCannonLastFired < RELOADTIME))
+            reloading = true;
+        if (reloading)
+        {
+            var msg = new popMsgBox();
+            var side = "";
+            if (rightBattery)
+                side = "starboard";
+            else
+                side = "larboard";
+            msg.initMsg(0,"1st Mate", "The " + side + " battery is still reloading captain!");
+            SingletonClass.popupManager.displayPopup(msg);
+            return 0;
+        }
 
         if (this.magBall > 0)
         {
+            if (rightBattery)
+                this.starCannonLastFired = now;
+            else
+                this.portCannonLastFired = now;
+                
             //console.log("FIRE!!");
             this.magBall -= 1; // deduct ammo (for now just one shot)
 
@@ -1148,20 +1184,55 @@ export default class Ship extends GameObject
             // v.multiplyScalar(speed);
 
             // request a cannonball and give it a velocity
-            var ball = this.fxManager.getCannonBall();
-            var x = this.sprite.x + this.refPt.x;
-            var y = this.sprite.y + this.refPt.y;
-            ball.fire(x, y, v, 4, BallType.BALL, this);
-            this.fxManager.placeMuzzlePlume(x, y, v);
+
+            // var x = this.sprite.x + this.refPt.x;
+            // var y = this.sprite.y + this.refPt.y;
+
+            var cannons = 4;
+            var d = this.heading.clone();
+            d.y = -d.y;
+            var MINDELAY = 100;
+            var MAXDELAY = 250;
+
+            if (cannons == 4)
+            {
+                var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
+                var y = this.sprite.y + this.refPt.y + (5*d.y);
+                // fire the first ball immediately
+                this.fireDelay(x,y,v);
+                // remaining balls fired with .25-.5 second delay
+                var delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+                var x2 = this.sprite.x + this.refPt.x + (10*d.x); // 2nd ball 10 pix along heading
+                var y2 = this.sprite.y + this.refPt.y + (10*d.y);
+                setTimeout(() => {this.fireDelay(x2,y2,v)}, delay);
+
+                var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 3rd ball 5 pix along inverse heading
+                var y3 = this.sprite.y + this.refPt.y + (5*-d.y);
+                delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+                setTimeout(() => {this.fireDelay(x3,y3,v)}, delay);
+
+                var x4 = this.sprite.x + this.refPt.x + (10*-d.x); // 4th ball 10 pix along inverse heading
+                var y4 = this.sprite.y + this.refPt.y + (10*-d.y);
+                delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+                setTimeout(() => {this.fireDelay(x4,y4,v)}, delay);
+            }
 
             // return the reload speed based off crew ability
-            return 2500;
+            return 4000;
         }
         else
         {
-            console.log("Captain! The magazine has run dry! We should put into port and reload!");
+            var msg = new popMsgBox();
+            msg.initMsg(0,"1st Mate", "Captain! The magazine has run dry! We should put into port and reload!");
+            SingletonClass.popupManager.displayPopup(msg);
             return 0;
         }
+    }
+
+    fireDelay = (x:number,y:number,v:Victor) => {
+        var ball = this.fxManager.getCannonBall();
+        ball.fire(x, y, v, 4, BallType.BALL, this);
+        this.fxManager.placeMuzzlePlume(x, y, v);
     }
 
     public getMagBall()
@@ -1228,7 +1299,12 @@ export default class Ship extends GameObject
     {
         let s = this.getSprite();
         let p =s.parent;
+
+        // take care of the achtung symbol too
+        this.hideAchtung();
+
         p.removeChild(s);
+ 
     }
 
     // mouse handlers, just send a message for the hud to handle the loot mechanic
