@@ -77,7 +77,7 @@ export default class Ship extends GameObject
     private aiLastHeading:number = 0;   // time of last call to aiSetHeading
     private aiRayCastArray:Array<PIXI.Sprite> = []; // 32 dots to display potentially 32 ray casts during aiSetHeading
     private aiNextPlot:number = -1;     // init to -1 to signal initialization on first call
-    private aiShipTarget:Ship = null;          // the ship we are targetting to fire at
+    private aiShipTarget:Ship = null;   // the ship we are targetting to fire at
     
     private refPt:PIXI.Point;
 
@@ -85,8 +85,8 @@ export default class Ship extends GameObject
     private fxManager:FXManager;
 
     // ship stats
-    private statHull:number = 12;
-    private statHullMax:number = 12;
+    private statHull:number = 48;
+    private statHullMax:number = 48;
     private statSails:number = 0;
     private statSailsMax:number = 0;
     private statCrew:number = 0;            // feature idea, assign bits to crew to index into name index... crew can have name and exp/level waster/able/midshipman etc
@@ -895,7 +895,6 @@ export default class Ship extends GameObject
         this.sprite.x += speedDelta * this.heading.x;
         this.sprite.y += speedDelta * -this.heading.y;            
         
-
         if (this.targetHeading != this.degreeHeading) {
             var deltaAngle = deltaTime * (this.angularSpeed/1000);
             this.headingTicks++;
@@ -974,6 +973,29 @@ export default class Ship extends GameObject
                     this.setSailTrim(0);
                     this.aiArrived = true;
                 }
+
+                // if we have as ship target and it is in in arc and we are not reloading, fire back
+                if (this.aiShipTarget != null)
+                {
+                    var v1 = this.getRefPtVictor();
+                    var v2 = this.aiShipTarget.getRefPtVictor();
+                    var d = Math.abs(v1.distance(v2));
+                    if (d <= 350) // in range
+                    {
+                        // find angle between our heading vector, and the target's position from us as a vector
+                        var h1 = this.heading;
+                        var h2 = this.aiShipTarget.getRefPtVictor().subtract(this.getRefPtVictor());
+                        h2.y = -h2.y; // invert the y to get h2 into cartesian like h1
+                        h2.normalize();
+                        var diff = this.getCalcAngleBetween(h1,h2); 
+                        console.log("aiFire diff: " + diff.toFixed(1));
+                        if (diff > 30 && diff < 150) // angle is not smaller than 30 degrees (assuming 120 firing arc to either side) therefore ok to fire
+                        {
+                            //console.log("aiFire: diff in angle: " + diff.toFixed(1));
+                            this.aiFireCannons();
+                        }
+                    }
+                }
             }
 
             // if (!this.showTarget)
@@ -993,6 +1015,21 @@ export default class Ship extends GameObject
             }
         }
 
+    }
+
+    private getCalcAngleBetween(v1:Victor, v2:Victor)
+    {
+        // calculate diff in angle which is cos theta = a dot b / mag a * mag b
+        var dot = v1.dot(v2);
+        var mag1 = Math.abs(v1.magnitude());
+        var mag2 = Math.abs(v2.magnitude());
+        var magprod = mag1 * mag2;
+
+        var theta = Math.acos(dot / magprod);
+        var degs = CompassRose.getDegs(theta);
+
+        // return angle in degrees
+        return degs;
     }
 
     private showAITarget()
@@ -1047,6 +1084,11 @@ export default class Ship extends GameObject
             this.errorDisplayed = false;
             //console.log("removing Achtung");
         }
+    }
+
+    public getHeadingVictor()
+    {
+        return this.heading;
     }
 
     public getHeading()
@@ -1132,6 +1174,60 @@ export default class Ship extends GameObject
 
     }
 
+    private aiFireCannons()
+    {
+        // ai do not fire from both sides, so just use portcannontimer to track reloading
+        var now = Date.now();
+        var RELOADTIME = 4000;
+        var reloading = false;
+
+        if (now - this.portCannonLastFired < RELOADTIME)
+            reloading = true; 
+
+        if (reloading)
+            return; // cant fire til reload is done
+
+        console.log("AI: Returning fire at target!");
+        this.portCannonLastFired = now;
+
+        // fire procedure - naive, no target lead
+        // 1> calculate angle to target
+        // 2> fire along that angle
+        var v1 = this.getRefPtVictor();
+        var v2 = this.aiShipTarget.getRefPtVictor();
+        var v = v2.subtract(v1);
+        v.normalize();
+
+        var cannons = 4;
+        var d = this.heading.clone();
+        d.y = -d.y;
+        var MINDELAY = 100;
+        var MAXDELAY = 250;
+
+        if (cannons == 4)
+        {
+            var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
+            var y = this.sprite.y + this.refPt.y + (5*d.y);
+            // fire the first ball immediately
+            this.fireDelay(x,y,v);
+            // remaining balls fired with .25-.5 second delay
+            var delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+            var x2 = this.sprite.x + this.refPt.x + (10*d.x); // 2nd ball 10 pix along heading
+            var y2 = this.sprite.y + this.refPt.y + (10*d.y);
+            setTimeout(() => {this.fireDelay(x2,y2,v)}, delay);
+
+            var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 3rd ball 5 pix along inverse heading
+            var y3 = this.sprite.y + this.refPt.y + (5*-d.y);
+            delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+            setTimeout(() => {this.fireDelay(x3,y3,v)}, delay);
+
+            var x4 = this.sprite.x + this.refPt.x + (10*-d.x); // 4th ball 10 pix along inverse heading
+            var y4 = this.sprite.y + this.refPt.y + (10*-d.y);
+            delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+            setTimeout(() => {this.fireDelay(x4,y4,v)}, delay);
+        }
+    }
+
     // fire battery and return the milliseconds it will take to reload
     public fireCannons(rightBattery:boolean=true)
     {
@@ -1162,7 +1258,7 @@ export default class Ship extends GameObject
                 this.starCannonLastFired = now;
             else
                 this.portCannonLastFired = now;
-                
+
             //console.log("FIRE!!");
             this.magBall -= 1; // deduct ammo (for now just one shot)
 
@@ -1252,6 +1348,9 @@ export default class Ship extends GameObject
 
     public receiveFire(weight:number, source:GameObject)
     {
+        if (this == SingletonClass.ship)
+            return; // player immune
+
         this.statHull -= weight;
         if (this.statHull <= 0)
         {
@@ -1264,8 +1363,16 @@ export default class Ship extends GameObject
             // ask the fx manager for a smoke plume at our reference point
             this.smokeID = this.fxManager.placeSmokePlume(this.sprite.x + this.refPt.x, this.sprite.y+this.refPt.y);
             // wreck frame does not conform.. move sprite by wreck offset.. for now hardcoded
-            this.sprite.y += 30;   
+            this.sprite.y += 35;   
         }    
+        if (this.isAI)
+        {
+            if (this.aiShipTarget != <Ship>(source))
+            {
+                this.aiShipTarget = <Ship>(source);
+                console.log("AI: Acquired new target!");
+            }
+        }
 
         //console.log("took " + weight + " damage. Hull: " + this.statHull);
     }
