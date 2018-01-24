@@ -141,7 +141,7 @@ export default class EconomyIcon extends PIXI.Container
 
     public bezierDone = () => {
         // when bezier done, bob in the water til clicked
-        console.log("bezierDone!");
+        //console.log("bezierDone!");
         // now animate y up and down yoyo style
         TweenMax.to(this,
                     1.25,
@@ -173,7 +173,7 @@ export default class EconomyIcon extends PIXI.Container
 
     public lootIcon(xp:number, yp:number)
     {
-        console.log("lootIcon to: " + xp + "," + yp);
+        //console.log("lootIcon to: " + xp + "," + yp);
         TweenMax.killTweensOf(this);
         TweenMax.to(this,1,{x:xp, y:yp,onComplete:this.lootDone});
         TweenMax.to(this.scale, 1, {x:0,y:0})

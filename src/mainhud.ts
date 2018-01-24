@@ -384,12 +384,12 @@ export default class MainHUD
 
     lootMouseUp = (e:any) => {
         // mouse up over wreck, stop the loot action (even if not done)
-        console.log("End Loot click");
+        //console.log("End Loot click");
     }
 
     collectLoot = (e:any) => {
         // mouse up over wreck, stop the loot action (even if not done)
-        console.log("collect loot!");
+        //console.log("collect loot!");
         // get the icon from the details
         if (this.trackShip.isHoldFull())
         {
