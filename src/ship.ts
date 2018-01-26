@@ -136,6 +136,11 @@ export default class Ship extends GameObject
         this.shipName = newName;
     }
 
+    public getName()
+    {
+        return this.shipName;
+    }
+
     // args:
     // p - polygonal data of type any for collisions with PolyK library
     // ai - flag if this boat is ai
@@ -1345,6 +1350,16 @@ export default class Ship extends GameObject
     public getMagBallMax()
     {
         return this.magBallMax;
+    }
+
+    public getHull()
+    {
+        return this.statHull;
+    }
+
+    public getHullMax()
+    {
+        return this.statHullMax;
     }
 
     public isWrecked()

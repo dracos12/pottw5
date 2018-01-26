@@ -9,6 +9,7 @@ import SingletonClass from './singleton';
 import Ship from './ship';
 import popMsgBox from './popmsgbox';
 import popCoinStore from './popcoinstore';
+import HealthBar from './healthbar';
 
 
 export default class popPrizeAgent extends PopUp
@@ -27,6 +28,20 @@ export default class popPrizeAgent extends PopUp
     private btnBuyNow:Button;
     private btnReload:Button;
     private charPrizeAgent:PIXI.Sprite;
+    // repair info
+    private repairGold:PIXI.Sprite;
+    private repairSilver:PIXI.Sprite;
+    private txtRepairGold:PIXI.Text;
+    private txtRepairSilver:PIXI.Text;
+    private btnRepair:Button;
+    private btnRepairNow:Button;
+    private hullHealth:HealthBar;
+    private lblHull:PIXI.Text;
+    private lblNextRepair:PIXI.Text;
+    private txtRepairTime:PIXI.Text;
+
+    // footer
+    private txtFooter:PIXI.Text;
 
     constructor()
     {
@@ -75,7 +90,8 @@ export default class popPrizeAgent extends PopUp
         this.lblName.y = 66;
         this.addChild(this.lblName);
 
-        this.txtShipName = new PIXI.Text('\"The Donna Doctrine\"', styleb);
+        var shipName = SingletonClass.ship.getName();
+        this.txtShipName = new PIXI.Text(shipName, styleb);
         this.txtShipName.x = 155;
         this.txtShipName.y = 90;
         this.addChild(this.txtShipName);
@@ -121,6 +137,74 @@ export default class popPrizeAgent extends PopUp
         this.charPrizeAgent.x = 472;
         this.charPrizeAgent.y = 31;
         this.addChild(this.charPrizeAgent);
+
+        // repair info
+        this.lblNextRepair = new PIXI.Text("Next Repair in: ", style);
+        this.lblNextRepair.x = 284;
+        this.lblNextRepair.y = 275;
+        this.addChild(this.lblNextRepair);
+
+        this.txtRepairTime = new PIXI.Text("00:00:00 ", style);
+        this.txtRepairTime.x = this.lblNextRepair.x + this.lblNextRepair.width + 5;
+        this.txtRepairTime.y = this.lblNextRepair.y;
+        this.addChild(this.txtRepairTime);
+
+        this.lblHull = new PIXI.Text('Hull:', styleb);
+        this.lblHull.x = 170;
+        this.lblHull.y = 307;
+        this.addChild(this.lblHull);
+
+        this.hullHealth = new HealthBar(150,12,0xFF0000);
+        this.hullHealth.x = this.lblHull.x + this.lblHull.width + 5;
+        this.hullHealth.y = this.lblHull.y + 15;
+        var perc = SingletonClass.ship.getHull() / SingletonClass.ship.getHullMax();
+        this.hullHealth.setPerc(perc);
+        this.addChild(this.hullHealth);
+
+        this.repairSilver = new PIXI.Sprite(PIXI.Texture.fromFrame("silverCoin.png"));
+        this.repairSilver.x = 424 - this.repairSilver.width/2;
+        this.repairSilver.y = 324 - this.repairSilver.height/2;
+        this.addChild(this.repairSilver);
+
+        var price = 200 * (1 - perc);
+        this.txtRepairSilver = new PIXI.Text(price.toFixed(0).toString(), style);
+        this.txtRepairSilver.x = this.repairSilver.x + this.repairSilver.width + 5;
+        this.txtRepairSilver.y = this.repairSilver.y;
+        this.addChild(this.txtRepairSilver);
+
+        this.btnRepair = new Button(PIXI.Texture.fromFrame("btnLong.png"), false, "Repair");
+        this.btnRepair.x = 217;
+        this.btnRepair.y = 369;
+        this.addChild(this.btnRepair);
+
+        this.btnRepairNow = new Button(PIXI.Texture.fromFrame("btnLong.png"), false, "Buy Now", 18);
+        this.btnRepairNow.x = 329;
+        this.btnRepairNow.y = 369;
+        this.addChild(this.btnRepairNow);
+
+        this.repairGold = new PIXI.Sprite(PIXI.Texture.fromFrame("goldCoin.png"));
+        this.repairGold.x = 400 - this.repairGold.width/2;
+        this.repairGold.y = 375 - this.repairGold.height/2;
+        this.addChild(this.repairGold);
+
+        this.txtRepairGold = new PIXI.Text("10", style);
+        this.txtRepairGold.x = this.repairGold.x + this.repairGold.width + 5;
+        this.txtRepairGold.y = this.repairGold.y;
+        this.addChild(this.txtRepairGold);
+
+        var stylec = new PIXI.TextStyle({
+            fontFamily: 'IM Fell English SC',
+            fontSize: 16,
+            fill: 'black',
+            wordWrap: true,
+            wordWrapWidth: 455
+        });
+
+        var footer = "I can reload your magazine or repair only so often. To do so more frequently will require exaction of the master at the dockyard.";
+        this.txtFooter = new PIXI.Text(footer, stylec);
+        this.txtFooter.x = 97;
+        this.txtFooter.y = 466;
+        this.addChild(this.txtFooter);
 
         requestAnimationFrame(this.update);
     }
