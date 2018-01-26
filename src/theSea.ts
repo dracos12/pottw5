@@ -377,7 +377,10 @@ export default class theSea
                 isle.setPolyData(json_data[key].polygonPts);
                 isle.setData(json_data[key]); // save out the entire entry for isle's later use
                 if (isle.isPort())
+                {
                     this.numPorts++;
+                    //console.log("Discovered Port: " + json_data[key].portName)
+                }
 
                 //console.log("Adding " + sprite.name + " to theSea");
             }
@@ -422,8 +425,7 @@ export default class theSea
 
     private spawnAIBoats()
     {
-        // load one AI boat - heading 600 pixels due north
-        var NUMBOATS = 20;
+        var NUMBOATS = 99;
         for (var i=0;i<NUMBOATS;i++)
         {
             let boat = new Ship();
@@ -447,6 +449,12 @@ export default class theSea
             this.layerObjects.addChild(boat.getSprite());
             this.shipArray.push(boat);
         }
+    }
+
+    public clearPlayerTarget()
+    {
+        for (let boat of this.shipArray)
+            boat.clearPlayerTarget();
     }
 
     private loadJSON(jsonFile:string, callback:Function) 
@@ -501,7 +509,7 @@ export default class theSea
                 portCount++;
                 if (portCount == desiredPort)
                 {
-                    //console.log("RandomPort: " + (<Island>gameObj).getName());
+                    console.log("RandomPort Dest: " + (<Island>gameObj).getName());
                     return (<Island>gameObj).getPortDest();
                 }
             }

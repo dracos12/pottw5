@@ -18,6 +18,7 @@ import popTownInterface from './poptowninterface';
 import EconomyItem from './economyitem';
 import SingletonClass from './singleton';
 import popMsgBox from './popmsgbox';
+import theSea from './theSea';
 
 declare var TweenMax:any;
 declare var FB:any;
@@ -69,6 +70,11 @@ export default class MainHUD
     private btnAnchor:Button; // the anchor button for putting in to port
     private ammoCount:PIXI.Sprite; // background for ammo count
     private ammoNum:PIXI.Text;     // the number of rounds from the tracked ship object
+
+    private fade2Black:PIXI.Graphics; // full screen fade out
+    private timerID:number;     // ID used to clearInterval
+
+    private sea:theSea;         // reference to theSea
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -205,6 +211,7 @@ export default class MainHUD
         window.addEventListener("lootDone", this.lootDone, false);
         window.addEventListener("merchSell",this.merchSell, false);
         window.addEventListener("buyGold",this.buyGold, false);
+        window.addEventListener("playerWrecked", this.playerWrecked, false);
 
         this.testAPI(); // test the FB API
     }
@@ -220,6 +227,21 @@ export default class MainHUD
         // display the ship detail popup
         var pop =  new popShipDetails(this.trackShip);
         this.popupManager.displayPopup(pop);
+    }
+
+    private centerOnPlayer()
+    {
+        // instead call center on pt
+        var centerHud = new PIXI.Point(this.container.width/2, this.container.height/2);
+        var centerHudGlobal = this.container.toGlobal(centerHud);
+        var seaCoord = this.sea.getContainer().toLocal(centerHudGlobal);
+        var boatRef = this.trackShip.getRefPtVictor();
+        var diffX = boatRef.x - seaCoord.x;
+        var diffY = boatRef.y - seaCoord.y;
+
+        var c = this.sea.getContainer();
+        c.x -= diffX * c.scale.x;
+        c.y -= diffY * c.scale.y;
     }
 
     private doTownInterface = () =>
@@ -268,6 +290,11 @@ export default class MainHUD
         this.uiLayer = layer;
     }
 
+    public setTheSea(sea:theSea)
+    {
+        this.sea = sea;
+    }
+
     fireRight = (event:any) => {
         var time;
         time = this.trackShip.fireCannons(true);
@@ -314,6 +341,12 @@ export default class MainHUD
     onCountDone = () => {
         this.headingWatch.visible = false;
         //console.log("onCountDone!");
+    }
+
+    playerWrecked = (event:any) => {
+        console.log("Player Wrecked, strating recovery");
+        // start the player recovery process
+        this.playerRecovery();
     }
 
     boatSelectedHandler = (event:any) => {
@@ -415,6 +448,49 @@ export default class MainHUD
         {
             // we already checked above, not sure how it could get full between calls
             console.log("addToHold failed post-check");
+        }
+    }
+
+    private playerRecovery()
+    {
+        var w = window.innerWidth;
+        var h = window.innerWidth;
+        // add a full screen view blocker and start the animation to fade to black
+        this.fade2Black = new PIXI.Graphics();
+        this.fade2Black.beginFill(0x000001);
+        this.fade2Black.drawRect(0,0,w,h);
+        this.fade2Black.endFill();
+        this.fade2Black.alpha = 0.02;
+        this.container.parent.addChild(this.fade2Black);
+        // start timer to fade it out over 5 seconds
+        this.timerID = setInterval(this.fadeOut, 100);
+    }
+
+    fadeOut = () => {
+        this.fade2Black.alpha += 0.02;
+        if (this.fade2Black.alpha >= 1.0)
+        {
+            // move player ship to port
+            // remove its wrecked status
+            // empty hold
+            // tell the sea to focus on the player ship
+            // fade back up
+
+            // for now end interval
+            clearInterval(this.timerID);
+            this.timerID = setInterval(this.fadeIn, 100);
+            SingletonClass.ship.unWreck();
+            this.sea.clearPlayerTarget();
+            this.centerOnPlayer();
+        }
+    }
+
+    fadeIn = () => {
+        this.fade2Black.alpha -= 0.05;
+        if (this.fade2Black.alpha <= 0)
+        {
+            clearInterval(this.timerID);
+            this.container.parent.removeChild(this.fade2Black);
         }
     }
 
@@ -549,7 +625,7 @@ export default class MainHUD
         this.portWatch.update();
         this._sailTrim.update();
 
-        if (this.trackShip.isAground())
+        if (this.trackShip.isAground() || this.trackShip.isWrecked())
         {
             if (!this.didGrounding) {
                 this._sailTrim.setSailTrimPercent(0);

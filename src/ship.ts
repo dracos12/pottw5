@@ -662,6 +662,7 @@ export default class Ship extends GameObject
         this.speed = 0;
         this.targetSpeed = 0;
         this.tweenVars.speed = 0;
+        this.setSailTrim(0);
         //TweenLite.killTweensOf(this.tweenVars);
     }
 
@@ -975,7 +976,7 @@ export default class Ship extends GameObject
                 }
 
                 // if we have as ship target and it is in in arc and we are not reloading, fire back
-                if (this.aiShipTarget != null)
+                if (this.aiShipTarget != null && !this.aiShipTarget.isWrecked())
                 {
                     var v1 = this.getRefPtVictor();
                     var v2 = this.aiShipTarget.getRefPtVictor();
@@ -1346,10 +1347,30 @@ export default class Ship extends GameObject
         return this.magBallMax;
     }
 
+    public isWrecked()
+    {
+        return this.wrecked;
+    }
+
+    public unWreck()
+    {
+        // give the boat 1hp and make it not wrecked.. player will have to port and repair
+        this.statHull = 1;
+        this.wrecked = false;
+        this.allStop();
+        this.heading = new Victor(1,0); // east
+        this.degreeHeading = this.heading.angleDeg(); 
+        this.targetHeading = this.degreeHeading;
+        this.usingFrame = -1; // invalidate usingFrame
+        this.matchHeadingToSprite();
+        this.setPosition(6200,2600);
+        this.fxManager.returnSmokeToPool(this.smokeID);
+    }
+
     public receiveFire(weight:number, source:GameObject)
     {
-        if (this == SingletonClass.ship)
-            return; // player immune
+        // if (this == SingletonClass.ship)
+        //     return; // player immune
 
         this.statHull -= weight;
         if (this.statHull <= 0)
@@ -1364,6 +1385,15 @@ export default class Ship extends GameObject
             this.smokeID = this.fxManager.placeSmokePlume(this.sprite.x + this.refPt.x, this.sprite.y+this.refPt.y);
             // wreck frame does not conform.. move sprite by wreck offset.. for now hardcoded
             this.sprite.y += 35;   
+            if (this == SingletonClass.ship) // player ship was destroyed... hud will need to take action
+            {
+                // send an event to the hud to start the player-recovery process
+                var myEvent = new CustomEvent("playerWrecked",
+                {
+                    'detail': { "boat": this }
+                });
+                window.dispatchEvent(myEvent);
+            }
         }    
         if (this.isAI)
         {
@@ -1377,19 +1407,28 @@ export default class Ship extends GameObject
         //console.log("took " + weight + " damage. Hull: " + this.statHull);
     }
 
+    public clearPlayerTarget()
+    {
+        if (this.aiShipTarget == SingletonClass.ship)
+            this.aiShipTarget = null;
+    }
+
     private switchFrameToWrecked()
     {
         let s = this.getSprite();
 
         s.texture = PIXI.Texture.fromFrame("CorvetteBodyWreck.png");
 
-        s.interactive = true;
+        if (SingletonClass.ship != this) // player boat does not become interactive
+        {
+            s.interactive = true;
 
-        // add listeners to mouse down and up
-        s.on("mousedown", this.wreckMouseDown);
-        s.on("mouseup", this.wreckMouseUp);
+            // add listeners to mouse down and up
+            s.on("mousedown", this.wreckMouseDown);
+            s.on("mouseup", this.wreckMouseUp);
 
-        this.aiPopulateLoot();
+            this.aiPopulateLoot();
+        }
     }
 
     public sink()

@@ -27,6 +27,7 @@ export default class Core {
         // create the main hud
         this._hud = new MainHUD();
         this._hud.addLoaderAssets(); 
+        this._hud.setTheSea(this._sea);
 
         // create popupmanager
         this._popupManager = new PopupManager();
