@@ -1362,6 +1362,11 @@ export default class Ship extends GameObject
         return this.statHullMax;
     }
 
+    public repairAll()
+    {
+        this.statHull = this.statHullMax;
+    }
+
     public isWrecked()
     {
         return this.wrecked;

@@ -39,6 +39,7 @@ export default class popPrizeAgent extends PopUp
     private lblHull:PIXI.Text;
     private lblNextRepair:PIXI.Text;
     private txtRepairTime:PIXI.Text;
+    private repairPrice:number = 0;
 
     // footer
     private txtFooter:PIXI.Text;
@@ -166,7 +167,8 @@ export default class popPrizeAgent extends PopUp
         this.repairSilver.y = 324 - this.repairSilver.height/2;
         this.addChild(this.repairSilver);
 
-        var price = 200 * (1 - perc);
+        this.repairPrice = 200 * (1 - perc);
+        var price = this.repairPrice;
         this.txtRepairSilver = new PIXI.Text(price.toFixed(0).toString(), style);
         this.txtRepairSilver.x = this.repairSilver.x + this.repairSilver.width + 5;
         this.txtRepairSilver.y = this.repairSilver.y;
@@ -176,11 +178,13 @@ export default class popPrizeAgent extends PopUp
         this.btnRepair.x = 217;
         this.btnRepair.y = 369;
         this.addChild(this.btnRepair);
+        this.btnRepair.on('click', this.onRepair);
 
         this.btnRepairNow = new Button(PIXI.Texture.fromFrame("btnLong.png"), false, "Buy Now", 18);
         this.btnRepairNow.x = 329;
         this.btnRepairNow.y = 369;
         this.addChild(this.btnRepairNow);
+        this.btnBuyNow.on('click', this.onRepairNow);
 
         this.repairGold = new PIXI.Sprite(PIXI.Texture.fromFrame("goldCoin.png"));
         this.repairGold.x = 400 - this.repairGold.width/2;
@@ -214,6 +218,29 @@ export default class popPrizeAgent extends PopUp
         this.txtReloadTime.text = this.getTimeRemaining();
 
         requestAnimationFrame(this.update);
+    }
+
+    onRepair = (e:any) =>
+    {
+        if (SingletonClass.player.getSilver() >= this.repairPrice)
+        {
+            SingletonClass.ship.repairAll();
+            this.hullHealth.setPerc(1);
+            SingletonClass.player.decSilver(this.repairPrice);
+            this.repairPrice = 0;
+            this.txtRepairSilver.text = "0";
+        } else 
+        {
+            var msg = new popMsgBox();
+            msg.initMsg(3,"Prize Agent", "It would appear your account balance is lacking sufficent funds. Mayhap you should take a prize or two?");
+            SingletonClass.popupManager.displayPopup(msg);
+            return;
+        }
+    }
+
+    onRepairNow = (e:any) =>
+    {
+
     }
 
     onBuyNow = (e:any) =>

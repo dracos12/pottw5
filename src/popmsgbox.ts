@@ -78,13 +78,22 @@ export default class popMsgBox extends PopUp
 
         // now add the infoGraphic
         this.infoGraphic = new PIXI.Container();
-        // switch on character, for now just load female
-        this.character = new PIXI.Sprite(PIXI.Texture.fromFrame("charPirateFemale.png"));
+        // switch on character
+        var strChar = "charPirateFemale.png";
+        if (this.charNum == 3)
+            strChar = "Prize Agent 300x450.png";
+        this.character = new PIXI.Sprite(PIXI.Texture.fromFrame(strChar));
         this.charMask = new PIXI.Sprite(PIXI.Texture.fromFrame("mask2.png"));
         this.infoGraphic.addChild(this.character);
         this.infoGraphic.addChild(this.charMask);
         this.character.x = this.charMask.width / 2 - this.character.width/2; // center under mask
-        this.character.y = -20;
+        if (this.charNum == 0)
+            this.character.y = -20;
+        else
+        {
+            this.character.x += 10;
+            this.character.y = -20;
+        }
         this.infoGraphic.x = 14;
         this.infoGraphic.y = 28;
         this.addChild(this.infoGraphic);
