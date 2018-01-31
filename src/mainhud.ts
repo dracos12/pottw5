@@ -223,10 +223,19 @@ export default class MainHUD
 
     private doShipDetail = () =>
     {
-        console.log("doShipDetail");
-        // display the ship detail popup
-        var pop =  new popShipDetails(this.trackShip);
-        this.popupManager.displayPopup(pop);
+        if (this.shipWidget.isSelected())
+        {
+            console.log("doShipDetail");
+            // display the ship detail popup
+            var pop =  new popShipDetails(this.trackShip);
+            this.popupManager.displayPopup(pop);
+        }
+        else
+        {
+            this.shipWidget.select(true,3000);
+            // center on player ship and make widget selected
+            this.centerOnPlayer();
+        }
     }
 
     private centerOnPlayer()
@@ -624,6 +633,7 @@ export default class MainHUD
         this.starWatch.update();
         this.portWatch.update();
         this._sailTrim.update();
+        this.shipWidget.update();
 
         if (this.trackShip.isAground() || this.trackShip.isWrecked())
         {
