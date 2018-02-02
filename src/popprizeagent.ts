@@ -262,7 +262,7 @@ export default class popPrizeAgent extends PopUp
             this.lblShot.text = sMag;
 
             var msg = new popMsgBox();
-            msg.initMsg(0,"Prize Agent", "Yes, exaction is the best way to deal with the armory...");
+            msg.initMsg(3,"Prize Agent", "Yes, exaction is the best way to deal with the armory...");
             SingletonClass.popupManager.displayPopup(msg);
     
             console.log("Refilled Mag! lastReload = " + SingletonClass.player.lastReload);
@@ -292,7 +292,7 @@ export default class popPrizeAgent extends PopUp
         if (this.txtReloadTime.text != "Ready!")
         {
             var msg2 = new popMsgBox();
-            msg2.initMsg(0,"Prize Agent", "I cannot reload your magazine at the moment. Unless you're willing to bribe the armory...");
+            msg2.initMsg(3,"Prize Agent", "I cannot reload your magazine at the moment. Unless you're willing to bribe the armory...");
             SingletonClass.popupManager.displayPopup(msg2);
             return;
         }
