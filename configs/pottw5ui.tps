@@ -604,6 +604,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/flagPole.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>3,65,6,130</rect>
+                <key>scale9Paddings</key>
+                <rect>3,65,6,130</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/goldCoin.png</key>
             <key type="filename">../../../Art/pottw5/ui/silverCoin.png</key>
             <struct type="IndividualSpriteSettings">
@@ -706,6 +719,19 @@
                 <rect>6,23,11,46</rect>
                 <key>scale9Paddings</key>
                 <rect>6,23,11,46</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/parchBanner.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>63,11,125,23</rect>
+                <key>scale9Paddings</key>
+                <rect>63,11,125,23</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -956,6 +982,8 @@
             <filename>../../../Art/pottw5/ui/ui_flagSpanish.png</filename>
             <filename>../../../Art/pottw5/ui/TextEntryBox.png</filename>
             <filename>../../../Art/pottw5/ui/ammoCount.png</filename>
+            <filename>../../../Art/pottw5/ui/flagPole.png</filename>
+            <filename>../../../Art/pottw5/ui/parchBanner.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
