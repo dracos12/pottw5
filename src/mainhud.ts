@@ -19,6 +19,8 @@ import EconomyItem from './economyitem';
 import SingletonClass from './singleton';
 import popMsgBox from './popmsgbox';
 import theSea from './theSea';
+import BannerToolTip from './bannertooltip';
+import { Point } from 'pixi.js';
 
 declare var TweenMax:any;
 declare var FB:any;
@@ -75,6 +77,8 @@ export default class MainHUD
     private timerID:number;     // ID used to clearInterval
 
     private sea:theSea;         // reference to theSea
+
+    private bannerToolTip:BannerToolTip;
 
     // request the assets we need loaded
     public addLoaderAssets()
@@ -184,6 +188,9 @@ export default class MainHUD
         this.ammoCount.x = this.footer.x + 559;
         this.ammoCount.y = this.footer.y + 80;
 
+        this.bannerToolTip = new BannerToolTip();
+        this.bannerToolTip.init("Shaman Island");
+
         this.container.addChild(this.header);
         this.container.addChild(this.footer);
         this.container.addChild(this.rightCannonBattery);
@@ -212,6 +219,8 @@ export default class MainHUD
         window.addEventListener("merchSell",this.merchSell, false);
         window.addEventListener("buyGold",this.buyGold, false);
         window.addEventListener("playerWrecked", this.playerWrecked, false);
+        window.addEventListener("mouseOverIsle", this.mouseOverIsle, false);
+        window.addEventListener("mouseOutIsle", this.mouseOutIsle, false);
 
         this.testAPI(); // test the FB API
     }
@@ -458,6 +467,22 @@ export default class MainHUD
             // we already checked above, not sure how it could get full between calls
             console.log("addToHold failed post-check");
         }
+    }
+
+    mouseOverIsle = (e:any) => {
+        var isleInfo = e.detail;
+        var seaPos = new PIXI.Point(isleInfo.x, isleInfo.y);
+        var globalSeaPos = this.sea.getContainer().toGlobal(seaPos);
+        var localSeaPos = this.container.toLocal(globalSeaPos);
+        this.bannerToolTip.x = localSeaPos.x;
+        this.bannerToolTip.y = localSeaPos.y;
+        this.bannerToolTip.changeLabel(isleInfo.isleName);
+        this.container.addChild(this.bannerToolTip);
+    }
+
+    mouseOutIsle = (e:any) => {
+        var isleName = e.detail;
+        this.container.removeChild(this.bannerToolTip);
     }
 
     private playerRecovery()

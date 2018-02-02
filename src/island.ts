@@ -6,6 +6,7 @@ export default class Island extends GameObject
 {
     private islandData:any; // json data loaded by theSea and passed to us
     private _isPort:boolean = false;
+    private over:boolean = false;
 
     constructor()
     {
@@ -20,11 +21,46 @@ export default class Island extends GameObject
         {
             this._isPort = true;
             //console.log("Found port: " + this.islandData.portName);
+            // make the sprite interactive so mouseover will work for it
+            this.sprite.interactive = true;
+            this.sprite.on('mouseover', this.overIsle);
+            this.sprite.on('mouseout', this.outIsle);
         }
 
         // set the pivot point from the data
         // this.sprite.pivot.x = this.islandData.refPt[0];
         // this.sprite.pivot.x = this.islandData.refPt[1];
+    }
+
+    overIsle = (e:any) => {
+        // mouse over our isle has happened, trigger event with our coords
+        if (!this.over)
+        {
+            this.over = true;
+            var refX = this.sprite.x + this.islandData.refPt[0];
+            var refY = this.sprite.y + this.islandData.refPt[1];
+            var obj = {x:refX, y:refY, isleName:this.islandData.portName};
+            var myEvent = new CustomEvent("mouseOverIsle",
+            {
+                'detail': obj
+            });
+    
+            window.dispatchEvent(myEvent); 
+        }
+    }
+
+    outIsle = (e:any) => {
+        // mouse left our isle, trigger event with our coords
+        if (this.over)
+        {
+            this.over = false
+            var myEvent = new CustomEvent("mouseOutIsle",
+            {
+                'detail': this.islandData.portName
+            });
+    
+            window.dispatchEvent(myEvent); 
+        }
     }
 
     public isPort()
