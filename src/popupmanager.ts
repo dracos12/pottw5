@@ -4,6 +4,7 @@
 
 import PopUp from './popup';
 import popMsgBox from './popmsgbox';
+import SingletonClass from './singleton';
 
 export default class PopupManager
 {
@@ -41,11 +42,14 @@ export default class PopupManager
         if (newpop.y < 0)
             newpop.y = 0;
         this.container.addChild(newpop);
+        SingletonClass.uiDisplayed = true;
     }
 
     public popIt = () => { // from callback on popup or called directly by external
         var pop = this.popupStack.pop();
         this.container.removeChild(pop);
+        if (this.popupStack.length == 0)
+            SingletonClass.uiDisplayed = false;
         if (this.popupStack.length != 0)
         {
             var top = this.popupStack[this.popupStack.length-1];

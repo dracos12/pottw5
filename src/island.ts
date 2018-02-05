@@ -1,6 +1,7 @@
 import GameObject from './gameobject';
 import { ObjectType } from './gameobject';
 import Victor = require('victor');
+import SingletonClass from './singleton';
 
 export default class Island extends GameObject
 {
@@ -37,15 +38,18 @@ export default class Island extends GameObject
         if (!this.over)
         {
             this.over = true;
-            var refX = this.sprite.x + this.islandData.refPt[0];
-            var refY = this.sprite.y + this.islandData.refPt[1];
-            var obj = {x:refX, y:refY, isleName:this.islandData.portName};
-            var myEvent = new CustomEvent("mouseOverIsle",
+            if (!SingletonClass.uiDisplayed)
             {
-                'detail': obj
-            });
-    
-            window.dispatchEvent(myEvent); 
+                var refX = this.sprite.x + this.islandData.refPt[0];
+                var refY = this.sprite.y + this.islandData.refPt[1];
+                var obj = {x:refX, y:refY, isleName:this.islandData.portName};
+                var myEvent = new CustomEvent("mouseOverIsle",
+                {
+                    'detail': obj
+                });
+        
+                window.dispatchEvent(myEvent); 
+            }
         }
     }
 
@@ -53,13 +57,16 @@ export default class Island extends GameObject
         // mouse left our isle, trigger event with our coords
         if (this.over)
         {
-            this.over = false
-            var myEvent = new CustomEvent("mouseOutIsle",
+            this.over = false;
+            if (!SingletonClass.uiDisplayed)
             {
-                'detail': this.islandData.portName
-            });
-    
-            window.dispatchEvent(myEvent); 
+                var myEvent = new CustomEvent("mouseOutIsle",
+                {
+                    'detail': this.islandData.portName
+                });
+        
+                window.dispatchEvent(myEvent); 
+            }
         }
     }
 

@@ -16,6 +16,7 @@ export default class SingletonClass {
     private static _currentPort:string = "";
     private static _marketData:any = {};
     private static _warehouseData:any = {};
+    private static _uiDisplayed:boolean = false;
 
     constructor() {
         if(SingletonClass._instance){
@@ -62,6 +63,16 @@ export default class SingletonClass {
     public static set currentPort(newPort:string)
     {
         this._currentPort = newPort;
+    }
+
+    public static get uiDisplayed()
+    {
+        return this._uiDisplayed;
+    }
+
+    public static set uiDisplayed(isVis:boolean)
+    {
+        this._uiDisplayed = isVis;
     }
 
     public static getPortMarketData(portName:string)
