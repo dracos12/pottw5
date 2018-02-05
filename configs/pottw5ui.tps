@@ -604,6 +604,68 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/flagAntigua.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagBarbados.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagGuadeloupe.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagMartinique.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagStBart.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagStKitts.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagStVincent.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagUSVI.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>17,11,33,22</rect>
+                <key>scale9Paddings</key>
+                <rect>17,11,33,22</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/flagBVI.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagDominica.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagStLucia.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>22,11,43,22</rect>
+                <key>scale9Paddings</key>
+                <rect>22,11,43,22</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/flagDeeps.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>21,11,41,22</rect>
+                <key>scale9Paddings</key>
+                <rect>21,11,41,22</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../../../Art/pottw5/ui/flagGrenada.png</key>
+            <key type="filename">../../../Art/pottw5/ui/flagTrinidad.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>18,11,37,22</rect>
+                <key>scale9Paddings</key>
+                <rect>18,11,37,22</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/flagPole.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -984,6 +1046,20 @@
             <filename>../../../Art/pottw5/ui/ammoCount.png</filename>
             <filename>../../../Art/pottw5/ui/flagPole.png</filename>
             <filename>../../../Art/pottw5/ui/parchBanner.png</filename>
+            <filename>../../../Art/pottw5/ui/flagDominica.png</filename>
+            <filename>../../../Art/pottw5/ui/flagGrenada.png</filename>
+            <filename>../../../Art/pottw5/ui/flagGuadeloupe.png</filename>
+            <filename>../../../Art/pottw5/ui/flagMartinique.png</filename>
+            <filename>../../../Art/pottw5/ui/flagStBart.png</filename>
+            <filename>../../../Art/pottw5/ui/flagStKitts.png</filename>
+            <filename>../../../Art/pottw5/ui/flagStLucia.png</filename>
+            <filename>../../../Art/pottw5/ui/flagStVincent.png</filename>
+            <filename>../../../Art/pottw5/ui/flagTrinidad.png</filename>
+            <filename>../../../Art/pottw5/ui/flagUSVI.png</filename>
+            <filename>../../../Art/pottw5/ui/flagAntigua.png</filename>
+            <filename>../../../Art/pottw5/ui/flagBarbados.png</filename>
+            <filename>../../../Art/pottw5/ui/flagBVI.png</filename>
+            <filename>../../../Art/pottw5/ui/flagDeeps.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
