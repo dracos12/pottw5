@@ -42,7 +42,7 @@ export default class Island extends GameObject
             {
                 var refX = this.sprite.x + this.islandData.refPt[0];
                 var refY = this.sprite.y + this.islandData.refPt[1];
-                var obj = {x:refX, y:refY, isleName:this.islandData.portName};
+                var obj = {x:refX, y:refY, isleName:this.islandData.portName, portFlag:this.islandData.portFlag};
                 var myEvent = new CustomEvent("mouseOverIsle",
                 {
                     'detail': obj

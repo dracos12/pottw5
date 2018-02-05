@@ -10,6 +10,13 @@ export default class BannerToolTip extends PIXI.Container
     private banner:PIXI.Sprite;
     private txtBanner:PIXI.Text;
     private flagPole:PIXI.Sprite;
+    private portFlag:PIXI.Sprite;
+    private portFlagContainer: PIXI.Container;
+    private natFlag:PIXI.Sprite;
+    private natFlagContainer: PIXI.Container;
+    private displacementFilter:PIXI.filters.DisplacementFilter;
+    private displacementSprite:PIXI.Sprite;
+    private displacementTexture:PIXI.Texture;
 
     constructor()
     {
@@ -35,6 +42,31 @@ export default class BannerToolTip extends PIXI.Container
         this.txtBanner.x = -84 + 85 - this.txtBanner.width/2;
         this.txtBanner.y = -155;
         this.addChild(this.txtBanner);
+
+        this.displacementTexture = PIXI.loader.resources["images/2yYayZk.png"].texture;
+        this.displacementTexture.baseTexture.wrapMode = PIXI.WRAP_MODES.REPEAT;
+        this.displacementSprite = new PIXI.Sprite(this.displacementTexture);
+        this.displacementFilter = new PIXI.filters.DisplacementFilter(this.displacementSprite);
+
+        this.portFlag = new PIXI.Sprite(PIXI.Texture.fromFrame("flagAntigua.png"));
+        this.portFlag.scale.x = this.portFlag.scale.y = 0.5;
+        this.portFlagContainer = new PIXI.Container();
+        this.portFlagContainer.addChild(this.portFlag);
+        this.portFlagContainer.x = -(this.portFlag.width) - 3;
+        this.portFlagContainer.y = -80;
+        this.portFlagContainer.addChild(this.displacementSprite);
+        this.portFlagContainer.filters = [this.displacementFilter];
+        this.addChild(this.portFlagContainer);
+
+        this.natFlag = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_flagEnglish.png"));
+        this.natFlag.scale.x = this.natFlag.scale.y = 0.5;
+        this.natFlagContainer = new PIXI.Container();
+        this.natFlagContainer.addChild(this.natFlag);
+        this.natFlagContainer.x = -(this.natFlag.width) - 3;
+        this.natFlagContainer.y = -120;
+        this.natFlagContainer.addChild(this.displacementSprite);
+        this.natFlagContainer.filters = [this.displacementFilter];
+        this.addChild(this.natFlagContainer);
     }
 
     public changeLabel(newLabel:string)
@@ -42,6 +74,37 @@ export default class BannerToolTip extends PIXI.Container
         this.txtBanner.text = newLabel;
         this.txtBanner.x = -84 + 85 - this.txtBanner.width/2;
     }
+
+    public changePortFlag(newFlag:string)
+    {
+        if (this.txtBanner.text != "Shaman Island")
+        {
+            //console.log("changePortFlag to: " + newFlag);
+            this.portFlag.texture = PIXI.Texture.fromFrame(newFlag);
+            this.portFlagContainer.visible = true;
+            this.natFlagContainer.visible = true;
+            // exception flags are wider and need more space off the flagpole
+            if (newFlag == "flagStLucia.png" || newFlag == "flagDeeps.png" || newFlag == "flagGrenada.png" || newFlag == "flagDominica.png" || newFlag == "flagBVI.png")
+            {
+                this.portFlagContainer.x = -(this.portFlag.width) - 8;
+            }
+            else
+            {
+                this.portFlagContainer.x = -(this.portFlag.width) - 3;
+            }
+        }
+        else
+        {
+            this.portFlagContainer.visible = false;
+            this.natFlagContainer.visible = false;
+        }
+    }
+
+    public changeNatFlag(newFlag:string)
+    {
+
+    }
+
 
     update()
     {
@@ -55,5 +118,9 @@ export default class BannerToolTip extends PIXI.Container
         }
         // record lastTime
         this.lastTime = now;
+
+        // displace the flags at all times
+        this.displacementSprite.x += 1; // * this.luffDir;
+        this.displacementSprite.y += 1;
     }
 }

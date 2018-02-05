@@ -483,6 +483,7 @@ export default class MainHUD
         this.bannerToolTip.x = localSeaPos.x;
         this.bannerToolTip.y = localSeaPos.y;
         this.bannerToolTip.changeLabel(isleInfo.isleName);
+        this.bannerToolTip.changePortFlag(isleInfo.portFlag);
         this.container.addChild(this.bannerToolTip);
     }
 
@@ -665,6 +666,7 @@ export default class MainHUD
         this.portWatch.update();
         this._sailTrim.update();
         this.shipWidget.update();
+        this.bannerToolTip.update();
 
         if (this.trackShip.isAground() || this.trackShip.isWrecked())
         {
