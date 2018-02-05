@@ -474,6 +474,12 @@ export default class MainHUD
         var seaPos = new PIXI.Point(isleInfo.x, isleInfo.y);
         var globalSeaPos = this.sea.getContainer().toGlobal(seaPos);
         var localSeaPos = this.container.toLocal(globalSeaPos);
+        var scale = this.sea.getWheelScale();
+        if (scale < 0.5)
+            scale = 0.75;
+        else
+            scale = 1;
+        this.bannerToolTip.scale.x = this.bannerToolTip.scale.y = scale;
         this.bannerToolTip.x = localSeaPos.x;
         this.bannerToolTip.y = localSeaPos.y;
         this.bannerToolTip.changeLabel(isleInfo.isleName);

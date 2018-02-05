@@ -42,6 +42,11 @@ export default class theSea
 
     private fxManager:FXManager; // manager class to manage cannon balls, fire, smoke, and other effects
 
+    public getWheelScale()
+    {
+        return this.wheelScale;
+    }
+    
     // javascript style mouse wheel handler, pixi does not support mouse wheel
     mouseWheelHandler = (e:any) => {
         //console.log(e);
