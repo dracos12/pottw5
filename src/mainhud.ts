@@ -484,6 +484,7 @@ export default class MainHUD
         this.bannerToolTip.y = localSeaPos.y;
         this.bannerToolTip.changeLabel(isleInfo.isleName);
         this.bannerToolTip.changePortFlag(isleInfo.portFlag);
+        this.bannerToolTip.changeNatFlag(isleInfo.natFlag);
         this.container.addChild(this.bannerToolTip);
     }
 

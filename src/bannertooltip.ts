@@ -102,7 +102,11 @@ export default class BannerToolTip extends PIXI.Container
 
     public changeNatFlag(newFlag:string)
     {
-
+        if (this.txtBanner.text != "Shaman Island")
+        {
+            //console.log("changePortFlag to: " + newFlag);
+            this.natFlag.texture = PIXI.Texture.fromFrame(newFlag);
+        }
     }
 
 
