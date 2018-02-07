@@ -1184,7 +1184,7 @@ export default class Ship extends GameObject
     {
         // ai do not fire from both sides, so just use portcannontimer to track reloading
         var now = Date.now();
-        var RELOADTIME = 4000;
+        var RELOADTIME = 8000;
         var reloading = false;
 
         if (now - this.portCannonLastFired < RELOADTIME)

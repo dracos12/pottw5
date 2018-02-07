@@ -167,7 +167,7 @@ export default class popPrizeAgent extends PopUp
         this.repairSilver.y = 324 - this.repairSilver.height/2;
         this.addChild(this.repairSilver);
 
-        this.repairPrice = 200 * (1 - perc);
+        this.repairPrice = 50 * (1 - perc);
         var price = this.repairPrice;
         this.txtRepairSilver = new PIXI.Text(price.toFixed(0).toString(), style);
         this.txtRepairSilver.x = this.repairSilver.x + this.repairSilver.width + 5;
@@ -226,6 +226,7 @@ export default class popPrizeAgent extends PopUp
         {
             SingletonClass.ship.repairAll();
             this.hullHealth.setPerc(1);
+            var decPrice = this.repairPrice.toFixed(0);
             SingletonClass.player.decSilver(this.repairPrice);
             this.repairPrice = 0;
             this.txtRepairSilver.text = "0";
