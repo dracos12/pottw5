@@ -3,6 +3,7 @@
 //
 import * as PIXI from 'pixi.js';
 import HealthBar from './healthbar';
+import Ship from './Ship';
 
 export default class ShipWidget extends PIXI.Container
 {
@@ -14,6 +15,8 @@ export default class ShipWidget extends PIXI.Container
     private selectUI:PIXI.Sprite; 
     private selected:boolean = false;
     private alphaRedux:number = 0;
+
+    private trackShip:Ship;
 
     constructor()
     {
@@ -45,6 +48,13 @@ export default class ShipWidget extends PIXI.Container
         this.addChild(this.sailHealth);
         this.addChild(this.crewHealth);
         this.addChild(this.hullHealth);
+    }
+
+    public setShip(newShip:Ship)
+    {
+        this.trackShip = newShip;
+        var perc = newShip.getHull() / newShip.getHullMax();
+        this.hullHealth.setPerc(perc);
     }
 
     public select(selected:boolean=true, fadeTime:number)
@@ -80,6 +90,10 @@ export default class ShipWidget extends PIXI.Container
                 this.selectUI.visible = false;
             }
         }
+
+        // adjust our health bars as needed
+        var perc = this.trackShip.getHull() / this.trackShip.getHullMax();
+        this.hullHealth.setPerc(perc);
     }
 
 }

@@ -213,7 +213,6 @@ export default class MainHUD
         window.addEventListener("boatSelected", this.boatSelectedHandler, false);
         window.addEventListener("changeHeading", this.changeHeadingHandler, false);
         window.addEventListener("wreckMouseDown", this.lootMouseDown, false);
-        window.addEventListener("wreckMouseUp", this.lootMouseUp, false);
         window.addEventListener("floatingIconClick", this.collectLoot, false);
         window.addEventListener("lootDone", this.lootDone, false);
         window.addEventListener("merchSell",this.merchSell, false);
@@ -382,6 +381,7 @@ export default class MainHUD
         this.trackShip = newShip;
         var s = SingletonClass.getInstance(); 
         s.SetShip(this.trackShip);
+        this.shipWidget.setShip(this.trackShip);
     }
 
     buyGold = (e:any) =>
@@ -439,11 +439,6 @@ export default class MainHUD
         this.uiLayer.addChild(icon);
         this.lootAvail.push(icon);
         
-    }
-
-    lootMouseUp = (e:any) => {
-        // mouse up over wreck, stop the loot action (even if not done)
-        //console.log("End Loot click");
     }
 
     collectLoot = (e:any) => {

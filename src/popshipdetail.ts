@@ -78,6 +78,8 @@ export default class popShipDetails extends PopUp
         this.hullHealth = new HealthBar(150,12,0xFF0000);
         this.hullHealth.x = 149;
         this.hullHealth.y = 252;
+        var perc = this.boat.getHull() / this.boat.getHullMax();
+        this.hullHealth.setPerc(perc);
         this.addChild(this.hullHealth);
         var style = new PIXI.TextStyle({
             fontFamily: 'IM Fell English SC',
@@ -125,7 +127,7 @@ export default class popShipDetails extends PopUp
         this.lblName.y = 18;
         this.addChild(this.lblName);
 
-        this.txtShipName = new PIXI.Text('\"The Donna Doctrine\"', style);
+        this.txtShipName = new PIXI.Text('\"' + this.boat.getName() + '\"', style);
         this.txtShipName.x = 172;
         this.txtShipName.y = 43;
         this.addChild(this.txtShipName);
