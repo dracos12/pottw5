@@ -244,7 +244,15 @@ export default class MainHUD
             this.shipWidget.select(true,3000);
             // center on player ship and make widget selected
             this.centerOnPlayer();
+            this.sea.selectPlayer();
+            // start timer to remove it after 3 seconds
+            setTimeout(this.deselect, 3000);
         }
+    }
+
+
+    deselect = () => {
+        this.sea.deselectPlayer();
     }
 
     private centerOnPlayer()
@@ -652,7 +660,7 @@ export default class MainHUD
         }
 
         if (SingletonClass.player.getSilver().toString() != this.txtSilverCoins.text)
-            this.txtSilverCoins.text = SingletonClass.player.getSilver().toString();
+            this.txtSilverCoins.text = SingletonClass.player.getSilver().toFixed(0).toString();
 
         if (SingletonClass.player.getGold().toString() != this.txtGoldCoins.text)
             this.txtGoldCoins.text = SingletonClass.player.getGold().toString();

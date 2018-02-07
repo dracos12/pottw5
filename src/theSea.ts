@@ -7,6 +7,8 @@ import Ship from './ship';
 import FXManager from './fxmanager';
 import SingletonClass from './singleton';
 import Victor = require('victor');
+import SelectWidget from './selectwidget';
+import { SelectType } from './selectwidget';
 
 declare var PolyK: any;
 
@@ -27,6 +29,8 @@ export default class theSea
     private mouseDown:boolean = false;
 
     private selectedBoat:Ship; // what boat does the user have selected
+    private selectWidget:SelectWidget;
+    private playerSelected:boolean = false;
 
     private islandsLoaded:boolean = false;
     private boatsLoaded:boolean = false;
@@ -35,6 +39,7 @@ export default class theSea
 
     // layers so sea tiles always sorted beneath ships/islands
     private layerSeaTiles:PIXI.Container = new PIXI.Container();
+    private layerSelection:PIXI.Container = new PIXI.Container();
     private layerObjects:PIXI.Container = new PIXI.Container();
     private layerUI:PIXI.Container = new PIXI.Container();
 
@@ -220,6 +225,7 @@ export default class theSea
         this.layerSeaTiles.addChild(map14);
 
         this.container.addChild(this.layerSeaTiles); // sea tiles sort to bottom
+        this.container.addChild(this.layerSelection);
         this.container.addChild(this.layerObjects); // all other objects will sort above it
         this.container.addChild(this.layerUI);
 
@@ -229,11 +235,30 @@ export default class theSea
 
         this.fxManager.onAssetsLoaded(); // fxManager can now initialize with its assets
     
+        this.selectWidget = new SelectWidget(SelectType.FRIENDLY);
     }
 
     public getUILayer()
     {
         return this.layerUI;
+    }
+
+    public selectPlayer()
+    {
+        // put the sleect widget under the player boat
+        var ref = this.selectedBoat.getRefPtVictor();
+        this.selectWidget.x = ref.x;
+        this.selectWidget.y = ref.y;
+        this.layerSelection.addChild(this.selectWidget);
+        this.selectWidget.play();
+        this.playerSelected = true;
+    }
+
+    public deselectPlayer()
+    {
+        this.layerSelection.removeChild(this.selectWidget);
+        this.selectWidget.stop();
+        this.playerSelected = false;
     }
 
     init(callback: Function)
@@ -563,6 +588,12 @@ export default class theSea
         this.updateObjectArray();
 
         this.fxManager.update();
+
+        if (this.playerSelected) {
+            var ref = this.selectedBoat.getRefPtVictor();
+            this.selectWidget.x = ref.x;
+            this.selectWidget.y = ref.y;
+        }
     }
 
     private updateObjectArray()
