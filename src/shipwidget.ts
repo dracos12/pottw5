@@ -16,7 +16,7 @@ export default class ShipWidget extends PIXI.Container
     private selected:boolean = false;
     private alphaRedux:number = 0;
 
-    private trackShip:Ship;
+    private trackShip:Ship = null;
 
     constructor()
     {
@@ -91,9 +91,11 @@ export default class ShipWidget extends PIXI.Container
             }
         }
 
-        // adjust our health bars as needed
-        var perc = this.trackShip.getHull() / this.trackShip.getHullMax();
-        this.hullHealth.setPerc(perc);
+        if (this.trackShip != null) {
+            // adjust our health bars as needed
+            var perc = this.trackShip.getHull() / this.trackShip.getHullMax();
+            this.hullHealth.setPerc(perc);
+        }
     }
 
 }

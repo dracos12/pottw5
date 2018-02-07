@@ -176,6 +176,8 @@ export default class Ship extends GameObject
                 this.aiTarget = new PIXI.Point(aiTarget.x, aiTarget.y);
             else
                 this.aiTarget = new PIXI.Point(6200,2600); // water north of guadalupe
+            this.sprite.interactive = true;
+            this.sprite.on("mousedown", this.shipMouseDown);
         }
     }
 
@@ -995,7 +997,7 @@ export default class Ship extends GameObject
                         h2.normalize();
                         var diff = this.getCalcAngleBetween(h1,h2); 
                         console.log("aiFire diff: " + diff.toFixed(1));
-                        if (diff > 30 && diff < 150) // angle is not smaller than 30 degrees (assuming 120 firing arc to either side) therefore ok to fire
+                        if (diff > 45 && diff < 135) // angle is not smaller than 30 degrees (assuming 120 firing arc to either side) therefore ok to fire
                         {
                             //console.log("aiFire: diff in angle: " + diff.toFixed(1));
                             this.aiFireCannons();
@@ -1441,12 +1443,6 @@ export default class Ship extends GameObject
 
         if (SingletonClass.ship != this) // player boat does not become interactive
         {
-            s.interactive = true;
-
-            // add listeners to mouse down and up
-            s.on("mousedown", this.wreckMouseDown);
-            s.on("mouseup", this.wreckMouseUp);
-
             this.aiPopulateLoot();
         }
     }
@@ -1474,13 +1470,24 @@ export default class Ship extends GameObject
     }
 
     // mouse handlers, just send a message for the hud to handle the loot mechanic
-    wreckMouseDown = (e:any) => {
-        var myEvent = new CustomEvent("wreckMouseDown",
+    shipMouseDown = (e:any) => {
+        var myEvent;
+        if (this.wrecked)
         {
-            'detail': { "boat": this, "holdLength": this.shipsHold.length }
-        });
+            myEvent = new CustomEvent("wreckMouseDown",
+            {
+                'detail': { "boat": this, "holdLength": this.shipsHold.length }
+            });
 
-        window.dispatchEvent(myEvent);
+            window.dispatchEvent(myEvent);
+        } else {
+            myEvent = new CustomEvent("aiShipMouseDown",
+            {
+                'detail': this
+            });
+
+            window.dispatchEvent(myEvent);
+        }
     }
 
     wreckMouseUp = (e:any) => {

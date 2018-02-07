@@ -32,6 +32,10 @@ export default class theSea
     private selectWidget:SelectWidget;
     private playerSelected:boolean = false;
 
+    private targetedBoat:Ship;          // user can target a boat for information
+    private boatTargeted:boolean = false;
+    private targetWidget:SelectWidget;
+
     private islandsLoaded:boolean = false;
     private boatsLoaded:boolean = false;
 
@@ -236,6 +240,7 @@ export default class theSea
         this.fxManager.onAssetsLoaded(); // fxManager can now initialize with its assets
     
         this.selectWidget = new SelectWidget(SelectType.FRIENDLY);
+        this.targetWidget = new SelectWidget(SelectType.ENEMY);
     }
 
     public getUILayer()
@@ -303,6 +308,24 @@ export default class theSea
         );
 
         window.addEventListener("sailTrimEvent", this.sailTrimHandler, false);
+        window.addEventListener("aiShipMouseDown", this.aiShipMouseDown, false);
+    }
+
+    aiShipMouseDown = (e:any) => {
+        // mouse down on non-wrecked ai boat
+        var boat:Ship = e.detail;
+        // put target widget on its position
+        if(this.targetedBoat != boat) {
+            this.targetedBoat = boat;
+            var ref = this.targetedBoat.getRefPtVictor();
+            this.targetWidget.x = ref.x;
+            this.targetWidget.y = ref.y;
+            this.layerSelection.addChild(this.targetWidget);
+            this.targetWidget.play();
+            this.boatTargeted = true;
+        } else {
+            // clicked tagrte again, detarget
+        }
     }
 
     sailTrimHandler = (event:any) => {
@@ -589,10 +612,19 @@ export default class theSea
 
         this.fxManager.update();
 
+        var ref;
+
         if (this.playerSelected) {
-            var ref = this.selectedBoat.getRefPtVictor();
+            ref = this.selectedBoat.getRefPtVictor();
             this.selectWidget.x = ref.x;
             this.selectWidget.y = ref.y;
+        }
+
+        if (this.boatTargeted)
+        {
+            ref = this.targetedBoat.getRefPtVictor();
+            this.targetWidget.x = ref.x;
+            this.targetWidget.y = ref.y;
         }
     }
 

@@ -49,6 +49,8 @@ export default class SelectWidget extends PIXI.Container
             this.enemy.anchor.x = 0.5;
             this.enemy.anchor.y = 0.5;  // center anchor
             this.enemy.loop = true;
+            this.enemy.animationSpeed = 0.33;
+            this.enemy.scale.x = this.enemy.scale.y = 0.8;
             this.addChild(this.enemy); // at default 0,0 which will anchor centered
         }
     }

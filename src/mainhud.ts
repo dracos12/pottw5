@@ -65,6 +65,7 @@ export default class MainHUD
     private txtGoldCoins:PIXI.Text;
 
     private shipWidget:ShipWidget;
+    private targetWidget:ShipWidget;
     private popupManager:PopupManager;
 
     private economyLoaded:boolean = false;
@@ -179,6 +180,12 @@ export default class MainHUD
         this.shipWidget.interactive = true;
         this.shipWidget.on('click', this.doShipDetail);
 
+        this.targetWidget = new ShipWidget();
+        this.targetWidget.init();
+        this.targetWidget.x = 10;
+        this.targetWidget.y = 50;
+        this.targetWidget.scale.x = this.targetWidget.scale.y = 0.5;
+
         this.btnAnchor = new Button(PIXI.Texture.fromFrame("AnchorButton.png"));
         this.btnAnchor.x = this.footer.x + 713;
         this.btnAnchor.y = this.footer.y - 20;
@@ -220,6 +227,7 @@ export default class MainHUD
         window.addEventListener("playerWrecked", this.playerWrecked, false);
         window.addEventListener("mouseOverIsle", this.mouseOverIsle, false);
         window.addEventListener("mouseOutIsle", this.mouseOutIsle, false);
+        window.addEventListener("aiShipMouseDown", this.aiShipMouseDown, false);
 
         this.testAPI(); // test the FB API
     }
@@ -402,6 +410,13 @@ export default class MainHUD
         var refPt = new PIXI.Point(x,y); // message has sent up global pos x,y
         var locPos = this.container.toLocal(refPt);
         this.streamCoins(amount,locPos.x,locPos.y);
+    }
+
+    aiShipMouseDown = (e:any) => {
+        // mouse down on non-wrecked ai boat... display target widget
+        var boat:Ship = e.detail;
+        this.container.addChild(this.targetWidget);
+        this.targetWidget.setShip(boat);
     }
 
     lootMouseDown = (e:any) => {
@@ -670,6 +685,7 @@ export default class MainHUD
         this.portWatch.update();
         this._sailTrim.update();
         this.shipWidget.update();
+        this.targetWidget.update();
         this.bannerToolTip.update();
 
         if (this.trackShip.isAground() || this.trackShip.isWrecked())
