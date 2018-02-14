@@ -956,6 +956,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">../../../Art/pottw5/ui/ui_flagPirate.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>25,17,50,34</rect>
+                <key>scale9Paddings</key>
+                <rect>25,17,50,34</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../../../Art/pottw5/ui/ui_map.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -1060,6 +1073,7 @@
             <filename>../../../Art/pottw5/ui/flagBarbados.png</filename>
             <filename>../../../Art/pottw5/ui/flagBVI.png</filename>
             <filename>../../../Art/pottw5/ui/flagDeeps.png</filename>
+            <filename>../../../Art/pottw5/ui/ui_flagPirate.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
