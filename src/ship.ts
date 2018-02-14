@@ -14,6 +14,7 @@ import { BallType } from './cannonball';
 import EconomyItem from './economyitem';
 import popMsgBox from './popmsgbox';
 import SingletonClass from './singleton';
+import { NatFlag } from './shipwidget';
 
 export const enum ShipType {
     SLOOP,
@@ -103,6 +104,8 @@ export default class Ship extends GameObject
     private portCannonLastFired:number = 0;     // time stamp of last port cannon click
     private starCannonLastFired:number = 0;     // time stamp of last starboard cannon click
 
+    private natFlag:NatFlag = NatFlag.ENGLISH; // english by default
+
     constructor()
     {
         super();
@@ -139,6 +142,26 @@ export default class Ship extends GameObject
     public getName()
     {
         return this.shipName;
+    }
+
+    public setNatFlag(newFlag:NatFlag)
+    {
+        this.natFlag = newFlag;
+    }
+
+    public getNatFlag()
+    {
+        return this.natFlag;
+    }
+
+    public randomFlag(noPirate:boolean=true)
+    {
+        var rFlag;
+        if (noPirate)
+            rFlag = theSea.getRandomIntInclusive(0,3);
+        else
+            rFlag = theSea.getRandomIntInclusive(0,4);
+        this.natFlag = rFlag;
     }
 
     // args:
@@ -178,7 +201,13 @@ export default class Ship extends GameObject
                 this.aiTarget = new PIXI.Point(6200,2600); // water north of guadalupe
             this.sprite.interactive = true;
             this.sprite.on("mousedown", this.shipMouseDown);
+        } else {
+            // player boat gets more health
+            this.statHull = 100;
+            this.statHullMax = 100;
         }
+
+        this.randomFlag(false);
     }
 
     private plotPoint(x:number, y:number)

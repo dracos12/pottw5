@@ -5,6 +5,14 @@ import * as PIXI from 'pixi.js';
 import HealthBar from './healthbar';
 import Ship from './Ship';
 
+export const enum NatFlag {
+    ENGLISH,
+    FRENCH,
+    SPANISH,
+    DUTCH,
+    PIRATE
+}
+
 export default class ShipWidget extends PIXI.Container
 {
     private shipWheel:PIXI.Sprite;
@@ -43,11 +51,18 @@ export default class ShipWidget extends PIXI.Container
         this.selectUI.y = this.shipWheel.y + this.shipWheel.height/2;
         this.selectUI.visible = false;
 
+        this.flag = new PIXI.Sprite(PIXI.Texture.fromFrame("ui_flagEnglish.png"));
+        this.flag.width = 28;
+        this.flag.height = 18;
+        this.flag.x = this.sailHealth.x + this.sailHealth.width - this.flag.width;
+        this.flag.y = this.sailHealth.y - this.flag.height - 2;
+
         this.addChild(this.shipWheel);
         this.addChild(this.selectUI);
         this.addChild(this.sailHealth);
         this.addChild(this.crewHealth);
         this.addChild(this.hullHealth);
+        this.addChild(this.flag);
     }
 
     public setShip(newShip:Ship)
@@ -55,6 +70,18 @@ export default class ShipWidget extends PIXI.Container
         this.trackShip = newShip;
         var perc = newShip.getHull() / newShip.getHullMax();
         this.hullHealth.setPerc(perc);
+        var fnum = newShip.getNatFlag();
+        if (fnum == NatFlag.ENGLISH) {
+            this.flag.texture = PIXI.Texture.fromFrame("ui_flagEnglish.png");
+        } else if (fnum == NatFlag.FRENCH) {
+            this.flag.texture = PIXI.Texture.fromFrame("ui_flagFrench.png");
+        } else if (fnum == NatFlag.SPANISH) {
+            this.flag.texture = PIXI.Texture.fromFrame("ui_flagSpanish.png");
+        } else if (fnum == NatFlag.DUTCH) { 
+            this.flag.texture = PIXI.Texture.fromFrame("ui_flagDutch.png");
+        } else { // pirate
+            this.flag.texture = PIXI.Texture.fromFrame("ui_flagPirate.png");
+        }
     }
 
     public select(selected:boolean=true, fadeTime:number)
