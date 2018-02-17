@@ -460,6 +460,7 @@ export default class theSea
                 {
                     this.numPorts++;
                     //console.log("Discovered Port: " + json_data[key].portName)
+                    sprite.hitArea = new PIXI.Polygon(json_data[key].polygonPts);
                 }
 
                 //console.log("Adding " + sprite.name + " to theSea");
