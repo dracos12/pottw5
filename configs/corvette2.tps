@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>4</int>
         <key>texturePackerVersion</key>
-        <string>4.5.0</string>
+        <string>4.6.1</string>
         <key>fileName</key>
         <string>E:/HTML5Projects/pottw5/configs/corvette2.tps</string>
         <key>autoSDSettings</key>
@@ -215,18 +215,6 @@
             <key type="filename">../../../Art/pottw5/corvette test/Corvette20014.png</key>
             <key type="filename">../../../Art/pottw5/corvette test/Corvette20015.png</key>
             <key type="filename">../../../Art/pottw5/corvette test/Corvette20016.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>45,33,90,66</rect>
-                <key>scale9Paddings</key>
-                <rect>45,33,90,66</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
             <key type="filename">../../../Art/pottw5/corvette test/CorvetteBodyWreck.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -234,9 +222,9 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>47,15,95,30</rect>
+                <rect>45,33,90,66</rect>
                 <key>scale9Paddings</key>
-                <rect>47,15,95,30</rect>
+                <rect>45,33,90,66</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
