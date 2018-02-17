@@ -93,6 +93,7 @@ export default class Ship extends GameObject
     private statCrew:number = 0;            // feature idea, assign bits to crew to index into name index... crew can have name and exp/level waster/able/midshipman etc
     private statCrewMax:number = 0;
     private wrecked:boolean = false;
+    private deSpawned:boolean = false;      // a ship whos made it to port, or screen edge
     private smokeID:number = 0;
 
     private shipsHold:Array<EconomyItem> = [];        // just an array of item ids EconomyIcon carries the data
@@ -105,6 +106,7 @@ export default class Ship extends GameObject
     private starCannonLastFired:number = 0;     // time stamp of last starboard cannon click
 
     private natFlag:NatFlag = NatFlag.ENGLISH; // english by default
+    private poolID:number;
 
     constructor()
     {
@@ -162,6 +164,37 @@ export default class Ship extends GameObject
         else
             rFlag = theSea.getRandomIntInclusive(0,4);
         this.natFlag = rFlag;
+    }
+
+    public setPoolID(id:number)
+    {
+        this.poolID = id;
+    }
+
+    public getPoolID()
+    {
+        return this.poolID;
+    }
+
+    public respawnAI(pos:PIXI.Point, aiTarget:PIXI.Point)
+    {
+        this.deSpawned = false;
+        this.wrecked = false;
+        this.aiArrived = false;
+        // set position if given
+        if (pos) {
+            this.sprite.x = pos.x - this.refPt.x;
+            this.sprite.y = pos.y - this.refPt.y;
+        }
+        if (aiTarget) {
+            this.aiTarget.x = aiTarget.x;
+            this.aiTarget.y = aiTarget.y;
+        }
+        this.sprite.interactive = true;
+        this.statHull = this.statHullMax;
+        this.sprite.alpha = 1;
+
+        this.randomFlag(false);
     }
 
     // args:
@@ -514,6 +547,7 @@ export default class Ship extends GameObject
             this.showAchtung();
             this.allStop();
             this.aiArrived = true;
+            this.deSpawn();
         } else {
             newHeadingAng = newHeading.angleDeg();
             if (!CompassRose.isValidHeading(this.angleToWind, newHeadingAng))
@@ -887,9 +921,13 @@ export default class Ship extends GameObject
 
         if (this.lastTime != 0) {
             deltaTime = now - this.lastTime;
+            if (deltaTime > 1000) {
+                this.lastTime = now;
+                return; // skip abnormally large deltas, likely from returning from a paused VM
+            }
         }
 
-        if (this.wrecked)
+        if (this.wrecked || this.deSpawned)
         {
             // do decay timer perhaps here? cant stay wrecked forever
             // waiting for player to loot, will fade after x minutes
@@ -1008,6 +1046,7 @@ export default class Ship extends GameObject
                 if (dist < 50) {
                     this.showAchtung();
                     this.setSailTrim(0);
+                    this.matchHeadingToSprite(); // show sails down
                     this.aiArrived = true;
                 }
 
@@ -1033,6 +1072,11 @@ export default class Ship extends GameObject
                         }
                     }
                 }
+            }
+
+            if (this.aiArrived)
+            {
+                this.deSpawn();
             }
 
             // if (!this.showTarget)
@@ -1489,13 +1533,43 @@ export default class Ship extends GameObject
     private sunk = () =>
     {
         let s = this.getSprite();
-        let p =s.parent;
 
         // take care of the achtung symbol too
         this.hideAchtung();
 
-        p.removeChild(s);
- 
+        // send an event to the sea to respawn us
+        var myEvent = new CustomEvent("aiReSpawn",
+        {
+            'detail': this.poolID
+        });
+        window.dispatchEvent(myEvent);
+    }
+
+    public deSpawn()
+    {
+        // fade the ship out and then remove us from the map
+        let s = this.getSprite();
+        s.interactive = false;
+        TweenMax.to(s, 4, {alpha:0,onComplete:this.reSpawn});
+        this.deSpawned = true;
+    }
+
+    private reSpawn = () =>
+    {
+        // take care of the achtung symbol too
+        this.hideAchtung();
+        this.aiStarted = false;
+
+
+        //console.log("Dispatching aiRespawn event");
+
+        // inform theSea to respawn us
+        // send an event to the sea to respawn us
+        var myEvent = new CustomEvent("aiReSpawn",
+        {
+            'detail': this.poolID
+        });
+        window.dispatchEvent(myEvent);
     }
 
     // mouse handlers, just send a message for the hud to handle the loot mechanic

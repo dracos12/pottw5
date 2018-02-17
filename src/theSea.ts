@@ -24,7 +24,7 @@ export default class theSea
     private loadCallback:Function;
 
     private islandArray: Array<GameObject> = []; // array of all sprites added to theSea islands and ships (later, projectiles as well)
-    private shipArray: Array<Ship> = [];
+    private shipArray: Array<Ship> = [];    // pool of boats on theSea
     private wheelScale = 0.25;
     private mouseDown:boolean = false;
 
@@ -32,7 +32,7 @@ export default class theSea
     private selectWidget:SelectWidget;
     private playerSelected:boolean = false;
 
-    private targetedBoat:Ship;          // user can target a boat for information
+    private targetedBoat:Ship = null;          // user can target a boat for information
     private boatTargeted:boolean = false;
     private targetWidget:SelectWidget;
 
@@ -195,6 +195,7 @@ export default class theSea
         let map12 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_013.png"].texture);
         let map13 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_014.png"].texture);
         let map14 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_015.png"].texture);
+        let map15 = new PIXI.Sprite(PIXI.loader.resources["images/4x4Region1/image_part_016.png"].texture);
         
         // arranged left to right top to bottom
         // however the upleft tile is empty as is the lower left tile.. only tiles 2-15 are not empty sea
@@ -212,6 +213,7 @@ export default class theSea
         map12.x = 0; map12.y = 6144; 
         map13.x = 2048; map13.y = 6144;
         map14.x = 4096; map14.y = 6144; 
+        map15.x = 6144; map15.y = 6144;
 
         this.layerSeaTiles.addChild(map1);
         this.layerSeaTiles.addChild(map2);
@@ -227,6 +229,7 @@ export default class theSea
         this.layerSeaTiles.addChild(map12);
         this.layerSeaTiles.addChild(map13);
         this.layerSeaTiles.addChild(map14);
+        this.layerSeaTiles.addChild(map15);
 
         this.container.addChild(this.layerSeaTiles); // sea tiles sort to bottom
         this.container.addChild(this.layerSelection);
@@ -284,6 +287,7 @@ export default class theSea
             .add("images/4x4Region1/image_part_013.png")
             .add("images/4x4Region1/image_part_014.png")
             .add("images/4x4Region1/image_part_015.png")
+            .add("images/4x4Region1/image_part_016.png")
             .add("images/islands/region1islands.json")        // loader automagically loads all the textures in this atlas
             .add("images/ships/corvette2.json")
             .add("images/islands/trinidad.png")
@@ -309,6 +313,7 @@ export default class theSea
 
         window.addEventListener("sailTrimEvent", this.sailTrimHandler, false);
         window.addEventListener("aiShipMouseDown", this.aiShipMouseDown, false);
+        window.addEventListener("aiReSpawn", this.aiShipRespawn, false);
     }
 
     aiShipMouseDown = (e:any) => {
@@ -326,6 +331,20 @@ export default class theSea
         } else {
             // clicked tagrte again, detarget
         }
+    }
+
+    private clearTarget()
+    {
+        this.layerSelection.removeChild(this.targetWidget);
+        this.targetWidget.stop();
+        this.boatTargeted = false;
+        this.targetedBoat = null;
+        var myEvent = new CustomEvent("clearTarget",
+        {
+            'detail': 0
+        });
+        window.dispatchEvent(myEvent);
+        console.log("Sending clearTarget msg to HUD");
     }
 
     sailTrimHandler = (event:any) => {
@@ -350,6 +369,14 @@ export default class theSea
     }
 
     keyUpHandler = () => {
+    }
+
+    aiShipRespawn = (e:any) => {
+        var poolID = e.detail;
+        if (this.targetedBoat != null && this.targetedBoat.getPoolID() == poolID) {
+            this.clearTarget();
+        }
+        this.reSpawnAI(poolID);
     }
 
     private loadRegion(regionName: string = "region1") 
@@ -448,13 +475,14 @@ export default class theSea
         if (this.boatsLoaded && this.islandsLoaded)
         {
 
-            // add a boat near guadelupe
+            // add the player boat near guadelupe
             let boat = new Ship();
             boat.init(this.boatData.corvette, this.islandArray);
             boat.setPosition(6200,2600);
             boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!
             this.layerObjects.addChild(boat.getSprite());
-            this.shipArray.push(boat);
+            var index = this.shipArray.push(boat) - 1;
+            boat.setPoolID(index);
             
             this.selectedBoat = boat;
             // send a message that we have a new selected boat
@@ -474,6 +502,19 @@ export default class theSea
             // final step in loading process.. can now call loadcallback
             this.loadCallback();
         }
+    }
+
+    private reSpawnAI(id:number)
+    {
+        var boat = this.shipArray[id];
+        // reinitialize the ship
+        let portPt = this.getRandomPortDest();
+        let edgePt = this.getRandomEdgeDest();
+        if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination
+            boat.respawnAI(edgePt, portPt);
+        else
+            boat.respawnAI(portPt, edgePt);
+        console.log("Respawning AI#: " + id);
     }
 
     private spawnAIBoats()
@@ -500,7 +541,8 @@ export default class theSea
             boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!
 
             this.layerObjects.addChild(boat.getSprite());
-            this.shipArray.push(boat);
+            var len = this.shipArray.push(boat);
+            boat.setPoolID(len-1); // set the index on the boat so it can inform the pool when it needs to respawn
         }
     }
 
@@ -570,8 +612,8 @@ export default class theSea
     }
 
     public static getRandomIntInclusive(min:number, max:number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
+        // min = Math.ceil(min);
+        // max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
     }
 

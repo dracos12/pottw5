@@ -228,6 +228,7 @@ export default class MainHUD
         window.addEventListener("mouseOverIsle", this.mouseOverIsle, false);
         window.addEventListener("mouseOutIsle", this.mouseOutIsle, false);
         window.addEventListener("aiShipMouseDown", this.aiShipMouseDown, false);
+        window.addEventListener("clearTarget", this.clearTarget, false);
 
         this.testAPI(); // test the FB API
     }
@@ -257,6 +258,9 @@ export default class MainHUD
         }
     }
 
+    clearTarget = () => {
+        this.container.removeChild(this.targetWidget);
+    }
 
     deselect = () => {
         this.sea.deselectPlayer();
