@@ -818,6 +818,7 @@ export default class Ship extends GameObject
                 // this.sprite.anchor.y = this.jsonData[frameStr].refPt[1] / this.sprite.height;
                 this.refPt.x = this.jsonData[frameStr].refPt[0];
                 this.refPt.y = this.jsonData[frameStr].refPt[1];
+                s.hitArea = new PIXI.Polygon(this.jsonData[frameStr].hitArea);
             }
         }
     }
