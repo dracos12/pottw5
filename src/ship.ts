@@ -193,6 +193,7 @@ export default class Ship extends GameObject
         this.sprite.interactive = true;
         this.statHull = this.statHullMax;
         this.sprite.alpha = 1;
+        this.aiShipTarget = null;
 
         this.randomFlag(false);
     }
@@ -1477,10 +1478,14 @@ export default class Ship extends GameObject
             this.speed = 0;
             // switch our frame to our wrecked frame
             this.switchFrameToWrecked();
+            // center over refpt
+            //var ref = this.getRefPtVictor();
+            //this.sprite.x = ref.x - this.sprite.width/2;
+            //this.sprite.y = ref.y - this.sprite.height/2;
             // ask the fx manager for a smoke plume at our reference point
             this.smokeID = this.fxManager.placeSmokePlume(this.sprite.x + this.refPt.x, this.sprite.y+this.refPt.y);
             // wreck frame does not conform.. move sprite by wreck offset.. for now hardcoded
-            this.sprite.y += 35;   
+            //this.sprite.y += 50;   
             if (this == SingletonClass.ship) // player ship was destroyed... hud will need to take action
             {
                 // send an event to the hud to start the player-recovery process
@@ -1560,6 +1565,7 @@ export default class Ship extends GameObject
         // take care of the achtung symbol too
         this.hideAchtung();
         this.aiStarted = false;
+        this.aiShipTarget = null; //clear our target if any
 
 
         //console.log("Dispatching aiRespawn event");
