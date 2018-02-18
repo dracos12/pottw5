@@ -321,6 +321,9 @@ export default class theSea
         var boat:Ship = e.detail;
         // put target widget on its position
         if(this.targetedBoat != boat) {
+            if (this.targetedBoat != null){
+                this.targetedBoat.hideAITarget();
+            }
             this.targetedBoat = boat;
             var ref = this.targetedBoat.getRefPtVictor();
             this.targetWidget.x = ref.x;
@@ -328,6 +331,7 @@ export default class theSea
             this.layerSelection.addChild(this.targetWidget);
             this.targetWidget.play();
             this.boatTargeted = true;
+            this.targetedBoat.showAITarget();
         } else {
             // clicked tagrte again, detarget
         }
