@@ -1242,15 +1242,15 @@ export default class Ship extends GameObject
 
     public showAITarget()
     {
-        if (!this.showTarget)
+        this.debug = false; // toggle debug info here
+
+        if (this.debug && !this.showTarget)
         {
             // put the aiTarget on the parent
             this.aiTargetSprite.x = this.aiTarget.x;
             this.aiTargetSprite.y = this.aiTarget.y;
             this.sprite.parent.addChild(this.aiTargetSprite);
             this.showTarget = true;
-
-            this.debug = false; // toggle debug info here
 
             // this.aiBoatPos.x = this.sprite.x;
             // this.aiBoatPos.y = this.sprite.y;
