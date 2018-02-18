@@ -519,7 +519,7 @@ export default class theSea
             boat.respawnAI(edgePt, portPt);
         else
             boat.respawnAI(portPt, edgePt);
-        console.log("Respawning AI#: " + id);
+        //console.log("Respawning AI#: " + id);
     }
 
     private spawnAIBoats()
@@ -609,7 +609,7 @@ export default class theSea
                 portCount++;
                 if (portCount == desiredPort)
                 {
-                    console.log("RandomPort Dest: " + (<Island>gameObj).getName());
+                    //console.log("RandomPort Dest: " + (<Island>gameObj).getName());
                     return (<Island>gameObj).getPortDest();
                 }
             }
