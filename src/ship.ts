@@ -196,6 +196,7 @@ export default class Ship extends GameObject
         this.statHull = this.statHullMax;
         this.sprite.alpha = 1;
         this.aiShipTarget = null;
+        this.aiStarted = false;
 
         this.randomFlag(false);
     }
@@ -1192,7 +1193,8 @@ export default class Ship extends GameObject
                         h2.y = -h2.y; // invert the y to get h2 into cartesian like h1
                         h2.normalize();
                         var diff = this.getCalcAngleBetween(h1,h2); 
-                        console.log("aiFire diff: " + diff.toFixed(1));
+                        if (this.debug)
+                            console.log("aiFire diff: " + diff.toFixed(1));
                         if (diff > 45 && diff < 135) // angle is not smaller than 30 degrees (assuming 120 firing arc to either side) therefore ok to fire
                         {
                             //console.log("aiFire: diff in angle: " + diff.toFixed(1));
@@ -1248,7 +1250,7 @@ export default class Ship extends GameObject
             this.sprite.parent.addChild(this.aiTargetSprite);
             this.showTarget = true;
 
-            this.debug = true;
+            this.debug = false; // toggle debug info here
 
             // this.aiBoatPos.x = this.sprite.x;
             // this.aiBoatPos.y = this.sprite.y;
