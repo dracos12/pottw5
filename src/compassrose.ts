@@ -16,7 +16,8 @@ export default class CompassRose extends PIXI.Container
     private starCap:PIXI.Sprite;     // star cap to hide the bases of the layered needles beneath it
     private needleHeading:PIXI.Sprite; // ship heading needle
     private needleGhostHeading:PIXI.Sprite; // ghost needle for user to move to proposed new heading
-    private needleCannon:PIXI.Sprite; // cannon needle
+    private needleStarCannon:PIXI.Sprite; // starboard cannon needle
+    private needleLarCannon:PIXI.Sprite; // larboard cannon needle
     private windIndicator:PIXI.Sprite;  // wind direction indicator
     private static windDirection:number = 0;       // direction wind is coming from (in degrees - 0 is due North)
     private noGoArc:PIXI.Graphics;      // arc around wind direction for where boats cannot sail to
@@ -59,14 +60,25 @@ export default class CompassRose extends PIXI.Container
         this.needleGhostHeading.visible = false;
         this.needleGhostHeading.alpha = 0.67;
 
-        this.needleCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
+        this.needleStarCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
         // this.needleCannon.pivot.x = this.needleCannon.width / 2;
         // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
-        this.needleCannon.anchor.x = 0.5;
-        this.needleCannon.anchor.y = 1;   // anchor at center bottom
-        this.needleCannon.x = 66;
-        this.needleCannon.y = 66; // centered on compass base
-        this.needleCannon.rotation = CompassRose.getRads(105);
+        this.needleStarCannon.anchor.x = 0.5;
+        this.needleStarCannon.anchor.y = 1;   // anchor at center bottom
+        this.needleStarCannon.x = 66;
+        this.needleStarCannon.y = 66; // centered on compass base
+        this.needleStarCannon.rotation = CompassRose.getRads(105);
+        this.needleStarCannon.alpha = 0.67;
+
+        this.needleLarCannon = new PIXI.Sprite(PIXI.Texture.fromFrame("needleCannon.png"));
+        // this.needleCannon.pivot.x = this.needleCannon.width / 2;
+        // this.needleCannon.pivot.y = this.needleCannon.height;  // bottom center of sprite
+        this.needleLarCannon.anchor.x = 0.5;
+        this.needleLarCannon.anchor.y = 1;   // anchor at center bottom
+        this.needleLarCannon.x = 66;
+        this.needleLarCannon.y = 66; // centered on compass base
+        this.needleLarCannon.rotation = CompassRose.getRads(275);
+        this.needleLarCannon.alpha = 0.67;
 
         this.windIndicator = new PIXI.Sprite(PIXI.Texture.fromFrame("WindIndicator.png"));
         // this.windDirection.pivot.x = 29;
@@ -85,7 +97,8 @@ export default class CompassRose extends PIXI.Container
         this.addChild(this.windIndicator);
         this.addChild(this.needleHeading);
         this.addChild(this.needleGhostHeading);
-        this.addChild(this.needleCannon);
+        this.addChild(this.needleStarCannon);
+        this.addChild(this.needleLarCannon);
         this.addChild(this.starCap);
 
         this.needleHeading.interactive = true;
@@ -355,10 +368,21 @@ export default class CompassRose extends PIXI.Container
         this.setNoGo(this.trackingShip.getAngleToWind());
     }
 
+    public rotateCannonNeedles()
+    {
+        // rotate cannon needles based off compass heading
+        //starboard cannon is rotated + 90 from heading
+        this.needleStarCannon.rotation = this.needleHeading.rotation + Math.PI/2;
+        this.needleLarCannon.rotation = this.needleHeading.rotation - Math.PI/2;
+        // larboard cannon is rotated - 90 from heading
+    }
+
     public update()
     {
-        if (this.trackingShip)
+        if (this.trackingShip) {
             this.needleHeading.rotation = CompassRose.getRads(CompassRose.convertCartToCompass(this.trackingShip.getHeading()));
+            this.rotateCannonNeedles();
+        }
         // this.animRot += 0.1;
         // this.needleHeading.rotation = this.getRads(this.animRot);
         // console.log("HeadingNeedle rotation: " + this.animRot.toFixed(2));
