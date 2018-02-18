@@ -65,6 +65,7 @@ export default class Ship extends GameObject
 
     private isles:Array<GameObject>;    // reference to theSea island array
     private aiCurrentObstacle:GameObject; // an isle this ship is currently avoiding
+    private aiObstacleThreats:Array<GameObject> = [];
     private aiAvoidToLarboard:boolean;    // preferred direction around said obstacle
     private aiDirectObstacles:Array<GameObject>; // list of isles directHeading intersects
 
@@ -107,6 +108,7 @@ export default class Ship extends GameObject
 
     private natFlag:NatFlag = NatFlag.ENGLISH; // english by default
     private poolID:number;
+    private debug:boolean = false;
 
     constructor()
     {
@@ -246,9 +248,8 @@ export default class Ship extends GameObject
 
     private plotPoint(x:number, y:number)
     {
-        var debug = 0;
-        if (debug==0)
-            return; // stop displaying debug info TODO: make this switchable with debug switch mayhap
+        if (!this.debug)
+            return; // only display points if in debug mode
 
         if (this.aiNextPlot >= 32)
         {
@@ -316,18 +317,25 @@ export default class Ship extends GameObject
     {
         let newHeading:Victor = new Victor(0,0);
         var goodHeadings:Array<Victor> = [];
+        var angleToTarget:Array<number> = [];
         var dropPt = false;
+        var angle2target;
 
         // cast rays from heading in chosen direction in one degree increments 
         // save all successfull rays into an array
         // use the minAngle-th ray as our heading 
         for(var i=0; i<180; i++){
-            newHeading = this.calcNewHeading(heading, i); 
+            newHeading = this.calcNewHeading(heading, i*2); 
             if (i%6==0) dropPt = true;
             else dropPt = false;
             if (this.checkHeadingVSObstacle(newHeading, dropPt, false) && 
-                CompassRose.isValidHeading(this.angleToWind, newHeading.angleDeg())) {
+                CompassRose.isValidHeading(this.angleToWind, newHeading.angleDeg())) 
+            {
                 goodHeadings.push(newHeading);
+                heading.norm();
+                newHeading.norm();
+                angle2target = CompassRose.getDegs(Math.acos(heading.dot(newHeading)));
+                angleToTarget.push(angle2target);
             }
         }
 
@@ -336,10 +344,25 @@ export default class Ship extends GameObject
             return null;
         } else {
             // return the minAngle-th element
-            if (minAngle > goodHeadings.length)
-                return goodHeadings[goodHeadings.length-1]; // the last element is the best we can do
-            else
-                return goodHeadings[minAngle];
+            // run through array and find minimum 
+            var minA = angleToTarget[0];
+            var min = 0;
+            var k;
+            for (k=0; k<angleToTarget.length; k++)
+            {
+                if (angleToTarget[k] < minA && angleToTarget[k] >= minAngle) 
+                {
+                    min = k;
+                    minA = angleToTarget[k];
+                }
+                
+            }
+
+            return goodHeadings[min];
+            // if (minAngle > goodHeadings.length)
+            //     return goodHeadings[goodHeadings.length-1]; // the last element is the best we can do
+            // else
+            //     return goodHeadings[minAngle];
         }
     }
 
@@ -415,7 +438,7 @@ export default class Ship extends GameObject
                     py += -this.heading.y * iscc.dist;
                     this.plotPoint(px,py);
                 }
-
+                this.getAllThreats(); // find all possible islands within the threat range
                 return false;
             }
         }  
@@ -429,6 +452,36 @@ export default class Ship extends GameObject
         }
 
         return true;
+    }
+
+    private getAllThreats()
+    {
+        // direct heading has struck an isle, populate threat list of any isles within DISt of us
+        var x,y,px,py;
+        let iscc = {dist:0, edge:0, norm:{x:0, y:0}, point:{x:0, y:0}};
+        x = this.sprite.x + this.refPt.x;
+        y = this.sprite.y + this.refPt.y;
+        px = x;
+        py = y;
+        y = 8192 - y;
+        var DIST = 300;
+
+        // clear threat array
+        this.aiObstacleThreats = [];
+
+        for (let isle of this.isles)
+        {
+            //console.log("isle data contains: " + isle.getCartPolyData().length + " entries" ); 
+            let retObj = PolyK.ClosestEdge(isle.getCartPolyData(), x, y, iscc);
+            if (!retObj) iscc.dist = 10000;
+            if (iscc.dist < DIST)
+            {
+                this.aiObstacleThreats.push(isle);
+            }
+        }
+
+        if (this.debug)
+            console.log("getallThreats: found " + this.aiObstacleThreats.length + " threats within DIST of ship.");
     }
 
     // populate list of isles that intersect our direct heading
@@ -448,6 +501,10 @@ export default class Ship extends GameObject
         px = x;
         py = y;
         y = 8192 - y;
+
+        // if direct heading into wind, abort
+        if (!CompassRose.isValidHeading(this.angleToWind, directHeading.angleDeg()))
+            return false;
 
         // clear our stored array
         delete this.aiDirectObstacles;
@@ -473,6 +530,35 @@ export default class Ship extends GameObject
                 }
             }
         } 
+
+        return true; // not into wind, may or may not have hit obstacles
+    }
+
+    private aiSetInitialHeading()
+    {
+        // set the initial heading as the direct heading unless into wind, then lay off the wind
+        // step 0 - calculate our direct heading to aiTarget
+        let diffX = this.aiTarget.x - (this.sprite.x + this.refPt.x);
+        let diffY = ((8192 - this.aiTarget.y) - (8192 - (this.sprite.y + this.refPt.y))); // y is flipped in cartesian
+        let directHeading = new Victor( diffX, diffY );
+        directHeading.normalize();
+
+        // if direct heading into wind, abort
+        if (!CompassRose.isValidHeading(this.angleToWind, directHeading.angleDeg()))
+            this.heading = CompassRose.getSmallestHeadingOffwind(this.angleToWind, this.heading);
+
+        this.matchHeadingToSprite();
+
+    }
+
+    private aiNoObstacleThreats()
+    {
+        // return true if no isles within DIST
+        this.getAllThreats();
+        if (this.aiObstacleThreats.length == 0)
+            return true;
+        else
+            return false;
     }
 
     private aiSetHeading()
@@ -483,12 +569,12 @@ export default class Ship extends GameObject
         let directHeading = new Victor( diffX, diffY );
         let directDist = directHeading.magnitude();
         directHeading.normalize();
-        var newHeading;
+        var newHeading = null;
         var newHeadingAng;
         var up:Victor = new Victor(0,1);
         var angleOffDirect = this.getSignedAngle(up, directHeading);
 
-        //console.log("Beging aiSetHeading");
+        //console.log("Begin aiSetHeading");
 
         if (angleOffDirect >= 0)
             this.aiAvoidToLarboard = true;
@@ -497,47 +583,62 @@ export default class Ship extends GameObject
 
         this.resetPlots();
 
+
         // step 1
         // raycast our current heading
         // if obstacle within minDistance, make this obstacle our current threat
         if (this.checkCurrentHeading(directDist) == false)
         {
             // our direct heading has struck an island, aiCurrentObstacle has been set
-
+            if (this.debug)
+                console.log("Current heading hit obstacle, avoiding!");
             // find heading around this obstacle in given direction around our current heading
             // with a minimum of 10 degrees of clearance
             newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
-            //console.log("Current heading hit obstacle, avoiding!");
         } else {
             //console.log("Current heading fine, trying direct heading...");
             // step 2
-            // raycast our direct heading and determine if anything blocks our course
-            this.checkDirectHeading();
-            if (this.aiDirectObstacles.length == 0)
-            {
-                // set directHeading
-                newHeading = directHeading;
-                //console.log("direct heading clear, setting directHeading");
-            } else { // we have isles in the obstacle list
-                // if yes, see if our aiObstacle is in the list
-                var islefound = false;
-                for(var i=0; i<this.aiDirectObstacles.length; i++)
-                    if (this.aiDirectObstacles[i] == this.aiCurrentObstacle){
-                        islefound=true;
-                        break;
-                    }
-                // if no, set directHeading
-                if (islefound)
+            // raycast our direct heading and determine if anything blocks our direct heading
+            if (this.checkDirectHeading()) { // returns false if direct heading into the wind
+                if (this.aiDirectObstacles.length == 0)
                 {
-                    //console.log("aiObstacle still between us and target, continue to avoid");
-                    // our aiobstacle is still between us and our target, continue to avoid it
-                    newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
-                }
-                else // it is no longer in our way set direct heading
-                {
-                    //console.log("aiObstacle cleared, setting directHeading");
+                    // set directHeading
                     newHeading = directHeading;
-                    this.aiCurrentObstacle = null;
+                    //console.log("direct heading clear, setting directHeading");
+                } else { 
+                    // if yes, see if our aiObstacle is in the list
+                    var islefound = false;
+                    for(var i=0; i<this.aiDirectObstacles.length; i++)
+                        if (this.aiDirectObstacles[i] == this.aiCurrentObstacle){
+                            islefound=true;
+                            break;
+                        }
+                    // if no, set directHeading
+                    if (islefound)
+                    {
+                        //console.log("aiObstacle still between us and target, continue to avoid");
+                        // our aiobstacle is still between us and our target, continue to avoid it
+                        newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
+                    }
+                    else // it is no longer in our way set direct heading
+                    {
+                        //console.log("aiObstacle cleared, setting directHeading");
+                        newHeading = directHeading;
+                        this.aiCurrentObstacle = null;
+                    }
+                }
+            } else { // direct heading is into wind, so newHeading is our current same heading
+                newHeading = this.heading;
+                // if no threats, lay off the wind
+                if (this.aiNoObstacleThreats())
+                {
+                    var oppositeTack = false;
+                    // // if off the map, tack off the wind (likely taking a long windward run)
+                    // if (this.sprite.x > 8192+this.sprite.width || this.sprite.x < -this.sprite.width)
+                    // {
+                    //     oppositeTack = true;
+                    // }
+                    newHeading = CompassRose.getSmallestHeadingOffwind(this.angleToWind, newHeading, oppositeTack);
                 }
             }
         }
@@ -550,24 +651,32 @@ export default class Ship extends GameObject
             this.aiArrived = true;
             this.deSpawn();
         } else {
-            newHeadingAng = newHeading.angleDeg();
-            if (!CompassRose.isValidHeading(this.angleToWind, newHeadingAng))
+            if (newHeading != this.heading) 
             {
-                //console.log("newHeading into Wind! Laying to off wind angle!");
-                newHeading = this.getSmallestHeadingOffwind(newHeading);
                 newHeadingAng = newHeading.angleDeg();
-                this.changeHeading(newHeadingAng);
+                if (!CompassRose.isValidHeading(this.angleToWind, newHeadingAng))
+                {
+                    if (this.debug)
+                        console.log("newHeading into Wind! Laying to off wind angle!");
+                    newHeading = CompassRose.getSmallestHeadingOffwind(this.angleToWind, newHeading);
+                    newHeadingAng = newHeading.angleDeg();
+                    this.changeHeading(newHeadingAng);
+                }
+                else {
+                    this.changeHeading(newHeadingAng); // changes targetHeading inside function
+                }
+
+                if (this.debug)
+                    console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
+                
+                this.matchHeadingToSprite(); 
             }
-            else {
-                this.changeHeading(newHeadingAng); // changes targetHeading inside function
-            }
-            //console.log("aiSetHeading to: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(2));
-            this.matchHeadingToSprite(); 
         }
     }
 
     private getSmallestHeadingOffwind(heading:Victor)
     {
+        //
         // heading is into the wind, return the smallest vector laying off the wind
         var rVector = new Victor(0,0);
         var lVector = new Victor(0,0);
@@ -578,18 +687,18 @@ export default class Ship extends GameObject
         angle = 90 - this.angleToWind - 1;
         rVector.x=Math.cos(CompassRose.getRads(angle));
         rVector.y=Math.sin(CompassRose.getRads(angle));
-        rAngle = this.getVectorAngleDegs(rVector,heading);
+        rAngle = Math.acos(heading.dot(rVector));
 
         // get angle of wind to larboard
         angle = 90 + this.angleToWind + 1;
         lVector.x=Math.cos(CompassRose.getRads(angle));
         lVector.y=Math.sin(CompassRose.getRads(angle));
-        lAngle = this.getVectorAngleDegs(lVector,heading);
+        lAngle = Math.acos(heading.dot(lVector));
 
-        hAngle = CompassRose.convertCartToCompass(heading.angleDeg());
-        var rA, lA;
-        rA = CompassRose.convertCartToCompass(rVector.angleDeg());
-        lA = CompassRose.convertCartToCompass(lVector.angleDeg());
+        // hAngle = CompassRose.convertCartToCompass(heading.angleDeg());
+        // var rA, lA;
+        // rA = CompassRose.convertCartToCompass(rVector.angleDeg());
+        // lA = CompassRose.convertCartToCompass(lVector.angleDeg());
 
         //console.log("smallestAngOffWind: heading: " + hAngle.toFixed(2) + " rAngle: " + rVector.angleDeg().toFixed(2) + " lAngle: " + lA.toFixed(2) + "rDiff: " + rAngle.toFixed(2) + " lDiff: " + lAngle.toFixed(2));
         if (Math.abs(rAngle) < Math.abs(lAngle))
@@ -946,6 +1055,9 @@ export default class Ship extends GameObject
             if (this.speed < 0)
                 this.speed = 0;
             
+            if (this.debug)
+                console.log("Dampening Speed, heading into wind");
+
             // if (this.targetHeading != this.degreeHeading)
                 // console.log("Heading: " + CompassRose.convertCartToCompass(this.degreeHeading).toFixed(2) + " Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2) + " DeltaDamp: " + deltaDamp.toFixed(2));
         } 
@@ -957,10 +1069,14 @@ export default class Ship extends GameObject
                 this.speed += deltaAcc; //0.1;
                 if (this.speed >= this.targetSpeed)
                     this.speed = this.targetSpeed;
+                if (this.debug)
+                    console.log("Increasing speed");
             } else {
                 this.speed -= deltaAcc; //0.1;
                 if (this.speed < 0)
                     this.speed = 0;
+                if (this.debug)
+                    console.log("Decreasing Speed");
             }
 
             //console.log("Speed: " + this.speed.toFixed(2) + " TargetSpeed: " + this.targetSpeed.toFixed(2));
@@ -972,7 +1088,11 @@ export default class Ship extends GameObject
         this.sprite.x += speedDelta * this.heading.x;
         this.sprite.y += speedDelta * -this.heading.y;            
         
+        var turning = false;
+
+        // are we in process of changing heading?
         if (this.targetHeading != this.degreeHeading) {
+            turning = true;
             var deltaAngle = deltaTime * (this.angularSpeed/1000);
             this.headingTicks++;
             var sameSign = true;
@@ -1010,6 +1130,8 @@ export default class Ship extends GameObject
             this.heading.normalize(); // make sure its normalized
 
             // console.log("target: " + CompassRose.convertCartToCompass(this.targetHeading).toFixed(0) + " heading: " + CompassRose.convertCartToCompass(this.degreeHeading).toFixed(4) + " dA: " + deltaAngle.toFixed(4) + " dTime: " +  deltaTime);
+        } else { // we are not turning
+            turning = false;
         }
 
         // update lastTime
@@ -1029,16 +1151,20 @@ export default class Ship extends GameObject
                 this.aiStarted = true;
                 // set sail! all ahead half!
                 this.setSailTrim(0.5);
-                this.aiSetHeading();
+                this.aiSetInitialHeading();
+                this.aiSetHeading(); // now vet it against objects etc
                 this.aiLastHeading = now;
             }
 
             if (!this.aiArrived)
             {
-                if (now - this.aiLastHeading > 1000) // check our heading!
+                if (now - this.aiLastHeading > 3500) // check our heading!
                 {
-                    this.aiSetHeading();
-                    this.aiLastHeading = now;
+                    if (!turning) 
+                    {
+                        this.aiSetHeading();
+                        this.aiLastHeading = now;
+                    }
                 }
 
                 // if we are within the radius of our destination, come to a halt
@@ -1081,9 +1207,6 @@ export default class Ship extends GameObject
                 this.deSpawn();
             }
 
-            // if (!this.showTarget)
-            //     this.showAITarget();
-
             this.updateAITarget();
         } else 
         {
@@ -1115,7 +1238,7 @@ export default class Ship extends GameObject
         return degs;
     }
 
-    private showAITarget()
+    public showAITarget()
     {
         if (!this.showTarget)
         {
@@ -1125,9 +1248,22 @@ export default class Ship extends GameObject
             this.sprite.parent.addChild(this.aiTargetSprite);
             this.showTarget = true;
 
-            this.aiBoatPos.x = this.sprite.x;
-            this.aiBoatPos.y = this.sprite.y;
-            this.sprite.parent.addChild(this.aiBoatPos);
+            this.debug = true;
+
+            // this.aiBoatPos.x = this.sprite.x;
+            // this.aiBoatPos.y = this.sprite.y;
+            // this.sprite.parent.addChild(this.aiBoatPos);
+        }
+    }
+
+    public hideAITarget()
+    {
+        if (this.showTarget)
+        {
+            this.showTarget = false;
+            this.sprite.parent.removeChild(this.aiTargetSprite);
+            this.debug = false;
+            this.resetPlots(); // hides all plot points
         }
     }
 
@@ -1470,7 +1606,7 @@ export default class Ship extends GameObject
         //     return; // player immune
 
         this.statHull -= weight;
-        if (this.statHull <= 0)
+        if (this.statHull <= 0 && !this.wrecked)
         {
             // we are destroyed
             this.wrecked = true;
@@ -1566,6 +1702,8 @@ export default class Ship extends GameObject
         this.hideAchtung();
         this.aiStarted = false;
         this.aiShipTarget = null; //clear our target if any
+        this.debug = false;
+        this.hideAITarget();
 
 
         //console.log("Dispatching aiRespawn event");

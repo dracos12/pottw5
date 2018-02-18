@@ -18,7 +18,7 @@ export default class CompassRose extends PIXI.Container
     private needleGhostHeading:PIXI.Sprite; // ghost needle for user to move to proposed new heading
     private needleCannon:PIXI.Sprite; // cannon needle
     private windIndicator:PIXI.Sprite;  // wind direction indicator
-    private static windDirection:number = 0;;       // direction wind is coming from (in degrees - 0 is due North)
+    private static windDirection:number = 0;       // direction wind is coming from (in degrees - 0 is due North)
     private noGoArc:PIXI.Graphics;      // arc around wind direction for where boats cannot sail to
     private lastWindChange:number;      // time stamp of last windchange
     private periodWindChange:number;    // change the wind every priod (in milliseconds)
@@ -96,6 +96,7 @@ export default class CompassRose extends PIXI.Container
 
         this.pivot.x = this.compassBase.x  + this.compassBase.width/2;
         this.pivot.y = this.compassBase.y  + this.compassBase.height/2;
+
     }
 
     private endSetHeading() {
@@ -114,11 +115,90 @@ export default class CompassRose extends PIXI.Container
         // else ignore - might be called as mouse moves without mousedown
     }
 
+    private testIsValidHeading()
+    {
+        var cartAng;
+        var i, pos, neg;
+        // test against wind at 0 degrees and a boat with 60 degree offwind value
+        for (i=0; i<=180; i++)
+        {
+            pos = CompassRose.isValidHeading(60, i);
+            neg = CompassRose.isValidHeading(60,-i);
+            console.log("+/- " + i + " : pos=" + pos + " neg=" + neg);
+        }
+    }
+
+    public static getSmallestHeadingOffwind(angleToWind:number, heading:Victor, returnMax:boolean=false)
+    {
+        var maxWind = CompassRose.windDirection + angleToWind;
+        var minWind = CompassRose.windDirection - angleToWind; 
+
+        // one has crossed the zero degree threshold, convert and do some shenanigans
+        if (minWind < 0)
+            minWind = 360 + minWind; // ie -15 would become 345
+
+        if (maxWind > 360)
+            maxWind = maxWind - 360; // ie 375 would become 15
+
+        if (minWind > maxWind)
+        {
+            var temp = maxWind;
+            maxWind = minWind;
+            minWind = temp;
+        }
+
+        // convert each to cartesian and compare to heading
+        minWind = CompassRose.getRads(CompassRose.convertCompassToCart(minWind));
+        maxWind = CompassRose.getRads(CompassRose.convertCompassToCart(maxWind));
+        //console.log("cart angles - minWind: " + minWind.toFixed(4) + " maxWind: " + maxWind.toFixed(4));
+
+        var minVic = new Victor(Math.cos(minWind), Math.sin(minWind)); 
+        var maxVic = new Victor(Math.cos(maxWind), Math.sin(maxWind));
+        heading.norm();
+        minVic.norm();
+        maxVic.norm();
+
+        var minAngle = Math.acos(heading.dot(minVic));
+        var maxAngle = Math.acos(heading.dot(maxVic));
+
+        var minAngleDegs = CompassRose.getDegs(minAngle);
+        var maxAngleDegs = CompassRose.getDegs(maxAngle);
+        var headingDegs = heading.angleDeg();
+
+        //console.log("headingDegs: " + headingDegs.toFixed(1) + " minAngle: " + minAngleDegs.toFixed(1) + " maxAngle: " + maxAngleDegs.toFixed(1));
+        
+        if (returnMax)
+        {
+            if (minAngle > maxAngle)
+                return minVic;
+            else
+                return maxVic;
+        } else {
+            if (minAngle < maxAngle)
+                return minVic;
+            else
+                return maxVic;
+        }
+    }
+
+    public static convertCompassToCart(compass:number)
+    {
+        var mangle = compass + 90; // rotate 90 degrees to align with cartesian zero
+
+        if (compass >=0 && compass <= 90)
+            mangle = 90 - compass;
+        if (compass > 90 && compass <= 270)
+            mangle = -(compass - 90);
+        if (compass > 270 && compass <=360)
+            mangle = 180 - (compass - 270);
+        return mangle;
+    }
+
     //
-    // angleToWind: in degrees - specifies angle off the wind a ship can point at maximum
+    // angleToWind: in degrees - specifies angle off the wind a ship can point at minimum
     // trackedHeading: in degrees (Cartesian) to check for validity
     // 
-    public static isValidHeading(angleToWind:number, trackedHeading:number)
+    public static isValidHeading(angleToWind:number, trackedHeading:number, debug:boolean=false)
     {
         // heading is valid if it is not within angleToWind degrees of the current wind direction
         var maxWind = CompassRose.windDirection + angleToWind;
@@ -126,9 +206,10 @@ export default class CompassRose extends PIXI.Container
         var tracked = CompassRose.convertCartToCompass(trackedHeading);
         
         // valid angles are 0 -> 360
-        if (maxWind > 0 && minWind > 0 && maxWind < 360)
+        if (maxWind > 0 &&  maxWind < 360 && minWind > 0 && minWind < 360)
         {
-            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            if (debug)
+                console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + trackedHeading.toFixed(2) + " trackedDeg: " + tracked.toFixed(2));
             if (tracked >= minWind && tracked <= maxWind)
                 return true;
             else
@@ -149,7 +230,8 @@ export default class CompassRose extends PIXI.Container
                 minWind = temp;
             }
 
-            //console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + tracked.toFixed(2));
+            if (debug)
+                console.log("minWind: " + minWind + " maxWind: " + maxWind + " tracked: " + trackedHeading.toFixed(2) + " trackedDeg: " + tracked.toFixed(2));
 
             if (tracked >= minWind && tracked <= maxWind)
                 return true;
