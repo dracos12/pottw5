@@ -313,6 +313,88 @@ export default class Ship extends GameObject
         return angle;
     }
 
+    // get a heading excluding headings that take the ship off the map, closest to passed in heading
+    private aiGetHeadingNearEdge(heading:Victor)
+    {
+        let startVic:Victor = new Victor(0,1);
+        let newHeading:Victor = new Victor(0,0);
+        var goodHeadings:Array<Victor> = [];
+        var angleToTarget:Array<number> = [];
+        var x = this.sprite.x + this.refPt.x;
+        var y = this.sprite.y + this.refPt.y;
+
+        // check if current heading is off the map
+        var projX = x + this.heading.x * 50;
+        var projY = y + this.heading.y * 50;
+        if (projX < 0) {
+            // off left edge, new heading should sweep 0->180 (compass)
+            startVic.x = 0;
+            startVic.y = -1;
+            if (this.debug)
+                console.log("Off left edge!");
+        } else if (projX > 8192) {
+            // off right edge, new heading should sweep 180->360 (compass)
+            startVic.x = 0;
+            startVic.y = 1;
+            if (this.debug)
+                console.log("Off right edge!");
+        } else if (projY < 0) {
+            // off top edge, new heading should sweep 90->270 (compass)
+            startVic.x = -1;
+            startVic.y = 0;
+            if (this.debug)
+                console.log("Off top edge!");
+        } else if (projY > 8192) {
+            // off bottom edge, new heading should sweep 270->90 (compass)
+            startVic.x = 1;
+            startVic.y = 0;
+            if (this.debug)
+                console.log("Off bottom edge!");
+        } else {
+            // should not get here
+        }
+
+        // find heading closest to directHeading
+        heading.norm();
+        var angle2target;
+
+        // sweep is always counter clockwise (cartesian)
+        for (var i=0; i<180; i++)
+        {
+            newHeading = this.calcNewHeading(startVic, i); // sweep 180
+            if (CompassRose.isValidHeading(this.angleToWind, newHeading.angleDeg()))
+            {
+                goodHeadings.push(newHeading);
+                newHeading.norm();
+                angle2target = CompassRose.getDegs(Math.acos(heading.dot(newHeading)));
+                angleToTarget.push(angle2target);
+            }
+        }
+
+        if (goodHeadings.length == 0)
+        {
+            return null;
+        } else {
+            // return the minAngle-th element
+            // run through array and find minimum 
+            var minA = angleToTarget[0];
+            var min = 0;
+            var k;
+            for (k=0; k<angleToTarget.length; k++)
+            {
+                if (angleToTarget[k] < minA) 
+                {
+                    min = k;
+                    minA = angleToTarget[k];
+                }
+                
+            }
+
+            return goodHeadings[min];
+        }
+
+    }
+
     // get new heading around passed in heading that avoids our current obstacle by minAngle degrees at minimum
     private aiGetHeadingAroundThreat(heading:Victor, minAngle:number)
     {
@@ -424,6 +506,12 @@ export default class Ship extends GameObject
         y = 8192 - y;
         var DIST = 300;
 
+        // check if current heading is off the map
+        var projX = x + this.heading.x * 50;
+        var projY = y + this.heading.y * 50;
+        if (projX < 0 || projX > 8192 || projY < 0 || projY > 8192)
+            return 2;
+
         // loop thru the isles... see if we hit
         for (let isle of this.isles)
         {
@@ -440,7 +528,7 @@ export default class Ship extends GameObject
                     this.plotPoint(px,py);
                 }
                 this.getAllThreats(); // find all possible islands within the threat range
-                return false;
+                return 1;
             }
         }  
 
@@ -452,7 +540,7 @@ export default class Ship extends GameObject
             py += -this.heading.y * DIST;
         }
 
-        return true;
+        return 0;
     }
 
     private getAllThreats()
@@ -588,14 +676,23 @@ export default class Ship extends GameObject
         // step 1
         // raycast our current heading
         // if obstacle within minDistance, make this obstacle our current threat
-        if (this.checkCurrentHeading(directDist) == false)
+        var checkHeading = this.checkCurrentHeading(directDist);
+        if (checkHeading != 0)
         {
-            // our direct heading has struck an island, aiCurrentObstacle has been set
+            // our current heading has struck an island, aiCurrentObstacle has been set
             if (this.debug)
                 console.log("Current heading hit obstacle, avoiding!");
             // find heading around this obstacle in given direction around our current heading
             // with a minimum of 10 degrees of clearance
-            newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
+            if (checkHeading == 1) // hit obstacle
+                newHeading = this.aiGetHeadingAroundThreat(directHeading, 10);
+            else { // == 2, ship is heading off edge of map
+                newHeading = this.aiGetHeadingNearEdge(directHeading);
+                if (this.debug) {
+                    var compHeading = CompassRose.convertCartToCompass(newHeading.angleDeg());
+                    console.log("Ship is heading off map! Choosing heading sending us back onto map. Heading angle: " + compHeading.toFixed(2));
+                }
+            }
         } else {
             //console.log("Current heading fine, trying direct heading...");
             // step 2
@@ -1087,7 +1184,7 @@ export default class Ship extends GameObject
         var speedDelta = speedMS * deltaTime;
 
         this.sprite.x += speedDelta * this.heading.x;
-        this.sprite.y += speedDelta * -this.heading.y;            
+        this.sprite.y += speedDelta * -this.heading.y;  // invert Y, heading is cartesian          
         
         var turning = false;
 
@@ -1242,7 +1339,7 @@ export default class Ship extends GameObject
 
     public showAITarget()
     {
-        this.debug = false; // toggle debug info here
+        this.debug = true; // toggle debug info here
 
         if (this.debug && !this.showTarget)
         {
@@ -1810,5 +1907,25 @@ export default class Ship extends GameObject
     public getHold()
     {
         return this.shipsHold;
+    }
+
+    // return an object for stringify to serialize
+    public toJSON()
+    {
+        var save:any = {};
+
+        save.name = this.shipName;
+        save.statHull = this.statHull;
+        save.statHullMax = this.statHullMax;
+
+        return save;
+    }
+
+    // object parsed from string to rehydrate our object
+    public restore(save:any)
+    {
+        this.shipName = save.name;
+        this.statHull = save.statHull;
+        this.statHullMax = save.statHullMax;
     }
 }
