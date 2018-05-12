@@ -1910,13 +1910,19 @@ export default class Ship extends GameObject
     }
 
     // return an object for stringify to serialize
-    public toJSON()
+    public toJSONObject()
     {
         var save:any = {};
 
         save.name = this.shipName;
         save.statHull = this.statHull;
         save.statHullMax = this.statHullMax;
+        save.magBall = this.magBall;
+        save.hold = [];                         // just store the type ids for now (rarity not implemented)
+        for (let item of this.shipsHold)
+        {
+            save.push(item.type);
+        }
 
         return save;
     }
@@ -1927,5 +1933,12 @@ export default class Ship extends GameObject
         this.shipName = save.name;
         this.statHull = save.statHull;
         this.statHullMax = save.statHullMax;
+        this.magBall = save.magBall;
+        // rehydrate hold array
+        this.shipsHold = []; // clear existing array
+        for (let item of save.hold)
+        {
+            this.shipsHold.push(new EconomyItem(item));
+        }
     }
 }
