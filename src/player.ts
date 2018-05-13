@@ -85,4 +85,22 @@ export default class Player
     {
         this._FBUserID = userID;
     }
+
+    public getExportObject()
+    {
+        return {
+            gold: this.gold,
+            silver: this.silver,
+            lastReload: this._lastReload,
+            numReload: this._numReloads
+        }
+    }
+
+    public hydrateFromObj(obj:any)
+    {
+        this.gold = obj.gold;
+        this.silver = obj.silver;
+        this._lastReload = obj.lastReload;
+        this._numReloads = obj.numReload;
+    }
  }
