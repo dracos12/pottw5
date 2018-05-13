@@ -594,25 +594,40 @@ export default class MainHUD
     fbStatusResponse = (response:any) => {
         console.log("response FB.getLoginStatus:");
         console.log(response);
-        if (response.status = "connected")
+        if (response.status == "connected")
         {
             // save access token and userid
-            SingletonClass.player.FBUserID = response.userID;
-            SingletonClass.player.FBAccessToken = response.accessToken;
+            SingletonClass.player.FBUserID = response.authResponse.userID;
+            SingletonClass.player.FBAccessToken = response.authResponse.accessToken;
             this.doMe();
         }
         else
         {
-            console.log("Error in fbStatusRespone!");
+            console.log("FB.login() due to : " + response.status);
+            FB.login(function(response:any) {
+                if (response.authResponse) {
+                    console.log(response.authResponse);
+                    SingletonClass.player.FBUserID = response.authResponse.userID;
+                    SingletonClass.player.FBAccessToken = response.authResponse.accessToken;
+                    this.doMe();
+                } else {
+                    console.log('User cancelled login or did not fully authorize.');
+                }
+            }, {
+                scope: 'email', 
+                return_scopes: true
+            });
         }
     }
 
     private doMe()
     {
         console.log("FB.api(/me)");
-        FB.api('/me', function(response:any) {
+        FB.api('/me', { locale: 'en_US', fields: 'id, name, email' }, function(response:any) {
             console.log(response);
-          });
+            SingletonClass.player.userEmail = response.email;
+            SingletonClass.player.userName = response.name;
+        });
     }
 
     public update()

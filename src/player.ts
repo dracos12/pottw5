@@ -11,6 +11,8 @@ export default class Player
     private _numReloads:number = 0; // number of times the user has reloaded
     private accessToken:string = ""; // FB access token to perform FB social calls with
     private _FBUserID:string = ""; // FB user id to use to query data
+    private _userEmail:string = "" // user email provided by FB
+    private _userName:string = "" // user name provided by FB
 
     public getGold()
     {
@@ -86,13 +88,33 @@ export default class Player
         this._FBUserID = userID;
     }
 
-    public getExportObject()
+    public get userEmail()
+    {
+        return this._userEmail;
+    }
+
+    public set userEmail(email:string)
+    {
+        this._userEmail = email;
+    }
+
+    public get userName()
+    {
+        return this._userName;
+    }
+
+    public set userName(name:string)
+    {
+        this._userName = name;
+    }
+
+    public toJSONObject()
     {
         return {
             gold: this.gold,
             silver: this.silver,
             lastReload: this._lastReload,
-            numReload: this._numReloads
+            numReloads: this._numReloads
         }
     }
 
@@ -101,6 +123,6 @@ export default class Player
         this.gold = obj.gold;
         this.silver = obj.silver;
         this._lastReload = obj.lastReload;
-        this._numReloads = obj.numReload;
+        this._numReloads = obj.numReloads;
     }
  }
