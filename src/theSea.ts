@@ -291,6 +291,7 @@ export default class theSea
             .add("images/islands/region1islands.json")        // loader automagically loads all the textures in this atlas
             .add("images/ships/corvette2.json")
             .add("images/islands/trinidad.png")
+            .add("images/ships/xebec.json")
 
         this.loadCallback = callback;
 
@@ -329,11 +330,12 @@ export default class theSea
             this.targetWidget.x = ref.x;
             this.targetWidget.y = ref.y;
             this.layerSelection.addChild(this.targetWidget);
+            this.targetWidget.scale.x = this.targetWidget.scale.y = 0.8 * this.targetedBoat.getSprite().scale.x; // select widget is 0.8 not 1.0 originally
             this.targetWidget.play();
             this.boatTargeted = true;
             this.targetedBoat.showAITarget();
         } else {
-            // clicked tagrte again, detarget
+            // clicked target again, detarget
         }
     }
 
@@ -537,10 +539,16 @@ export default class theSea
             }
             else
             {
-                if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination
-                    boat.init(this.boatData.corvette, this.islandArray, true, edgePt, portPt);
+                var boatData:any;
+                if (theSea.getRandomIntInclusive(0,9) == 9) // flip for what kind of boat
+                    boatData = this.boatData.corvette;
                 else
-                    boat.init(this.boatData.corvette, this.islandArray, true, portPt, edgePt);
+                    boatData = this.boatData.xebec;
+
+                if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination
+                    boat.init(boatData, this.islandArray, true, edgePt, portPt);
+                else
+                    boat.init(boatData, this.islandArray, true, portPt, edgePt);
             }
 
             boat.setFXManager(this.fxManager); // so the ship can fire cannonballs!

@@ -208,7 +208,17 @@ export default class Ship extends GameObject
     {
         this.sprite = new PIXI.Sprite(); // an empty sprite
         this.setPolyData(p);
+        // determine boat type from data
+        if (p.fileName == "Corvette2")
+            this.shipType = ShipType.CORVETTE;
+        else if (p.fileName == "Xebec")
+            this.shipType = ShipType.XEBEC;
+
         this.matchHeadingToSprite(); // initialize the texture its using
+
+        if (this.shipType == ShipType.XEBEC)
+            this.sprite.scale.x = this.sprite.scale.y = 0.5;
+
         this.shipName = "Nutmeg of Consolation"; 
         this.achtung = new PIXI.Sprite(PIXI.Texture.fromFrame("achtung.png"));
         // do not add achtung until needed
@@ -832,13 +842,13 @@ export default class Ship extends GameObject
                 if (k%2 == 0) // each even index is an "x" coordinate
                 {
                     // x axis is same direction as cartesian
-                    this.cartPolyData8[this.polyNum][k] = this.jsonData[key].polygonPts[k] + this.sprite.x; // world coord x
+                    this.cartPolyData8[this.polyNum][k] = (this.jsonData[key].polygonPts[k] * this.sprite.scale.x) + this.sprite.x; // world coord x
                 }
                 else // each odd index is a "y" coordinate
                 {
                     // bottom left of our "world" is 0,8192
                     var cartSpriteY = 8192 - this.sprite.y; 
-                    this.cartPolyData8[this.polyNum][k] = cartSpriteY - this.jsonData[key].polygonPts[k];
+                    this.cartPolyData8[this.polyNum][k] = cartSpriteY - (this.jsonData[key].polygonPts[k] * this.sprite.scale.y);
                 }   
             }
 
@@ -848,13 +858,13 @@ export default class Ship extends GameObject
                 if (k%2 == 0) // each even index is an "x" coordinate
                 {
                     // x axis is same direction as cartesian
-                    this.cartKeelData[k] = this.jsonData[key].keelPts[k] + this.sprite.x; // world coord x
+                    this.cartKeelData[k] = (this.jsonData[key].keelPts[k] * this.sprite.scale.x) + this.sprite.x; // world coord x
                 }
                 else // each odd index is a "y" coordinate
                 {
                     // bottom left of our "world" is 0,8192
                     var cartSpriteY = 8192 - this.sprite.y; 
-                    this.cartKeelData[k] = cartSpriteY - this.jsonData[key].keelPts[k];
+                    this.cartKeelData[k] = cartSpriteY - (this.jsonData[key].keelPts[k] * this.sprite.scale.y);
                 }                 
             }
         } else {
@@ -977,8 +987,10 @@ export default class Ship extends GameObject
         
         if (this.shipType == ShipType.CORVETTE)
             frameName = "Corvette2";
-        else    
-            frameName = "Corvette2"; // add other ship sprites here as they are added
+        else if (this.shipType == ShipType.XEBEC)
+            frameName = "Xebec";
+        else
+            frameName = "Xebec"; // add other ship sprites here as they are added
 
         let frameNum = 0;
 
@@ -1024,9 +1036,11 @@ export default class Ship extends GameObject
                 // this.sprite.pivot.y = this.jsonData[frameStr].refPt[1];
                 // this.sprite.anchor.x = this.jsonData[frameStr].refPt[0] / this.sprite.width;
                 // this.sprite.anchor.y = this.jsonData[frameStr].refPt[1] / this.sprite.height;
-                this.refPt.x = this.jsonData[frameStr].refPt[0];
-                this.refPt.y = this.jsonData[frameStr].refPt[1];
+                this.refPt.x = this.jsonData[frameStr].refPt[0] * this.sprite.scale.x;
+                this.refPt.y = this.jsonData[frameStr].refPt[1] * this.sprite.scale.y;
+                // no need to scale hitArea, hitArea takes the scale of the parent
                 s.hitArea = new PIXI.Polygon(this.jsonData[frameStr].hitArea);
+
             }
         }
     }
@@ -1753,7 +1767,12 @@ export default class Ship extends GameObject
     {
         let s = this.getSprite();
 
-        s.texture = PIXI.Texture.fromFrame("CorvetteBodyWreck.png");
+        if (this.shipType == ShipType.CORVETTE)
+            s.texture = PIXI.Texture.fromFrame("CorvetteBodyWreck.png");
+        else if (this.shipType == ShipType.XEBEC)
+            s.texture = PIXI.Texture.fromFrame("Xebec0017.png");
+        else
+            s.texture = PIXI.Texture.fromFrame("CorvetteBodyWreck.png");
 
         if (SingletonClass.ship != this) // player boat does not become interactive
         {
