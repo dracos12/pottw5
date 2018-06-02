@@ -38,7 +38,7 @@ export default class Core {
         // load all the assets requested by theSea and Hud
         PIXI.loader.load(this.onLoaded);
 
-        console.log("PotTW: build 0.0.15");
+        console.log("PotTW: build 0.0.16");
     }
 
     private onLoaded = () => 
