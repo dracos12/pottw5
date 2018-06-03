@@ -292,6 +292,7 @@ export default class theSea
             .add("images/ships/corvette2.json")
             .add("images/islands/trinidad.png")
             .add("images/ships/xebec.json")
+            .add("images/ships/brig.json")
 
         this.loadCallback = callback;
 
@@ -540,9 +541,12 @@ export default class theSea
             else
             {
                 var boatData:any;
-                if (theSea.getRandomIntInclusive(0,9) == 9) // flip for what kind of boat
+                var die = theSea.getRandomIntInclusive(0,9); // flip for what kind of boat
+                if ( die == 9) // 10% corvettes
                     boatData = this.boatData.corvette;
-                else
+                else if (die >= 7) // 20% brigs
+                    boatData = this.boatData.brig;
+                else // 70% xebecs
                     boatData = this.boatData.xebec;
 
                 if (theSea.getRandomIntInclusive(0,1) == 1) // potentially flip destination

@@ -208,16 +208,23 @@ export default class Ship extends GameObject
     {
         this.sprite = new PIXI.Sprite(); // an empty sprite
         this.setPolyData(p);
+
         // determine boat type from data
-        if (p.fileName == "Corvette2")
+        if (p.fileName == "Corvette2") {
             this.shipType = ShipType.CORVETTE;
-        else if (p.fileName == "Xebec")
+        } else if (p.fileName == "Xebec") {
             this.shipType = ShipType.XEBEC;
+        } else if (p.fileName == "Brig") {
+            this.shipType = ShipType.BRIG;
+            console.log(this.jsonData);
+        }
 
         this.matchHeadingToSprite(); // initialize the texture its using
 
         if (this.shipType == ShipType.XEBEC)
             this.sprite.scale.x = this.sprite.scale.y = 0.5;
+        else if (this.shipType == ShipType.BRIG)
+            this.sprite.scale.x = this.sprite.scale.y = 0.67;
 
         this.shipName = "Nutmeg of Consolation"; 
         this.achtung = new PIXI.Sprite(PIXI.Texture.fromFrame("achtung.png"));
@@ -985,12 +992,17 @@ export default class Ship extends GameObject
         if (this.sailState == 0) // if sails down, offset frame num by 8  ie 0003 will become 00011
             modFrame = 8;
         
-        if (this.shipType == ShipType.CORVETTE)
+        //frameName = this.jsonData.fileName; 
+
+        if (this.shipType == ShipType.CORVETTE) {
             frameName = "Corvette2";
-        else if (this.shipType == ShipType.XEBEC)
+        } else if (this.shipType == ShipType.XEBEC) {
             frameName = "Xebec";
-        else
+        } else if (this.shipType == ShipType.BRIG) {
+            frameName = "Brig";
+        } else {
             frameName = "Xebec"; // add other ship sprites here as they are added
+        }
 
         let frameNum = 0;
 
@@ -1028,14 +1040,12 @@ export default class Ship extends GameObject
             //console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum)
             this.usingFrame = frameNum + modFrame;
 
+            console.log(this.jsonData);
             // set pivot point from data
             if (this.jsonData)
             {
                 var frameStr = frameName + this.getFrameString(frameNum, 0) + ".png";
-                // this.sprite.pivot.x = this.jsonData[frameStr].refPt[0];
-                // this.sprite.pivot.y = this.jsonData[frameStr].refPt[1];
-                // this.sprite.anchor.x = this.jsonData[frameStr].refPt[0] / this.sprite.width;
-                // this.sprite.anchor.y = this.jsonData[frameStr].refPt[1] / this.sprite.height;
+                console.log("Reading frameStr: " + frameStr);
                 this.refPt.x = this.jsonData[frameStr].refPt[0] * this.sprite.scale.x;
                 this.refPt.y = this.jsonData[frameStr].refPt[1] * this.sprite.scale.y;
                 // no need to scale hitArea, hitArea takes the scale of the parent
