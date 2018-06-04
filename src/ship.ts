@@ -1529,7 +1529,6 @@ export default class Ship extends GameObject
         if (reloading)
             return; // cant fire til reload is done
 
-        console.log("AI: Returning fire at target!");
         this.portCannonLastFired = now;
 
         // fire procedure - naive, no target lead
@@ -1546,6 +1545,24 @@ export default class Ship extends GameObject
         var MINDELAY = 100;
         var MAXDELAY = 250;
 
+        var cannons = 4;
+
+        if (this.shipType == ShipType.CORVETTE)
+            cannons = 4;
+        else if (this.shipType == ShipType.BRIG)
+            cannons = 3;
+        else if (this.shipType == ShipType.XEBEC)
+            cannons = 2;
+
+        console.log("AI: Returning fire at target! Cannons: " + cannons);
+
+        var d = this.heading.clone();
+        d.y = -d.y;
+        var MINDELAY = 100;
+        var MAXDELAY = 250;
+
+        var delay;
+
         if (cannons == 4)
         {
             var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
@@ -1553,9 +1570,9 @@ export default class Ship extends GameObject
             // fire the first ball immediately
             this.fireDelay(x,y,v);
             // remaining balls fired with .25-.5 second delay
-            var delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
             var x2 = this.sprite.x + this.refPt.x + (10*d.x); // 2nd ball 10 pix along heading
             var y2 = this.sprite.y + this.refPt.y + (10*d.y);
+            delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
             setTimeout(() => {this.fireDelay(x2,y2,v)}, delay);
 
             var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 3rd ball 5 pix along inverse heading
@@ -1567,7 +1584,33 @@ export default class Ship extends GameObject
             var y4 = this.sprite.y + this.refPt.y + (10*-d.y);
             delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
             setTimeout(() => {this.fireDelay(x4,y4,v)}, delay);
+        } else if (cannons == 2) {
+            var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
+            var y = this.sprite.y + this.refPt.y + (5*d.y);
+            // fire the first ball immediately
+            this.fireDelay(x,y,v);
+            
+            var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 2nd ball 5 pix along inverse heading
+            var y3 = this.sprite.y + this.refPt.y + (5*-d.y);
+            delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+            setTimeout(() => {this.fireDelay(x3,y3,v)}, delay);
+        } else if (cannons == 3) {
+            var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
+            var y = this.sprite.y + this.refPt.y + (5*d.y);
+            // fire the first ball immediately
+            this.fireDelay(x,y,v);
+
+            var x2 = this.sprite.x + this.refPt.x; // 2nd ball from the center
+            var y2 = this.sprite.y + this.refPt.y;
+            delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+            setTimeout(() => {this.fireDelay(x2,y2,v)}, delay);
+
+            var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 3rd ball 5 pix along inverse heading
+            var y3 = this.sprite.y + this.refPt.y + (5*-d.y);
+            delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+            setTimeout(() => {this.fireDelay(x3,y3,v)}, delay);
         }
+
     }
 
     // fire battery and return the milliseconds it will take to reload
@@ -1627,10 +1670,21 @@ export default class Ship extends GameObject
             // var y = this.sprite.y + this.refPt.y;
 
             var cannons = 4;
+
+            if (this.shipType == ShipType.CORVETTE)
+                cannons = 4;
+            else if (this.shipType == ShipType.BRIG)
+                cannons = 3;
+            else if (this.shipType == ShipType.XEBEC)
+                cannons = 2;
+
             var d = this.heading.clone();
             d.y = -d.y;
             var MINDELAY = 100;
             var MAXDELAY = 250;
+            
+
+            var delay;
 
             if (cannons == 4)
             {
@@ -1639,9 +1693,9 @@ export default class Ship extends GameObject
                 // fire the first ball immediately
                 this.fireDelay(x,y,v);
                 // remaining balls fired with .25-.5 second delay
-                var delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
                 var x2 = this.sprite.x + this.refPt.x + (10*d.x); // 2nd ball 10 pix along heading
                 var y2 = this.sprite.y + this.refPt.y + (10*d.y);
+                delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
                 setTimeout(() => {this.fireDelay(x2,y2,v)}, delay);
 
                 var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 3rd ball 5 pix along inverse heading
@@ -1653,6 +1707,31 @@ export default class Ship extends GameObject
                 var y4 = this.sprite.y + this.refPt.y + (10*-d.y);
                 delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
                 setTimeout(() => {this.fireDelay(x4,y4,v)}, delay);
+            } else if (cannons == 2) {
+                var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
+                var y = this.sprite.y + this.refPt.y + (5*d.y);
+                // fire the first ball immediately
+                this.fireDelay(x,y,v);
+                
+                var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 2nd ball 5 pix along inverse heading
+                var y3 = this.sprite.y + this.refPt.y + (5*-d.y);
+                delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+                setTimeout(() => {this.fireDelay(x3,y3,v)}, delay);
+            } else if (cannons == 3) {
+                var x = this.sprite.x + this.refPt.x + (5*d.x); // first ball 5 pix along heading
+                var y = this.sprite.y + this.refPt.y + (5*d.y);
+                // fire the first ball immediately
+                this.fireDelay(x,y,v);
+
+                var x2 = this.sprite.x + this.refPt.x; // 2nd ball 5 pix along inverse heading
+                var y2 = this.sprite.y + this.refPt.y;
+                delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+                setTimeout(() => {this.fireDelay(x2,y2,v)}, delay);
+
+                var x3 = this.sprite.x + this.refPt.x + (5*-d.x); // 3rd ball 5 pix along inverse heading
+                var y3 = this.sprite.y + this.refPt.y + (5*-d.y);
+                delay = theSea.getRandomIntInclusive(MINDELAY,MAXDELAY);
+                setTimeout(() => {this.fireDelay(x3,y3,v)}, delay);
             }
 
             // return the reload speed based off crew ability
