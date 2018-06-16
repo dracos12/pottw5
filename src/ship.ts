@@ -216,8 +216,13 @@ export default class Ship extends GameObject
             this.shipType = ShipType.XEBEC;
         } else if (p.fileName == "Brig") {
             this.shipType = ShipType.BRIG;
-            console.log(this.jsonData);
+            //console.log(this.jsonData);
         }
+
+        // initialize stats from data
+        this.statHull = p.configs["Stock"].hull;
+        this.angleToWind = p.angleOffWind;
+        //console.log("AI type: " + p.fileName + " hull: " + p.configs["Stock"].hull + " angleOffWind: " + p.angleOffWind);
 
         this.matchHeadingToSprite(); // initialize the texture its using
 
@@ -920,7 +925,7 @@ export default class Ship extends GameObject
             y = this.cartPolyData8[this.polyNum][i+1];
             // for each point in our polygon, do a polyK hittest on the passed in polygon
             if (PolyK.ContainsPoint(polygonPts, x, y)) {
-                console.log("hit!");
+                //console.log("hit!");
                 return true;
             }
         }
@@ -944,7 +949,7 @@ export default class Ship extends GameObject
             y = this.cartKeelData[i+1];
             // for each point in our polygon, do a polyK hittest on the passed in polygon
             if (PolyK.ContainsPoint(polygonPts, x, y)) {
-                console.log("hit!");
+                //console.log("hit!");
                 return true;
             }
         }
@@ -1040,12 +1045,12 @@ export default class Ship extends GameObject
             //console.log("heading:" + a.toFixed(0) + " frameDirection: " + frameNum)
             this.usingFrame = frameNum + modFrame;
 
-            console.log(this.jsonData);
+            //console.log(this.jsonData);
             // set pivot point from data
             if (this.jsonData)
             {
                 var frameStr = frameName + this.getFrameString(frameNum, 0) + ".png";
-                console.log("Reading frameStr: " + frameStr);
+                //console.log("Reading frameStr: " + frameStr);
                 this.refPt.x = this.jsonData[frameStr].refPt[0] * this.sprite.scale.x;
                 this.refPt.y = this.jsonData[frameStr].refPt[1] * this.sprite.scale.y;
                 // no need to scale hitArea, hitArea takes the scale of the parent
@@ -1554,7 +1559,7 @@ export default class Ship extends GameObject
         else if (this.shipType == ShipType.XEBEC)
             cannons = 2;
 
-        console.log("AI: Returning fire at target! Cannons: " + cannons);
+        //console.log("AI: Returning fire at target! Cannons: " + cannons);
 
         var d = this.heading.clone();
         d.y = -d.y;
@@ -1839,7 +1844,7 @@ export default class Ship extends GameObject
             if (this.aiShipTarget != <Ship>(source))
             {
                 this.aiShipTarget = <Ship>(source);
-                console.log("AI: Acquired new target!");
+                //console.log("AI: Acquired new target!");
             }
         }
 
