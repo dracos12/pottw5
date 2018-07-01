@@ -1,11 +1,12 @@
 {
     "corvette": {
         "fileName": "Corvette2",
+        "displayName": "Corvette",
         "maxHullSpeed": 45,
         "rudderAngularRate": 5,
         "angleOffWind": 60,
-        "configs": {
-            "Stock":{
+        "configs": [
+            {
                 "type": "Stock",
                 "cannons": 3,
                 "hull": 100,
@@ -13,7 +14,7 @@
                 "cost": 5000,
                 "coin": "silver"
             },
-            "Runner":{   
+            {   
                 "type": "Runner",
                 "cannons": 3,
                 "hull": 80,
@@ -21,7 +22,7 @@
                 "cost": 5000,
                 "coin": "silver"
             },
-            "Gunner":{
+            {
                 "type": "Gunner",
                 "cannons": 4,
                 "hull": 120,
@@ -29,7 +30,7 @@
                 "cost": 10,
                 "coin": "gold"
             },
-            "Indiaman":{
+            {
                 "type": "Indiaman",
                 "cannons": 2,
                 "hull": 80,
@@ -37,7 +38,7 @@
                 "cost": 10,
                 "coin": "gold"
             }
-        },
+        ],
         "Corvette20001.png": { 
             "polygonPts": [ 90,68, 78,77, 76,95, 82,115, 90,125, 98,115, 103,95, 102,77 ],
             "refPt": [ 90, 86 ],
@@ -89,11 +90,12 @@
     },
     "xebec": {
         "fileName": "Xebec",
+        "displayName": "Xebec",
         "maxHullSpeed": 45,
         "rudderAngularRate": 5,
         "angleOffWind": 30,
-        "configs": {
-            "Stock": {
+        "configs": [
+            {
                 "type": "Stock",
                 "cannons": 1,
                 "hull": 24,
@@ -101,7 +103,7 @@
                 "cost": 750,
                 "coin": "silver"
             },
-            "Cargo": {   
+            {   
                 "type": "Cargo",
                 "cannons": 1,
                 "hull": 20,
@@ -109,7 +111,7 @@
                 "cost": 750,
                 "coin": "silver"
             },
-            "Gunner": {
+            {
                 "type": "Gunner",
                 "cannons": 2,
                 "hull": 28,
@@ -117,7 +119,7 @@
                 "cost": 3,
                 "coin": "gold"
             }
-        },
+        ],
         "Xebec0001.png": { 
             "polygonPts": [ 83,10, 64,77, 72,110, 89,110, 96,79, 91,54 ],
             "refPt": [ 80, 76 ],
@@ -169,11 +171,12 @@
     },
     "brig": {
         "fileName": "Brig",
+        "displayName": "Brig",
         "maxHullSpeed": 45,
         "rudderAngularRate": 5,
         "angleOffWind": 45,
-        "configs": {
-            "Stock":{
+        "configs": [
+            {
                 "type": "Stock",
                 "cannons": 2,
                 "hull": 48,
@@ -181,7 +184,7 @@
                 "cost": 2250,
                 "coin": "silver"
             },
-            "Cargo": {   
+            {   
                 "type": "Cargo",
                 "cannons": 2,
                 "hull": 40,
@@ -189,7 +192,7 @@
                 "cost": 2250,
                 "coin": "silver"
             },
-            "Gunner": {
+            {
                 "type": "Gunner",
                 "cannons": 3,
                 "hull": 56,
@@ -197,7 +200,7 @@
                 "cost": 3,
                 "coin": "gold"
             }
-        },
+        ],
         "Brig0001.png": { 
             "polygonPts": [ 104,65, 91,74, 90,113, 94,137, 113,137, 116,113, 116,75],
             "refPt": [ 103, 101],

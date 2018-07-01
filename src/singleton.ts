@@ -17,6 +17,7 @@ export default class SingletonClass {
     private static _marketData:any = {};
     private static _warehouseData:any = {};
     private static _uiDisplayed:boolean = false;
+    private static _boatdata:any;
 
     constructor() {
         if(SingletonClass._instance){
@@ -186,6 +187,16 @@ export default class SingletonClass {
         marketPrice = Math.floor(value + Math.ceil(value *  marketData[itemID].rate / 100));
         // return the modified price
         return marketPrice;
+    }
+
+    public static setBoatData(data:any)
+    {
+        this._boatdata = data;
+    }
+
+    public static getBoatData()
+    {
+        return this._boatdata;
     }
 }
 

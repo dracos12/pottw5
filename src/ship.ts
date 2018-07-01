@@ -220,7 +220,7 @@ export default class Ship extends GameObject
         }
 
         // initialize stats from data
-        this.statHull = p.configs["Stock"].hull;
+        this.statHull = p.configs[0].hull; // "stock" is always 0th member (dangerous assumption here, should search for type == "Stock")
         this.angleToWind = p.angleOffWind;
         //console.log("AI type: " + p.fileName + " hull: " + p.configs["Stock"].hull + " angleOffWind: " + p.angleOffWind);
 

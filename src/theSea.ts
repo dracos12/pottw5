@@ -407,6 +407,7 @@ export default class theSea
 
         // save the boat data to hand to boast as they are created
         this.boatData = json_data;
+        SingletonClass.setBoatData(this.boatData); // save the boat data to the singleton
 
         // run through all entries in the json
         // for (var key in json_data) {

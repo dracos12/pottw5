@@ -10,6 +10,7 @@ import PopupManager from './popupmanager';
 import SingletonClass from './singleton';
 import popWarehouse from './popwarehouse';
 import popMarket from './popmarket';
+import popBoatStore from './popboatstore';
 
 export default class popTownInterface extends PopUp
 {
@@ -48,9 +49,11 @@ export default class popTownInterface extends PopUp
         this.building1.x = 283;
         this.building1.y = 83;
         this.addChild(this.building1);
-        this.building4 = new PIXI.Sprite(PIXI.Texture.fromFrame("building4.png"));
+        this.building4 = new Button(PIXI.Texture.fromFrame("building4.png"), true);
         this.building4.x = 496;
         this.building4.y =79;
+        this.building4.on('click', this.doBoatStore);
+        this.building4.on('mouseover', this.doBoatOver);
         this.addChild(this.building4);
         this.building3 = new PIXI.Sprite(PIXI.Texture.fromFrame("buildingForge.png"));
         this.building3.x = 338;
@@ -105,6 +108,23 @@ export default class popTownInterface extends PopUp
         this.addChild(this.txtMouseOver);
 
 
+    }
+
+    private doBoatStore = () =>
+    {
+        if (this._backgrounded)
+        {
+            console.log("backgrounded click: ignoring");
+            return;
+        }
+        console.log("doBoatStore");
+        var pop =  new popBoatStore();
+        this.popMan.displayPopup(pop);
+    }
+
+    private doBoatOver = () =>
+    {
+        this.txtMouseOver.text = "Shipwright. Buy new ships here.";
     }
 
     private doPrizeAgent = () =>
