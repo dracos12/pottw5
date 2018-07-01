@@ -33,8 +33,8 @@ export default class PopupManager
             p.x = 0;
             p.y = window.innerHeight - newpop.height;
         } else {
-            p.x = window.innerWidth / 2 - newpop.width / 2;
-            p.y = window.innerHeight / 2 - newpop.height / 2;
+            p.x = window.innerWidth / 2 - newpop.getWidth() / 2;
+            p.y = window.innerHeight / 2 - newpop.getHeight() / 2;
         }
         var loc = this.container.toLocal(p);
         newpop.x = loc.x;

@@ -46,6 +46,16 @@ export default class PopUp extends PIXI.Container
         this.btnX.on('click', this.btnXClick);
     }
 
+    public getWidth()
+    {
+        return this.bg.width;
+    }
+
+    public getHeight()
+    {
+        return this.bg.height;
+    }
+    
     protected btnXClick = () =>
     {
         this.close(); // will callback to popupmanager to remove us from display

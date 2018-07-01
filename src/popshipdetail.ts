@@ -42,13 +42,6 @@ export default class popShipDetails extends PopUp
         s.y = 94 - s.height/2; // coordinate in flash are based off its center
         this.addChild(s);
 
-
-        var b = new Button(PIXI.Texture.fromFrame("sellBtn.png"));
-        b.anchor.x = b.anchor.y = 0.5;
-        b.x = 649;
-        b.y = 400;
-        b.setDisabled(true);
-        this.addChild(b);
         this.holdBack = new PIXI.Sprite(PIXI.Texture.fromFrame("HoldBack.png"));
         this.holdBack.x = 348 - this.holdBack.width/2;
         this.holdBack.y = 379 - this.holdBack.height/2;
